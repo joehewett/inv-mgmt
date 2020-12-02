@@ -1,0 +1,6 @@
+2020-12-01 22:16:59.085 GMT [24910] LOG:  starting PostgreSQL 12.3 on x86_64-pc-linux-gnu, compiled by gcc (GCC) 4.8.5 20150623 (Red Hat 4.8.5-39), 64-bit
+2020-12-01 22:16:59.093 GMT [24910] LOG:  listening on Unix socket "/dcs/19/u1813151/Documents/cs258/postgres/tmp/.s.PGSQL.5432"
+2020-12-01 22:16:59.128 GMT [25000] LOG:  database system was shut down at 2020-11-03 04:11:59 GMT
+2020-12-01 22:16:59.147 GMT [24910] LOG:  database system is ready to accept connections
+2020-12-01 22:22:00.372 GMT [39328] FATAL:  database "deptstore" does not exist
+2020-12-01 22:22:20.196 GMT [1693] FATAL:  database "deptstore" does not exist
