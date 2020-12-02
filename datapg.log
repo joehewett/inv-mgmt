@@ -4,3 +4,538 @@
 2020-12-01 22:16:59.147 GMT [24910] LOG:  database system is ready to accept connections
 2020-12-01 22:22:00.372 GMT [39328] FATAL:  database "deptstore" does not exist
 2020-12-01 22:22:20.196 GMT [1693] FATAL:  database "deptstore" does not exist
+2020-12-02 10:53:43.347 GMT [25004] LOG:  using stale statistics instead of current ones because stats collector is not responding
+2020-12-02 11:40:45.749 GMT [5022] ERROR:  table "inventory" does not exist
+2020-12-02 11:40:45.749 GMT [5022] STATEMENT:  DROP TABLE inventory CASCADE;
+2020-12-02 11:40:45.820 GMT [5022] ERROR:  column "Cap" does not exist at character 34
+2020-12-02 11:40:45.820 GMT [5022] STATEMENT:  INSERT INTO inventory VALUES (1, "Cap", 10.5, 5);
+2020-12-02 11:40:45.820 GMT [5022] ERROR:  table "orders" does not exist
+2020-12-02 11:40:45.820 GMT [5022] STATEMENT:  DROP TABLE orders CASCADE;
+2020-12-02 11:40:45.837 GMT [5022] ERROR:  table "order_products" does not exist
+2020-12-02 11:40:45.837 GMT [5022] STATEMENT:  DROP TABLE order_products CASCADE;
+2020-12-02 11:40:45.862 GMT [5022] ERROR:  table "deliveries" does not exist
+2020-12-02 11:40:45.862 GMT [5022] STATEMENT:  DROP TABLE deliveries CASCADE;
+2020-12-02 11:40:45.867 GMT [5022] ERROR:  table "collections" does not exist
+2020-12-02 11:40:45.867 GMT [5022] STATEMENT:  DROP TABLE collections CASCADE;
+2020-12-02 11:40:45.884 GMT [5022] ERROR:  table "staff" does not exist
+2020-12-02 11:40:45.884 GMT [5022] STATEMENT:  DROP TABLE staff CASCADE;
+2020-12-02 11:40:45.884 GMT [5022] ERROR:  column "orderid" named in key does not exist at character 148
+2020-12-02 11:40:45.884 GMT [5022] STATEMENT:  CREATE TABLE staff (
+	    StaffID         integer not null,
+	    FName           varchar(30) not null,
+	    LName           varchar(30) not null,
+	    primary key (OrderID)
+	);
+2020-12-02 11:40:45.884 GMT [5022] ERROR:  table "staff_orders" does not exist
+2020-12-02 11:40:45.884 GMT [5022] STATEMENT:  DROP TABLE staff_orders CASCADE;
+2020-12-02 11:40:45.889 GMT [5022] ERROR:  relation "staff" does not exist
+2020-12-02 11:40:45.889 GMT [5022] STATEMENT:  CREATE TABLE staff_orders (
+	    StaffID         integer not null,
+	    OrderID         integer not null,
+	    foreign key (StaffID) references staff(StaffID),
+	    foreign key (OrderID) references orders(OrderID) 
+	);
+2020-12-02 11:41:51.407 GMT [5022] ERROR:  column "Cap" does not exist at character 92
+2020-12-02 11:41:51.407 GMT [5022] STATEMENT:  INSERT INTO inventory(ProductID, ProductDesc, ProductPrice, ProductStockAmount) VALUES (1, "Cap", 10.5, 5);
+2020-12-02 11:41:51.473 GMT [5022] ERROR:  table "staff" does not exist
+2020-12-02 11:41:51.473 GMT [5022] STATEMENT:  DROP TABLE staff CASCADE;
+2020-12-02 11:41:51.474 GMT [5022] ERROR:  column "orderid" named in key does not exist at character 148
+2020-12-02 11:41:51.474 GMT [5022] STATEMENT:  CREATE TABLE staff (
+	    StaffID         integer not null,
+	    FName           varchar(30) not null,
+	    LName           varchar(30) not null,
+	    primary key (OrderID)
+	);
+2020-12-02 11:41:51.475 GMT [5022] ERROR:  table "staff_orders" does not exist
+2020-12-02 11:41:51.475 GMT [5022] STATEMENT:  DROP TABLE staff_orders CASCADE;
+2020-12-02 11:41:51.480 GMT [5022] ERROR:  relation "staff" does not exist
+2020-12-02 11:41:51.480 GMT [5022] STATEMENT:  CREATE TABLE staff_orders (
+	    StaffID         integer not null,
+	    OrderID         integer not null,
+	    foreign key (StaffID) references staff(StaffID),
+	    foreign key (OrderID) references orders(OrderID) 
+	);
+2020-12-02 11:42:36.211 GMT [15166] ERROR:  column "Cap" does not exist at character 92
+2020-12-02 11:42:36.211 GMT [15166] STATEMENT:  INSERT INTO inventory(ProductID, ProductDesc, ProductPrice, ProductStockAmount) VALUES (1, "Cap", 10.5, 5);
+2020-12-02 11:42:36.288 GMT [15166] ERROR:  table "staff" does not exist
+2020-12-02 11:42:36.288 GMT [15166] STATEMENT:  DROP TABLE staff CASCADE;
+2020-12-02 11:42:36.288 GMT [15166] ERROR:  column "orderid" named in key does not exist at character 148
+2020-12-02 11:42:36.288 GMT [15166] STATEMENT:  CREATE TABLE staff (
+	    StaffID         integer not null,
+	    FName           varchar(30) not null,
+	    LName           varchar(30) not null,
+	    primary key (OrderID)
+	);
+2020-12-02 11:42:36.289 GMT [15166] ERROR:  table "staff_orders" does not exist
+2020-12-02 11:42:36.289 GMT [15166] STATEMENT:  DROP TABLE staff_orders CASCADE;
+2020-12-02 11:42:36.293 GMT [15166] ERROR:  relation "staff" does not exist
+2020-12-02 11:42:36.293 GMT [15166] STATEMENT:  CREATE TABLE staff_orders (
+	    StaffID         integer not null,
+	    OrderID         integer not null,
+	    foreign key (StaffID) references staff(StaffID),
+	    foreign key (OrderID) references orders(OrderID) 
+	);
+2020-12-02 11:43:15.236 GMT [18306] ERROR:  table "staff" does not exist
+2020-12-02 11:43:15.236 GMT [18306] STATEMENT:  DROP TABLE staff CASCADE;
+2020-12-02 11:43:15.236 GMT [18306] ERROR:  column "orderid" named in key does not exist at character 148
+2020-12-02 11:43:15.236 GMT [18306] STATEMENT:  CREATE TABLE staff (
+	    StaffID         integer not null,
+	    FName           varchar(30) not null,
+	    LName           varchar(30) not null,
+	    primary key (OrderID)
+	);
+2020-12-02 11:43:15.236 GMT [18306] ERROR:  table "staff_orders" does not exist
+2020-12-02 11:43:15.236 GMT [18306] STATEMENT:  DROP TABLE staff_orders CASCADE;
+2020-12-02 11:43:15.240 GMT [18306] ERROR:  relation "staff" does not exist
+2020-12-02 11:43:15.240 GMT [18306] STATEMENT:  CREATE TABLE staff_orders (
+	    StaffID         integer not null,
+	    OrderID         integer not null,
+	    foreign key (StaffID) references staff(StaffID),
+	    foreign key (OrderID) references orders(OrderID) 
+	);
+2020-12-02 11:44:51.292 GMT [18306] ERROR:  table "staff" does not exist
+2020-12-02 11:44:51.292 GMT [18306] STATEMENT:  DROP TABLE staff CASCADE;
+2020-12-02 11:44:51.307 GMT [18306] ERROR:  table "staff_orders" does not exist
+2020-12-02 11:44:51.307 GMT [18306] STATEMENT:  DROP TABLE staff_orders CASCADE;
+2020-12-02 14:17:10.420 GMT [24558] ERROR:  relation "inventory" does not exist at character 15
+2020-12-02 14:17:10.420 GMT [24558] STATEMENT:  SELECT * FROM inventory
+2020-12-02 14:18:40.491 GMT [36263] ERROR:  relation "inventory" does not exist at character 15
+2020-12-02 14:18:40.491 GMT [36263] STATEMENT:  SELECT * FROM inventory
+2020-12-02 14:21:35.373 GMT [18573] ERROR:  relation "inventory" does not exist at character 15
+2020-12-02 14:21:35.373 GMT [18573] STATEMENT:  SELECT * FROM inventory
+2020-12-02 14:27:25.961 GMT [18306] ERROR:  syntax error at or near "pager" at character 1
+2020-12-02 14:27:25.961 GMT [18306] STATEMENT:  pager
+	pager vim;
+2020-12-02 14:29:49.246 GMT [7181] ERROR:  relation "public.inventory" does not exist at character 15
+2020-12-02 14:29:49.246 GMT [7181] STATEMENT:  SELECT * FROM public.inventory
+2020-12-02 14:32:31.912 GMT [33057] ERROR:  relation "orders" does not exist at character 15
+2020-12-02 14:32:31.912 GMT [33057] STATEMENT:  SELECT * FROM orders
+2020-12-02 14:34:45.810 GMT [7815] ERROR:  table "inventory" does not exist
+2020-12-02 14:34:45.810 GMT [7815] STATEMENT:  DROP TABLE inventory CASCADE;
+2020-12-02 14:34:45.849 GMT [7815] ERROR:  duplicate key value violates unique constraint "inventory_pkey"
+2020-12-02 14:34:45.849 GMT [7815] DETAIL:  Key (productid)=(1) already exists.
+2020-12-02 14:34:45.849 GMT [7815] STATEMENT:  INSERT INTO inventory VALUES (1, 2, 3, 4);
+2020-12-02 14:34:45.849 GMT [7815] ERROR:  table "orders" does not exist
+2020-12-02 14:34:45.849 GMT [7815] STATEMENT:  DROP TABLE orders CASCADE;
+2020-12-02 14:34:45.862 GMT [7815] ERROR:  table "order_products" does not exist
+2020-12-02 14:34:45.862 GMT [7815] STATEMENT:  DROP TABLE order_products CASCADE;
+2020-12-02 14:34:45.878 GMT [7815] ERROR:  table "deliveries" does not exist
+2020-12-02 14:34:45.878 GMT [7815] STATEMENT:  DROP TABLE deliveries CASCADE;
+2020-12-02 14:34:45.883 GMT [7815] ERROR:  table "collections" does not exist
+2020-12-02 14:34:45.883 GMT [7815] STATEMENT:  DROP TABLE collections CASCADE;
+2020-12-02 14:34:45.888 GMT [7815] ERROR:  table "staff" does not exist
+2020-12-02 14:34:45.888 GMT [7815] STATEMENT:  DROP TABLE staff CASCADE;
+2020-12-02 14:34:45.905 GMT [7815] ERROR:  table "staff_orders" does not exist
+2020-12-02 14:34:45.905 GMT [7815] STATEMENT:  DROP TABLE staff_orders CASCADE;
+2020-12-02 15:13:00.595 GMT [36359] ERROR:  duplicate key value violates unique constraint "inventory_pkey"
+2020-12-02 15:13:00.595 GMT [36359] DETAIL:  Key (productid)=(1) already exists.
+2020-12-02 15:13:00.595 GMT [36359] STATEMENT:  INSERT INTO inventory VALUES (1, 'testin', 3, 4);
+2020-12-02 15:22:15.412 GMT [24910] LOG:  received fast shutdown request
+2020-12-02 15:22:15.415 GMT [24910] LOG:  aborting any active transactions
+2020-12-02 15:22:15.418 GMT [24910] LOG:  background worker "logical replication launcher" (PID 25006) exited with exit code 1
+2020-12-02 15:22:15.418 GMT [25001] LOG:  shutting down
+2020-12-02 15:22:15.534 GMT [24910] LOG:  database system is shut down
+2020-12-02 15:22:18.505 GMT [20768] LOG:  starting PostgreSQL 12.3 on x86_64-pc-linux-gnu, compiled by gcc (GCC) 4.8.5 20150623 (Red Hat 4.8.5-39), 64-bit
+2020-12-02 15:22:18.514 GMT [20768] LOG:  listening on Unix socket "/dcs/19/u1813151/Documents/cs258/postgres/tmp/.s.PGSQL.5432"
+2020-12-02 15:22:18.545 GMT [20780] LOG:  database system was shut down at 2020-12-02 15:22:15 GMT
+2020-12-02 15:22:18.558 GMT [20768] LOG:  database system is ready to accept connections
+2020-12-02 15:23:28.961 GMT [20795] LOG:  using stale statistics instead of current ones because stats collector is not responding
+2020-12-02 15:34:14.079 GMT [20795] LOG:  using stale statistics instead of current ones because stats collector is not responding
+2020-12-02 15:47:14.232 GMT [20795] LOG:  using stale statistics instead of current ones because stats collector is not responding
+2020-12-02 16:50:19.289 GMT [7023] ERROR:  quantityissufficient(integer, integer) is not a procedure at character 6
+2020-12-02 16:50:19.289 GMT [7023] HINT:  To call a function, use SELECT.
+2020-12-02 16:50:19.289 GMT [7023] STATEMENT:  call quantityIsSufficient(1, 2);
+2020-12-02 16:50:43.076 GMT [7023] ERROR:  column "matchgoals" does not exist at character 8
+2020-12-02 16:50:43.076 GMT [7023] QUERY:  SELECT matchgoals
+2020-12-02 16:50:43.076 GMT [7023] CONTEXT:  PL/pgSQL function quantityissufficient(integer,integer) line 6 at RETURN
+2020-12-02 16:50:43.076 GMT [7023] STATEMENT:  SELECT quantityIsSufficient(1,4);
+2020-12-02 16:51:06.004 GMT [7023] ERROR:  function "quantityissufficient" already exists with same argument types
+2020-12-02 16:51:06.004 GMT [7023] STATEMENT:  CREATE FUNCTION quantityIsSufficient(id INTEGER, q INTEGER)
+	  RETURNS INTEGER LANGUAGE plpgsql AS
+	  $$
+	  DECLARE
+	  isSufficient BOOLEAN;
+	  BEGIN
+	  SELECT ProductStockAmount >= q INTO isSufficient FROM inventory WHERE ProductID = id; 
+	  RETURN isSufficient;
+	  END;
+	  $$;
+2020-12-02 16:51:09.354 GMT [7023] ERROR:  column "matchgoals" does not exist at character 8
+2020-12-02 16:51:09.354 GMT [7023] QUERY:  SELECT matchgoals
+2020-12-02 16:51:09.354 GMT [7023] CONTEXT:  PL/pgSQL function quantityissufficient(integer,integer) line 6 at RETURN
+2020-12-02 16:51:09.354 GMT [7023] STATEMENT:  SELECT quantityIsSufficient(1,4);
+2020-12-02 16:51:11.081 GMT [7023] ERROR:  column "matchgoals" does not exist at character 8
+2020-12-02 16:51:11.081 GMT [7023] QUERY:  SELECT matchgoals
+2020-12-02 16:51:11.081 GMT [7023] CONTEXT:  PL/pgSQL function quantityissufficient(integer,integer) line 6 at RETURN
+2020-12-02 16:51:11.081 GMT [7023] STATEMENT:  SELECT quantityIsSufficient(1,4);
+2020-12-02 16:51:32.585 GMT [29496] ERROR:  function "quantityissufficient" already exists with same argument types
+2020-12-02 16:51:32.585 GMT [29496] STATEMENT:  CREATE FUNCTION quantityIsSufficient(id INTEGER, q INTEGER)
+	  RETURNS INTEGER LANGUAGE plpgsql AS
+	  $$
+	  DECLARE
+	  isSufficient BOOLEAN;
+	  BEGIN
+	  SELECT ProductStockAmount >= q INTO isSufficient FROM inventory WHERE ProductID = id; 
+	  RETURN isSufficient;
+	  END;
+	  $$;
+2020-12-02 16:51:35.572 GMT [29496] ERROR:  column "matchgoals" does not exist at character 8
+2020-12-02 16:51:35.572 GMT [29496] QUERY:  SELECT matchgoals
+2020-12-02 16:51:35.572 GMT [29496] CONTEXT:  PL/pgSQL function quantityissufficient(integer,integer) line 6 at RETURN
+2020-12-02 16:51:35.572 GMT [29496] STATEMENT:  SELECT quantityIsSufficient(1,4);
+2020-12-02 16:51:38.434 GMT [29496] ERROR:  column "matchgoals" does not exist at character 8
+2020-12-02 16:51:38.434 GMT [29496] QUERY:  SELECT matchgoals
+2020-12-02 16:51:38.434 GMT [29496] CONTEXT:  PL/pgSQL function quantityissufficient(integer,integer) line 6 at RETURN
+2020-12-02 16:51:38.434 GMT [29496] STATEMENT:  SELECT quantityIsSufficient(1,4);
+2020-12-02 16:52:04.947 GMT [36110] ERROR:  function quantityissufficient(integer, integer) does not exist at character 8
+2020-12-02 16:52:04.947 GMT [36110] HINT:  No function matches the given name and argument types. You might need to add explicit type casts.
+2020-12-02 16:52:04.947 GMT [36110] STATEMENT:  SELECT quantityIsSufficient(1,4);
+2020-12-02 16:53:17.774 GMT [36110] ERROR:  invalid input syntax for type integer: "f"
+2020-12-02 16:53:17.774 GMT [36110] CONTEXT:  PL/pgSQL function quantityissufficient(integer,integer) while casting return value to function's return type
+2020-12-02 16:53:17.774 GMT [36110] STATEMENT:  SELECT quantityIsSufficient(1,4);
+2020-12-02 16:55:24.304 GMT [36110] ERROR:  function "quantityissufficient" already exists with same argument types
+2020-12-02 16:55:24.304 GMT [36110] STATEMENT:  CREATE FUNCTION quantityIsSufficient(id INTEGER, q INTEGER)
+	  RETURNS BOOLEAN LANGUAGE plpgsql AS
+	  $$
+	  DECLARE
+	  isSufficient BOOLEAN;
+	  BEGIN
+	  SELECT ProductStockAmount >= q INTO isSufficient FROM inventory WHERE ProductID = id; 
+	  RETURN isSufficient;
+	  END;
+	  $$;
+2020-12-02 16:55:25.874 GMT [36110] ERROR:  invalid input syntax for type integer: "f"
+2020-12-02 16:55:25.874 GMT [36110] CONTEXT:  PL/pgSQL function quantityissufficient(integer,integer) while casting return value to function's return type
+2020-12-02 16:55:25.874 GMT [36110] STATEMENT:  SELECT quantityIsSufficient(1,4);
+2020-12-02 16:55:35.669 GMT [5487] ERROR:  invalid input syntax for type integer: "f"
+2020-12-02 16:55:35.669 GMT [5487] CONTEXT:  PL/pgSQL function quantityissufficient(integer,integer) while casting return value to function's return type
+2020-12-02 16:55:35.669 GMT [5487] STATEMENT:  SELECT quantityIsSufficient(1,4);
+2020-12-02 16:55:39.694 GMT [5487] ERROR:  function "quantityissufficient" already exists with same argument types
+2020-12-02 16:55:39.694 GMT [5487] STATEMENT:  CREATE FUNCTION quantityIsSufficient(id INTEGER, q INTEGER)
+	  RETURNS BOOLEAN LANGUAGE plpgsql AS
+	  $$
+	  DECLARE
+	  isSufficient BOOLEAN;
+	  BEGIN
+	  SELECT ProductStockAmount >= q INTO isSufficient FROM inventory WHERE ProductID = id; 
+	  RETURN isSufficient;
+	  END;
+	  $$;
+2020-12-02 16:55:41.455 GMT [5487] ERROR:  invalid input syntax for type integer: "f"
+2020-12-02 16:55:41.455 GMT [5487] CONTEXT:  PL/pgSQL function quantityissufficient(integer,integer) while casting return value to function's return type
+2020-12-02 16:55:41.455 GMT [5487] STATEMENT:  SELECT quantityIsSufficient(1,4);
+2020-12-02 16:55:46.202 GMT [5487] ERROR:  invalid input syntax for type integer: "f"
+2020-12-02 16:55:46.202 GMT [5487] CONTEXT:  PL/pgSQL function quantityissufficient(integer,integer) while casting return value to function's return type
+2020-12-02 16:55:46.202 GMT [5487] STATEMENT:  SELECT quantityIsSufficient(1,4);
+2020-12-02 16:55:54.758 GMT [5487] ERROR:  function "quantityissufficient" already exists with same argument types
+2020-12-02 16:55:54.758 GMT [5487] STATEMENT:  CREATE FUNCTION quantityIsSufficient(id INTEGER, q INTEGER)
+	  RETURNS BOOLEAN LANGUAGE plpgsql AS
+	  $$
+	  DECLARE
+	  isSufficient BOOLEAN;
+	  BEGIN
+	  SELECT ProductStockAmount >= q INTO isSufficient FROM inventory WHERE ProductID = id; 
+	  RETURN isSufficient;
+	  END;
+	  $$;
+2020-12-02 16:55:56.298 GMT [5487] ERROR:  invalid input syntax for type integer: "f"
+2020-12-02 16:55:56.298 GMT [5487] CONTEXT:  PL/pgSQL function quantityissufficient(integer,integer) while casting return value to function's return type
+2020-12-02 16:55:56.298 GMT [5487] STATEMENT:  SELECT quantityIsSufficient(1,4);
+2020-12-02 16:56:14.530 GMT [5487] ERROR:  syntax error at or near "w" at character 1
+2020-12-02 16:56:14.530 GMT [5487] STATEMENT:  w
+	SELECT quantityIsSufficient(1,4);
+2020-12-02 16:56:18.315 GMT [5487] ERROR:  function "quantityissufficient" already exists with same argument types
+2020-12-02 16:56:18.315 GMT [5487] STATEMENT:  CREATE FUNCTION quantityIsSufficient(id INTEGER, q INTEGER)
+	  RETURNS BOOLEAN LANGUAGE plpgsql AS
+	  $$
+	  DECLARE
+	  isSufficient BOOLEAN;
+	  BEGIN
+	  SELECT ProductStockAmount >= q INTO isSufficient FROM inventory WHERE ProductID = id; 
+	  RETURN isSufficient;
+	  END;
+	  $$;
+2020-12-02 16:56:21.586 GMT [5487] ERROR:  invalid input syntax for type integer: "f"
+2020-12-02 16:56:21.586 GMT [5487] CONTEXT:  PL/pgSQL function quantityissufficient(integer,integer) while casting return value to function's return type
+2020-12-02 16:56:21.586 GMT [5487] STATEMENT:  SELECT quantityIsSufficient(1,4);
+2020-12-02 16:56:50.392 GMT [22136] ERROR:  function "quantityissufficient" already exists with same argument types
+2020-12-02 16:56:50.392 GMT [22136] STATEMENT:  CREATE FUNCTION quantityIsSufficient(id INTEGER, q INTEGER)
+	  RETURNS BOOLEAN LANGUAGE plpgsql AS
+	  $$
+	  DECLARE
+	  isSufficient BOOLEAN;
+	  BEGIN
+	  SELECT ProductStockAmount >= q INTO isSufficient FROM inventory WHERE ProductID = id; 
+	  RETURN isSufficient;
+	  END;
+	  $$;
+2020-12-02 16:56:53.972 GMT [22136] ERROR:  invalid input syntax for type integer: "f"
+2020-12-02 16:56:53.972 GMT [22136] CONTEXT:  PL/pgSQL function quantityissufficient(integer,integer) while casting return value to function's return type
+2020-12-02 16:56:53.972 GMT [22136] STATEMENT:  SELECT quantityIsSufficient(1,4);
+2020-12-02 16:57:14.922 GMT [22136] ERROR:  invalid input syntax for type integer: "f"
+2020-12-02 16:57:14.922 GMT [22136] CONTEXT:  PL/pgSQL function quantityissufficient(integer,integer) while casting return value to function's return type
+2020-12-02 16:57:14.922 GMT [22136] STATEMENT:  SELECT quantityIsSufficient(1,4);
+2020-12-02 16:57:15.651 GMT [22136] ERROR:  invalid input syntax for type integer: "f"
+2020-12-02 16:57:15.651 GMT [22136] CONTEXT:  PL/pgSQL function quantityissufficient(integer,integer) while casting return value to function's return type
+2020-12-02 16:57:15.651 GMT [22136] STATEMENT:  SELECT quantityIsSufficient(1,4);
+2020-12-02 16:57:26.801 GMT [22136] ERROR:  invalid input syntax for type integer: "t"
+2020-12-02 16:57:26.801 GMT [22136] CONTEXT:  PL/pgSQL function quantityissufficient(integer,integer) while casting return value to function's return type
+2020-12-02 16:57:26.801 GMT [22136] STATEMENT:  SELECT quantityIsSufficient(1,1);
+2020-12-02 16:58:08.779 GMT [1636] ERROR:  function "quantityissufficient" already exists with same argument types
+2020-12-02 16:58:08.779 GMT [1636] STATEMENT:  CREATE FUNCTION quantityIsSufficient(id INTEGER, q INTEGER)
+	  RETURNS BOOLEAN LANGUAGE plpgsql AS
+	  $$
+	  DECLARE
+	  isSufficient BOOLEAN;
+	  BEGIN
+	  SELECT ProductStockAmount >= q INTO isSufficient FROM inventory WHERE ProductID = id; 
+	  RETURN isSufficient;
+	  END;
+	  $$;
+2020-12-02 16:58:20.695 GMT [4626] ERROR:  function "quantityissufficient" already exists with same argument types
+2020-12-02 16:58:20.695 GMT [4626] STATEMENT:  CREATE FUNCTION quantityIsSufficient(id INTEGER, q INTEGER)
+	  RETURNS BOOLEAN LANGUAGE plpgsql AS
+	  $$
+	  DECLARE
+	  isSufficient BOOLEAN;
+	  BEGIN
+	  SELECT ProductStockAmount >= q INTO isSufficient FROM inventory WHERE ProductID = id; 
+	  RETURN isSufficient;
+	  END;
+	  $$;
+2020-12-02 16:58:25.316 GMT [4626] ERROR:  invalid input syntax for type integer: "t"
+2020-12-02 16:58:25.316 GMT [4626] CONTEXT:  PL/pgSQL function quantityissufficient(integer,integer) while casting return value to function's return type
+2020-12-02 16:58:25.316 GMT [4626] STATEMENT:  SELECT quantityIsSufficient(1,1);
+2020-12-02 17:04:34.128 GMT [16376] ERROR:  function "quantityissufficient" already exists with same argument types
+2020-12-02 17:04:34.128 GMT [16376] STATEMENT:  CREATE FUNCTION quantityIsSufficient(id INTEGER, q INTEGER)
+	  RETURNS BOOLEAN LANGUAGE plpgsql AS
+	  $$
+	  DECLARE
+	  isSufficient BOOLEAN;
+	  BEGIN
+	  SELECT ProductStockAmount >= q INTO isSufficient FROM inventory WHERE ProductID = id; 
+	  RETURN isSufficient;
+	  END;
+	  $$;
+2020-12-02 17:04:36.477 GMT [16376] ERROR:  invalid input syntax for type integer: "t"
+2020-12-02 17:04:36.477 GMT [16376] CONTEXT:  PL/pgSQL function quantityissufficient(integer,integer) while casting return value to function's return type
+2020-12-02 17:04:36.477 GMT [16376] STATEMENT:  SELECT quantityIsSufficient(1,1);
+2020-12-02 17:06:06.141 GMT [39279] ERROR:  cannot change return type of existing function
+2020-12-02 17:06:06.141 GMT [39279] HINT:  Use DROP FUNCTION quantityissufficient(integer,integer) first.
+2020-12-02 17:06:06.141 GMT [39279] STATEMENT:  CREATE OR REPLACE FUNCTION quantityIsSufficient(id INTEGER, q INTEGER)
+	  RETURNS BOOLEAN LANGUAGE plpgsql AS
+	  $$
+	  DECLARE
+	  isSufficient BOOLEAN;
+	  BEGIN
+	  SELECT ProductStockAmount >= q INTO isSufficient FROM inventory WHERE ProductID = id; 
+	  RETURN isSufficient;
+	  END;
+	  $$;
+2020-12-02 17:06:08.765 GMT [39279] ERROR:  invalid input syntax for type integer: "t"
+2020-12-02 17:06:08.765 GMT [39279] CONTEXT:  PL/pgSQL function quantityissufficient(integer,integer) while casting return value to function's return type
+2020-12-02 17:06:08.765 GMT [39279] STATEMENT:  SELECT quantityIsSufficient(1,1);
+2020-12-02 17:06:10.418 GMT [39279] ERROR:  invalid input syntax for type integer: "t"
+2020-12-02 17:06:10.418 GMT [39279] CONTEXT:  PL/pgSQL function quantityissufficient(integer,integer) while casting return value to function's return type
+2020-12-02 17:06:10.418 GMT [39279] STATEMENT:  SELECT quantityIsSufficient(1,1);
+2020-12-02 17:06:10.962 GMT [39279] ERROR:  invalid input syntax for type integer: "t"
+2020-12-02 17:06:10.962 GMT [39279] CONTEXT:  PL/pgSQL function quantityissufficient(integer,integer) while casting return value to function's return type
+2020-12-02 17:06:10.962 GMT [39279] STATEMENT:  SELECT quantityIsSufficient(1,1);
+2020-12-02 17:06:11.227 GMT [39279] ERROR:  invalid input syntax for type integer: "t"
+2020-12-02 17:06:11.227 GMT [39279] CONTEXT:  PL/pgSQL function quantityissufficient(integer,integer) while casting return value to function's return type
+2020-12-02 17:06:11.227 GMT [39279] STATEMENT:  SELECT quantityIsSufficient(1,1);
+2020-12-02 17:06:11.962 GMT [39279] ERROR:  invalid input syntax for type integer: "t"
+2020-12-02 17:06:11.962 GMT [39279] CONTEXT:  PL/pgSQL function quantityissufficient(integer,integer) while casting return value to function's return type
+2020-12-02 17:06:11.962 GMT [39279] STATEMENT:  SELECT quantityIsSufficient(1,1);
+2020-12-02 17:07:20.429 GMT [20768] LOG:  received fast shutdown request
+2020-12-02 17:07:20.431 GMT [20768] LOG:  aborting any active transactions
+2020-12-02 17:07:20.431 GMT [17223] FATAL:  terminating connection due to administrator command
+2020-12-02 17:07:20.431 GMT [17458] FATAL:  terminating connection due to administrator command
+2020-12-02 17:07:20.431 GMT [3140] FATAL:  terminating connection due to administrator command
+2020-12-02 17:07:20.432 GMT [20768] LOG:  background worker "logical replication launcher" (PID 20797) exited with exit code 1
+2020-12-02 17:07:20.476 GMT [20792] LOG:  shutting down
+2020-12-02 17:07:20.542 GMT [20768] LOG:  database system is shut down
+2020-12-02 17:07:23.266 GMT [18277] LOG:  starting PostgreSQL 12.3 on x86_64-pc-linux-gnu, compiled by gcc (GCC) 4.8.5 20150623 (Red Hat 4.8.5-39), 64-bit
+2020-12-02 17:07:23.272 GMT [18277] LOG:  listening on Unix socket "/dcs/19/u1813151/Documents/cs258/postgres/tmp/.s.PGSQL.5432"
+2020-12-02 17:07:23.318 GMT [18284] LOG:  database system was shut down at 2020-12-02 17:07:20 GMT
+2020-12-02 17:07:23.329 GMT [18277] LOG:  database system is ready to accept connections
+2020-12-02 17:07:34.080 GMT [20320] ERROR:  cannot change return type of existing function
+2020-12-02 17:07:34.080 GMT [20320] HINT:  Use DROP FUNCTION quantityissufficient(integer,integer) first.
+2020-12-02 17:07:34.080 GMT [20320] STATEMENT:  CREATE OR REPLACE FUNCTION quantityIsSufficient(id INTEGER, q INTEGER)
+	  RETURNS BOOLEAN LANGUAGE plpgsql AS
+	  $$
+	  DECLARE
+	  isSufficient BOOLEAN;
+	  BEGIN
+	  SELECT ProductStockAmount >= q INTO isSufficient FROM inventory WHERE ProductID = id; 
+	  RETURN isSufficient;
+	  END;
+	  $$;
+2020-12-02 17:07:39.441 GMT [20320] ERROR:  function quantityissufficient() does not exist at character 8
+2020-12-02 17:07:39.441 GMT [20320] HINT:  No function matches the given name and argument types. You might need to add explicit type casts.
+2020-12-02 17:07:39.441 GMT [20320] STATEMENT:  SELECT quantityIsSufficient();
+2020-12-02 17:07:49.185 GMT [20320] ERROR:  invalid input syntax for type integer: "f"
+2020-12-02 17:07:49.185 GMT [20320] CONTEXT:  PL/pgSQL function quantityissufficient(integer,integer) while casting return value to function's return type
+2020-12-02 17:07:49.185 GMT [20320] STATEMENT:  SELECT quantityIsSufficient(1,4);
+2020-12-02 17:10:26.706 GMT [23242] ERROR:  invalid input syntax for type integer: "f"
+2020-12-02 17:10:26.706 GMT [23242] CONTEXT:  PL/pgSQL function quantityissufficient(integer,integer) line 5 at SQL statement
+2020-12-02 17:10:26.706 GMT [23242] STATEMENT:  SELECT quantityIsSufficient(2,2);
+2020-12-02 17:15:24.881 GMT [8488] ERROR:  cannot change return type of existing function
+2020-12-02 17:15:24.881 GMT [8488] HINT:  Use DROP FUNCTION quantityissufficient(integer,integer) first.
+2020-12-02 17:15:24.881 GMT [8488] STATEMENT:  CREATE OR REPLACE FUNCTION quantityIsSufficient(id INTEGER, q INTEGER)
+	  RETURNS TEXT LANGUAGE plpgsql AS
+	  $$
+	  DECLARE
+	  isSufficient TEXT;
+	  BEGIN
+	  SELECT ProductStockAmount > q INTO isSufficient FROM inventory WHERE ProductID = id; 
+	  RETURN isSufficient;
+	  END;
+	  $$;
+2020-12-02 17:15:27.452 GMT [8488] ERROR:  invalid input syntax for type integer: "f"
+2020-12-02 17:15:27.452 GMT [8488] CONTEXT:  PL/pgSQL function quantityissufficient(integer,integer) line 5 at SQL statement
+2020-12-02 17:15:27.452 GMT [8488] STATEMENT:  SELECT quantityIsSufficient(2,2);
+2020-12-02 17:26:57.771 GMT [943] ERROR:  invalid input syntax for type integer: "f"
+2020-12-02 17:26:57.771 GMT [943] CONTEXT:  PL/pgSQL function quantityissufficient(integer,integer) line 5 at SQL statement
+2020-12-02 17:26:57.771 GMT [943] STATEMENT:  SELECT quantityIsSufficient(2,2);
+2020-12-02 17:28:27.641 GMT [24855] ERROR:  function sufficientquantity(integer, integer) does not exist at character 8
+2020-12-02 17:28:27.641 GMT [24855] HINT:  No function matches the given name and argument types. You might need to add explicit type casts.
+2020-12-02 17:28:27.641 GMT [24855] STATEMENT:  SELECT sufficientQuantity(1,2);
+2020-12-02 18:19:13.833 GMT [540] ERROR:  syntax error at or near "WHERRE" at character 196
+2020-12-02 18:19:13.833 GMT [540] STATEMENT:  CREATE OR REPLACE PROCEDURE reduceStock(id INTEGER, soldQuantity INTEGER)
+	    LANGUAGE plpgsql AS
+	    $$
+	    BEGIN
+	    UPDATE inventory SET ProductStockAmount = ProductStockAmount - soldQuantity WHERRE ProductID = id;     
+	    END;
+	    $$;
+2020-12-02 18:19:30.219 GMT [540] ERROR:  procedure reducestock(integer, integer) does not exist at character 6
+2020-12-02 18:19:30.219 GMT [540] HINT:  No procedure matches the given name and argument types. You might need to add explicit type casts.
+2020-12-02 18:19:30.219 GMT [540] STATEMENT:  call reduceStock(1,1);
+2020-12-02 18:20:10.641 GMT [540] ERROR:  syntax error at or near "WHERRE" at character 196
+2020-12-02 18:20:10.641 GMT [540] STATEMENT:  CREATE OR REPLACE PROCEDURE reduceStock(id INTEGER, soldQuantity INTEGER)
+	    LANGUAGE plpgsql AS
+	    $$
+	    BEGIN
+	    UPDATE inventory SET ProductStockAmount = ProductStockAmount - soldQuantity WHERRE ProductID = id;     
+	    END;
+	    $$;
+2020-12-02 18:20:13.299 GMT [540] ERROR:  procedure reducestock(integer, integer) does not exist at character 6
+2020-12-02 18:20:13.299 GMT [540] HINT:  No procedure matches the given name and argument types. You might need to add explicit type casts.
+2020-12-02 18:20:13.299 GMT [540] STATEMENT:  call reduceStock(1,1);
+2020-12-02 18:20:20.035 GMT [540] ERROR:  function reducestock(integer, integer) does not exist at character 8
+2020-12-02 18:20:20.035 GMT [540] HINT:  No function matches the given name and argument types. You might need to add explicit type casts.
+2020-12-02 18:20:20.035 GMT [540] STATEMENT:  SELECT reduceStock(1,1);
+2020-12-02 18:25:10.934 GMT [17783] ERROR:  syntax error at or near "WHERRE" at character 196
+2020-12-02 18:25:10.934 GMT [17783] STATEMENT:  CREATE OR REPLACE PROCEDURE reduceStock(id INTEGER, soldQuantity INTEGER)
+	    LANGUAGE plpgsql AS
+	    $$
+	    BEGIN
+	    UPDATE inventory SET ProductStockAmount = ProductStockAmount - soldQuantity WHERRE ProductID = id;     
+	    END;
+	    $$;
+2020-12-02 18:25:17.314 GMT [17783] ERROR:  procedure reducestock(integer, integer) does not exist at character 6
+2020-12-02 18:25:17.314 GMT [17783] HINT:  No procedure matches the given name and argument types. You might need to add explicit type casts.
+2020-12-02 18:25:17.314 GMT [17783] STATEMENT:  call reduceStock(1,1);
+2020-12-02 18:41:10.859 GMT [34695] ERROR:  procedure reducestock(integer, integer) does not exist at character 6
+2020-12-02 18:41:10.859 GMT [34695] HINT:  No procedure matches the given name and argument types. You might need to add explicit type casts.
+2020-12-02 18:41:10.859 GMT [34695] STATEMENT:  call reduceStock(1,1);
+2020-12-02 18:42:11.616 GMT [9390] FATAL:  database "postgrs" does not exist
+2020-12-02 18:42:20.596 GMT [11977] FATAL:  database "deptsttore" does not exist
+2020-12-02 18:42:28.360 GMT [13073] ERROR:  syntax error at or near "WHERRE" at character 196
+2020-12-02 18:42:28.360 GMT [13073] STATEMENT:  CREATE OR REPLACE PROCEDURE reduceStock(id INTEGER, soldQuantity INTEGER)
+	    LANGUAGE plpgsql AS
+	    $$
+	    BEGIN
+	    UPDATE inventory SET ProductStockAmount = ProductStockAmount - soldQuantity WHERRE ProductID = id;     
+	    END;
+	    $$;
+2020-12-02 18:42:33.162 GMT [13073] ERROR:  procedure reducestock(integer, integer) does not exist at character 6
+2020-12-02 18:42:33.162 GMT [13073] HINT:  No procedure matches the given name and argument types. You might need to add explicit type casts.
+2020-12-02 18:42:33.162 GMT [13073] STATEMENT:  call reduceStock(1,1);
+2020-12-02 18:43:14.714 GMT [13073] ERROR:  sufficientstock(integer, integer) is not a procedure at character 6
+2020-12-02 18:43:14.714 GMT [13073] HINT:  To call a function, use SELECT.
+2020-12-02 18:43:14.714 GMT [13073] STATEMENT:  call sufficientStock(1,1);
+2020-12-02 18:43:28.930 GMT [13073] ERROR:  sufficientstock(integer, integer) is not a procedure at character 6
+2020-12-02 18:43:28.930 GMT [13073] HINT:  To call a function, use SELECT.
+2020-12-02 18:43:28.930 GMT [13073] STATEMENT:  call sufficientStock(1,1);
+2020-12-02 18:43:39.578 GMT [13073] ERROR:  function reducestock(integer, integer) does not exist at character 8
+2020-12-02 18:43:39.578 GMT [13073] HINT:  No function matches the given name and argument types. You might need to add explicit type casts.
+2020-12-02 18:43:39.578 GMT [13073] STATEMENT:  SELECT reduceStock(1,1);
+2020-12-02 18:43:59.469 GMT [18277] LOG:  received fast shutdown request
+2020-12-02 18:43:59.471 GMT [18277] LOG:  aborting any active transactions
+2020-12-02 18:43:59.471 GMT [8381] FATAL:  terminating connection due to administrator command
+2020-12-02 18:43:59.471 GMT [10231] FATAL:  terminating connection due to administrator command
+2020-12-02 18:43:59.472 GMT [34695] FATAL:  terminating connection due to administrator command
+2020-12-02 18:43:59.474 GMT [18277] LOG:  background worker "logical replication launcher" (PID 18294) exited with exit code 1
+2020-12-02 18:43:59.474 GMT [18288] LOG:  shutting down
+2020-12-02 18:43:59.555 GMT [18277] LOG:  database system is shut down
+2020-12-02 18:44:03.335 GMT [835] LOG:  starting PostgreSQL 12.3 on x86_64-pc-linux-gnu, compiled by gcc (GCC) 4.8.5 20150623 (Red Hat 4.8.5-39), 64-bit
+2020-12-02 18:44:03.339 GMT [835] LOG:  listening on Unix socket "/dcs/19/u1813151/Documents/cs258/postgres/tmp/.s.PGSQL.5432"
+2020-12-02 18:44:03.376 GMT [841] LOG:  database system was shut down at 2020-12-02 18:43:59 GMT
+2020-12-02 18:44:03.390 GMT [835] LOG:  database system is ready to accept connections
+2020-12-02 18:44:19.929 GMT [3923] ERROR:  syntax error at or near "WHERRE" at character 196
+2020-12-02 18:44:19.929 GMT [3923] STATEMENT:  CREATE OR REPLACE PROCEDURE reduceStock(id INTEGER, soldQuantity INTEGER)
+	    LANGUAGE plpgsql AS
+	    $$
+	    BEGIN
+	    UPDATE inventory SET ProductStockAmount = ProductStockAmount - soldQuantity WHERRE ProductID = id;     
+	    END;
+	    $$;
+2020-12-02 20:20:17.774 GMT [3923] ERROR:  sufficientstock(integer, integer) is not a procedure at character 6
+2020-12-02 20:20:17.774 GMT [3923] HINT:  To call a function, use SELECT.
+2020-12-02 20:20:17.774 GMT [3923] STATEMENT:  call sufficientStock(1,1);
+2020-12-02 21:21:02.492 GMT [17180] ERROR:  reducestock(integer, integer) is a procedure at character 15
+2020-12-02 21:21:02.492 GMT [17180] HINT:  To call a procedure, use CALL.
+2020-12-02 21:21:02.492 GMT [17180] STATEMENT:  select * from reduceStock($1, $2)  as result
+2020-12-02 21:23:17.584 GMT [514] ERROR:  reducestock(integer, integer) is a procedure at character 15
+2020-12-02 21:23:17.584 GMT [514] HINT:  To call a procedure, use CALL.
+2020-12-02 21:23:17.584 GMT [514] STATEMENT:  select * from reduceStock($1, $2)  as result
+2020-12-02 21:29:07.495 GMT [514] ERROR:  reducestock(integer, integer) is a procedure at character 15
+2020-12-02 21:29:07.495 GMT [514] HINT:  To call a procedure, use CALL.
+2020-12-02 21:29:07.495 GMT [514] STATEMENT:  select * from reduceStock($1, $2)  as result
+2020-12-02 21:48:16.866 GMT [36482] ERROR:  reducestock(integer, integer) is a procedure at character 15
+2020-12-02 21:48:16.866 GMT [36482] HINT:  To call a procedure, use CALL.
+2020-12-02 21:48:16.866 GMT [36482] STATEMENT:  select * from reduceStock($1, $2) as result
+2020-12-02 21:52:14.177 GMT [6148] ERROR:  reducestock(integer, integer) is a procedure at character 15
+2020-12-02 21:52:14.177 GMT [6148] HINT:  To call a procedure, use CALL.
+2020-12-02 21:52:14.177 GMT [6148] STATEMENT:  select * from reduceStock($1, $2) as result
+2020-12-02 21:53:09.506 GMT [835] LOG:  received fast shutdown request
+2020-12-02 21:53:13.441 GMT [835] LOG:  aborting any active transactions
+2020-12-02 21:53:13.442 GMT [6148] FATAL:  terminating connection due to administrator command
+2020-12-02 21:53:13.461 GMT [835] LOG:  background worker "logical replication launcher" (PID 858) exited with exit code 1
+2020-12-02 21:53:13.461 GMT [847] LOG:  shutting down
+2020-12-02 21:53:13.572 GMT [835] LOG:  database system is shut down
+2020-12-02 21:53:19.336 GMT [22138] LOG:  starting PostgreSQL 12.3 on x86_64-pc-linux-gnu, compiled by gcc (GCC) 4.8.5 20150623 (Red Hat 4.8.5-39), 64-bit
+2020-12-02 21:53:19.348 GMT [22138] LOG:  listening on Unix socket "/dcs/19/u1813151/Documents/cs258/postgres/tmp/.s.PGSQL.5432"
+2020-12-02 21:53:19.446 GMT [22151] LOG:  database system was shut down at 2020-12-02 21:53:13 GMT
+2020-12-02 21:53:19.462 GMT [22138] LOG:  database system is ready to accept connections
+2020-12-02 21:53:55.951 GMT [27083] ERROR:  reducestock(integer, integer) is a procedure at character 15
+2020-12-02 21:53:55.951 GMT [27083] HINT:  To call a procedure, use CALL.
+2020-12-02 21:53:55.951 GMT [27083] STATEMENT:  select * from reduceStock($1, $2) as result
+2020-12-02 22:07:58.287 GMT [23224] ERROR:  cannot drop the currently open database
+2020-12-02 22:07:58.287 GMT [23224] STATEMENT:  drop database deptstore
+	;
+2020-12-02 22:08:05.470 GMT [4633] FATAL:  database "customers" does not exist
+2020-12-02 22:08:12.845 GMT [6849] FATAL:  database "comapny" does not exist
+2020-12-02 22:08:30.142 GMT [8066] ERROR:  database "deptstore" is being accessed by other users
+2020-12-02 22:08:30.142 GMT [8066] DETAIL:  There is 1 other session using the database.
+2020-12-02 22:08:30.142 GMT [8066] STATEMENT:  drop database deptstore
+	;
+2020-12-02 22:08:56.682 GMT [15330] ERROR:  table "inventory" does not exist
+2020-12-02 22:08:56.682 GMT [15330] STATEMENT:  DROP TABLE inventory CASCADE;
+2020-12-02 22:08:56.748 GMT [15330] ERROR:  table "orders" does not exist
+2020-12-02 22:08:56.748 GMT [15330] STATEMENT:  DROP TABLE orders CASCADE;
+2020-12-02 22:08:56.761 GMT [15330] ERROR:  table "order_products" does not exist
+2020-12-02 22:08:56.761 GMT [15330] STATEMENT:  DROP TABLE order_products CASCADE;
+2020-12-02 22:08:56.772 GMT [15330] ERROR:  table "deliveries" does not exist
+2020-12-02 22:08:56.772 GMT [15330] STATEMENT:  DROP TABLE deliveries CASCADE;
+2020-12-02 22:08:56.777 GMT [15330] ERROR:  table "collections" does not exist
+2020-12-02 22:08:56.777 GMT [15330] STATEMENT:  DROP TABLE collections CASCADE;
+2020-12-02 22:08:56.783 GMT [15330] ERROR:  table "staff" does not exist
+2020-12-02 22:08:56.783 GMT [15330] STATEMENT:  DROP TABLE staff CASCADE;
+2020-12-02 22:08:56.795 GMT [15330] ERROR:  table "staff_orders" does not exist
+2020-12-02 22:08:56.795 GMT [15330] STATEMENT:  DROP TABLE staff_orders CASCADE;
+2020-12-02 22:09:21.031 GMT [15330] ERROR:  sufficientstock(integer, integer) is not a procedure at character 6
+2020-12-02 22:09:21.031 GMT [15330] HINT:  To call a function, use SELECT.
+2020-12-02 22:09:21.031 GMT [15330] STATEMENT:  call sufficientStock(2,1);

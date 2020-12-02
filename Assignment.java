@@ -10,6 +10,9 @@ import java.util.Properties;
 // Get simple data pulling from database
 // Get simple create data insertion to database
 
+// alternatively, complete option 1
+ 
+
 class Assignment {
 
 	private static String readEntry(String prompt) {
@@ -35,32 +38,31 @@ class Assignment {
 
         while (opt != "0") {
             printMenu(); 
-            String opt = readEntry("Enter your choice: ");
-            System.out.print("Option chosen is " + opt + "\n"); 
+            opt = readEntry("Enter your choice: ");
             
             switch (opt) {
-                case 1:
-                    option1(); 
+                case "1":
+                    handleOption1(conn); 
                     break;
-                case 2:
+                case "2":
                     //option2(); 
                     break;
-                case 3:
+                case "3":
                     //option3(); 
                     break;
-                case 4:
+                case "4":
                     //option4(); 
                     break;
-                case 5:
+                case "5":
                     //option5(); 
                     break;
-                case 6:
+                case "6":
                     //option6(); 
                     break;
-                case 7:
+                case "7":
                     //option7(); 
                     break;
-                case 8:
+                case "8":
                     //option8(); 
                     break;
                 default:
@@ -71,6 +73,39 @@ class Assignment {
 		conn.close();
 	}
 
+    /** 
+    * Handle the selection of option1, fetching arrays of products and their quantities related info
+    */
+    private static String handleOption1(Connection conn) {
+        ArrayList<Integer> productIDs = new ArrayList();
+        ArrayList<Integer> quantities = new ArrayList();
+        String saleDate = "01-jan-00";
+        int staffID = 0; 
+        String opt = "";
+
+        while (!(opt.equals("n") || opt.equals("N"))) {
+            opt = readEntry("Enter a product ID: "); 
+            productIDs.add(Integer.valueOf(opt));
+            opt = readEntry("Enter the quantity sold: ");
+            quantities.add(Integer.valueOf(opt));
+            opt = readEntry("Is there another product in the order?: ");
+        }
+        
+        saleDate = readEntry("Enter the date sold: ");
+        staffID = Integer.valueOf(readEntry("Enter your staff ID: "));
+
+        int[] productIDsArray = new int[productIDs.size()];
+        int[] quantitiesArray = new int[quantities.size()];
+
+        for (int i = 0; i < productIDs.size(); i++) {
+            productIDsArray[i] = productIDs.get(i); 
+            quantitiesArray[i] = quantities.get(i); 
+        }
+        
+        option1(conn, productIDsArray, quantitiesArray, saleDate, staffID); 
+        return "";
+    }
+
 	/**
 	* @param conn An open database connection 
 	* @param productIDs An array of productIDs associated with an order
@@ -79,8 +114,85 @@ class Assignment {
 	* @param staffID The id of the staff member who sold the order
 	*/
 	public static void option1(Connection conn, int[] productIDs, int[] quantities, String orderDate, int staffID) {
-		// Incomplete - Code for option 1 goes here
+        // ####SELECT Check that products and their respective quantities are avaialable. 
+        // ####UPDATE: If so, reduce stock count in inventory by quantities amount 
+        // INSERT: add an InStore, completed order to orders 
+        // INSERT: Add a row to order_products for each item in the order
+        // INSERT: add a staff order entry to staff_orders
+
+        // Create sequences for increment ID's 
+        // Create functions for checking stock count is sufficient, and decreases stock count
+
+        try {
+            // Check we can have enough stock in our inventory to process this order. If not, don't update and return with error. 
+            for (int i = 0; i < productIDs.length; i++) {
+                if (!sufficientStock(conn, productIDs[i], quantities[i])) {
+                    System.out.println("Unable to process order - insufficient stock in inventory for product ID " + productIDs[i]);
+                    return; 
+                }
+            }
+            System.out.println("Sufficient stock for all items :) "); 
+            
+            // If we have determined we have sufficient stock to process the order, then update our inventory to reflect our sold stock 
+            for (int i = 0; i < productIDs.length; i++) {
+                reduceStock(conn, productIDs[i], quantities[i]);
+            }
+
+
+        //} catch (SQLException e) {
+        //    System.err.format("SQL State: %s\n%s", e.getSQLState(), e.getMessage());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 	}
+
+	/**
+	* @param conn An open database connection 
+	* @param productID A productID associated with an order
+    * @param quantities A quantity of a product - we want to check if we have this quantity in stock of the given product
+    */
+    public static boolean sufficientStock(Connection conn, int productID, int quantity) {
+        Boolean isSufficient = false;
+        try {
+            // Call a user function sufficientStock that we have defined in our schema
+            // The function simply returns a boolean that lets us know if we can 
+            CallableStatement upperFunc = conn.prepareCall("{ call sufficientStock(?, ?) }");
+            upperFunc.registerOutParameter(1, Types.BOOLEAN);
+            upperFunc.setInt(1, productID);
+            upperFunc.setInt(2, quantity);
+            upperFunc.execute();
+            isSufficient = upperFunc.getBoolean(1);
+            upperFunc.close();
+        } catch (SQLException e) {
+            System.err.format("SQL State: %s\n%s", e.getSQLState(), e.getMessage());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return isSufficient;
+    }
+
+	/**
+	* @param conn An open database connection 
+	* @param productID A productID associated with an order
+    * @param quantities A quantity of a product - we want to check if we have this quantity in stock of the given product
+    */
+    public static void reduceStock(Connection conn, int productID, int quantity) {
+        try {
+            // Call a user function sufficientStock that we have defined in our schema
+            // The function simply returns a boolean that lets us know if we can 
+            CallableStatement upperFunc = conn.prepareCall("{call reduceStock(?, ?)}");
+            upperFunc.setInt(1, productID);
+            upperFunc.setInt(2, quantity);
+            System.out.println("AssigneD quantities\n");
+            upperFunc.execute();
+            System.out.println("Executed...\n");
+            upperFunc.close();
+        } catch (SQLException e) {
+            System.err.format("SQL State: %s\n%s", e.getSQLState(), e.getMessage());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
 	/**
 	* @param conn An open database connection 
@@ -167,15 +279,16 @@ class Assignment {
     }
 
     public static void printMenu() {
-        System.out.print("(1) In-Store Purchase");
-        System.out.print("(2) Collection");
-        System.out.print("(3) Delivery");
-        System.out.print("(4) Biggest Sellers");
-        System.out.print("(5) Reserved Stock");
-        System.out.print("(6) Staff Life-Time Success");
-        System.out.print("(7) Staff Contribution");
-        System.out.print("(8) Employee of the Year");
-        System.out.print("(0) Quit");
+        System.out.print("(1) In-Store Purchase\n");
+        System.out.print("(2) Collection\n");
+        System.out.print("(3) Delivery\n");
+        System.out.print("(4) Biggest Sellers\n");
+        System.out.print("(5) Reserved Stock\n");
+        System.out.print("(6) Staff Life-Time Success\n");
+        System.out.print("(7) Staff Contribution\n");
+        System.out.print("(8) Employee of the Year\n");
+        System.out.print("(9) Show Inventory\n");
+        System.out.print("(0) Quit\n");
     }
 	
 /*    public static Connection getConnection() {
@@ -203,5 +316,31 @@ class Assignment {
 
     }*/
 
+        /** 
+        int foovalue = 500;
+        PreparedStatement st = conn.prepareStatement("DELETE FROM mytable WHERE columnfoo = ?");
+        st.setInt(1, foovalue);
+        int rowsDeleted = st.executeUpdate();
+        System.out.println(rowsDeleted + " rows deleted");
+        st.close();
+
+        String selectStatement = "SELECT * FROM inventory";
+
+
+            PreparedStatement preparedStatement = conn.prepareStatement(selectStatement);
+            ResultSet players = preparedStatement.executeQuery();
+
+            while (players.next()) {
+                System.out.println("product id: " + players.getString("ProductID"));
+                System.out.println("product desc: " + players.getString("ProductDesc"));
+                System.out.println("product quantity: " + players.getString("ProductStockAmount"));
+            }
+
+            // Always close statements, result sets and connections after use
+            // Otherwise you run out of available open cursors!
+            preparedStatement.close();
+            players.close();
+
+        */
 	
 }
