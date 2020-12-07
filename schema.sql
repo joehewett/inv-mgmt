@@ -8,67 +8,67 @@ CREATE SEQUENCE ProductIDSequence START 1 INCREMENT BY 1;
 
 DROP TABLE inventory CASCADE;
 CREATE TABLE inventory (
-    ProductID          integer not null, 
-    ProductDesc        varchar(30) not null,
-    ProductPrice       numeric(8,2) not null,
-    ProductStockAmount integer,
-    primary key (ProductID)
+    ProductID          INTEGER NOT NULL, 
+    ProductDesc        VARCHAR(30) NOT NULL,
+    ProductPrice       NUMERIC(8,2) NOT NULL,
+    ProductStockAmount INTEGER,
+    PRIMARY KEY (ProductID)
 );
 
 
 DROP TABLE orders CASCADE;
 CREATE TABLE orders (
-    OrderID        integer not null, 
-    OrderType      varchar(30) not null, -- 'InStore', 'Collection' or 'Delivery' - should be an enum ideally
-    OrderCompleted integer not null, -- 0 or 1 
-    OrderPlaced    date, 
-    primary key (OrderID)
+    OrderID        INTEGER NOT NULL, 
+    OrderType      VARCHAR(30) NOT NULL, -- 'InStore', 'Collection' or 'Delivery' - should be an enum ideally
+    OrderCompleted INTEGER NOT NULL, -- 0 or 1 
+    OrderPlaced    DATE, 
+    PRIMARY KEY (OrderID)
 );
 
 DROP TABLE order_products CASCADE;
 CREATE TABLE order_products (
-    OrderID         integer not null,
-    ProductID       integer not null, 
-    ProductQuantity integer not null, 
-    foreign key (OrderID) references orders(OrderID),
-    foreign key (ProductID) references inventory(ProductID)
+    OrderID         INTEGER NOT NULL,
+    ProductID       INTEGER NOT NULL, 
+    ProductQuantity INTEGER NOT NULL, 
+    FOREIGN KEY (OrderID) REFERENCES orders(OrderID) ON DELETE CASCADE, 
+    FOREIGN KEY (ProductID) REFERENCES inventory(ProductID) ON DELETE CASCADE
 );
 
 DROP TABLE deliveries CASCADE;
 CREATE TABLE deliveries (
-    OrderID       integer not null,
-    FName         varchar(30) not null,
-    LName         varchar(30) not null,
-    House         varchar(30) not null,
-    Street        varchar(30) not null,
-    City          varchar(30) not null,
+    OrderID       INTEGER NOT NULL,
+    FName         VARCHAR(30) NOT NULL,
+    LName         VARCHAR(30) NOT NULL,
+    House         VARCHAR(30) NOT NULL,
+    Street        VARCHAR(30) NOT NULL,
+    City          VARCHAR(30) NOT NULL,
     DeliveryDate  date,
-    foreign key (OrderID) references orders(OrderID)
+    FOREIGN KEY (OrderID) REFERENCES orders(OrderID)
 );
 
 DROP TABLE collections CASCADE;
 CREATE TABLE collections (
-    OrderID         integer not null,
-    FName           varchar(30) not null,
-    LName           varchar(30) not null,
+    OrderID         INTEGER NOT NULL,
+    FName           VARCHAR(30) NOT NULL,
+    LName           VARCHAR(30) NOT NULL,
     CollectionDate  date,
-    foreign key (OrderID) references orders(OrderID)
+    FOREIGN KEY (OrderID) REFERENCES orders(OrderID) ON DELETE CASCADE
 );
 
 DROP TABLE staff CASCADE;
 CREATE TABLE staff (
-    StaffID         integer not null,
-    FName           varchar(30) not null,
-    LName           varchar(30) not null,
-    primary key (StaffID)
+    StaffID         INTEGER NOT NULL,
+    FName           VARCHAR(30) NOT NULL,
+    LName           VARCHAR(30) NOT NULL,
+    PRIMARY KEY (StaffID)
 );
 
 DROP TABLE staff_orders CASCADE;
 CREATE TABLE staff_orders (
-    StaffID         integer not null,
-    OrderID         integer not null,
-    foreign key (StaffID) references staff(StaffID),
-    foreign key (OrderID) references orders(OrderID) 
+    StaffID         INTEGER NOT NULL,
+    OrderID         INTEGER NOT NULL,
+    FOREIGN KEY (StaffID) REFERENCES staff(StaffID) ON DELETE CASCADE,
+    FOREIGN KEY (OrderID) REFERENCES orders(OrderID) ON DELETE CASCADE 
 );
 
 -- Create a new order in orders and return it's ID created by sequence
@@ -177,11 +177,40 @@ CREATE OR REPLACE PROCEDURE insertDelivery(orderID INTEGER, fName VARCHAR, lName
     END; 
     $$; 
 
+CREATE OR REPLACE PROCEDURE removeOldOrders(removeFromDate DATE)
+    LANGUAGE plpgsql AS
+    $$
+    BEGIN
+        DELETE FROM orders o 
+        USING collections c
+        WHERE o.OrderID = c.OrderID
+        AND removeFromDate - INTERVAL '8 days' > c.CollectionDate;
+    END;
+    $$;
+
+CREATE OR REPLACE FUNCTION addUncollectedStock() RETURNS TRIGGER AS $removeOrders$
+    BEGIN
+        UPDATE inventory SET ProductStockAmount = ProductStockAmount + OLD.ProductQuantity WHERE ProductID = OLD.ProductID;     
+        RETURN OLD;
+    END; 
+    $removeOrders$
+    LANGUAGE plpgsql;
+
+-- Delete all orders from 
+CREATE TRIGGER removeOrders BEFORE DELETE
+    ON order_products 
+    FOR EACH ROW EXECUTE FUNCTION addUncollectedStock();  
+
+
 
 --INSERT INTO inventory(ProductID, ProductDesc, ProductPrice, ProductStockAmount) VALUES (1, "Cap", 10.5, 5);
 INSERT INTO inventory VALUES (1, 'testing1', 1, 1);
 INSERT INTO inventory VALUES (2, 'testing2', 2, 2);
 INSERT INTO inventory VALUES (3, 'testing3', 3, 3);
 INSERT INTO inventory VALUES (4, 'testing4', 4, 4);
-INSERT INTO orders VALUES (10, 'Bikes', 0, NOW());
 INSERT INTO staff VALUES (4, 'James', 'Smith');
+
+INSERT INTO orders VALUES (10, 'Collection', 0, NOW());
+INSERT INTO collections VALUES (10, 'James', 'Smith', NOW() - INTERVAL '1 year');
+INSERT INTO order_products VALUES (10, 1, 1);
+INSERT INTO staff_orders VALUES (4, 10)

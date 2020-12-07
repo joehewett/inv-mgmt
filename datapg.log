@@ -1905,3 +1905,303 @@
 2020-12-07 20:39:29.900 GMT [39302] LOG:  using stale statistics instead of current ones because stats collector is not responding
 2020-12-07 20:41:29.920 GMT [39302] LOG:  using stale statistics instead of current ones because stats collector is not responding
 2020-12-07 20:43:29.966 GMT [39302] LOG:  using stale statistics instead of current ones because stats collector is not responding
+2020-12-07 20:55:19.003 GMT [33074] ERROR:  canceling statement due to user request
+2020-12-07 20:55:19.003 GMT [33074] STATEMENT:  DROP TABLE inventory CASCADE;
+2020-12-07 20:55:42.883 GMT [33074] ERROR:  canceling statement due to user request
+2020-12-07 20:55:42.883 GMT [33074] STATEMENT:  DROP TABLE inventory CASCADE;
+2020-12-07 20:57:14.075 GMT [39302] LOG:  using stale statistics instead of current ones because stats collector is not responding
+2020-12-07 20:59:11.603 GMT [33074] ERROR:  canceling statement due to user request
+2020-12-07 20:59:11.603 GMT [33074] STATEMENT:  DROP TABLE inventory CASCADE;
+2020-12-07 20:59:13.880 GMT [39302] LOG:  using stale statistics instead of current ones because stats collector is not responding
+2020-12-07 20:59:25.278 GMT [39278] LOG:  received fast shutdown request
+2020-12-07 20:59:25.281 GMT [39278] LOG:  aborting any active transactions
+2020-12-07 20:59:25.282 GMT [27096] FATAL:  terminating connection due to administrator command
+2020-12-07 20:59:25.284 GMT [39278] LOG:  background worker "logical replication launcher" (PID 39309) exited with exit code 1
+2020-12-07 20:59:25.285 GMT [39299] LOG:  shutting down
+2020-12-07 20:59:25.377 GMT [39278] LOG:  database system is shut down
+2020-12-07 20:59:28.216 GMT [15934] LOG:  starting PostgreSQL 12.3 on x86_64-pc-linux-gnu, compiled by gcc (GCC) 4.8.5 20150623 (Red Hat 4.8.5-39), 64-bit
+2020-12-07 20:59:28.234 GMT [15934] LOG:  listening on Unix socket "/dcs/19/u1813151/Documents/cs258/postgres/tmp/.s.PGSQL.5432"
+2020-12-07 20:59:28.318 GMT [15967] LOG:  database system was shut down at 2020-12-07 20:59:25 GMT
+2020-12-07 20:59:28.337 GMT [15934] LOG:  database system is ready to accept connections
+2020-12-07 20:59:45.730 GMT [22730] ERROR:  syntax error at or near "*" at character 122
+2020-12-07 20:59:45.730 GMT [22730] STATEMENT:  CREATE OR REPLACE PROCEDURE removeOldOrders(removeFromDate DATE)
+	    LANGUAGE plpgsql AS
+	    $$
+	    BEGIN
+	        DELETE * FROM orders o 
+	        INNER JOIN collections c ON o.OrderID = c.OrderID
+	        WHERE removeFromDate - INTERVAL '8 days' > c.CollectionDate;
+	    END;
+	    $$;
+2020-12-07 21:00:10.784 GMT [22730] ERROR:  syntax error at or near "INNER" at character 145
+2020-12-07 21:00:10.784 GMT [22730] STATEMENT:  CREATE OR REPLACE PROCEDURE removeOldOrders(removeFromDate DATE)
+	    LANGUAGE plpgsql AS
+	    $$
+	    BEGIN
+	        DELETE FROM orders o 
+	        INNER JOIN collections c ON o.OrderID = c.OrderID
+	        WHERE removeFromDate - INTERVAL '8 days' > c.CollectionDate;
+	    END;
+	    $$;
+2020-12-07 21:01:19.205 GMT [22730] ERROR:  syntax error at or near "o" at character 122
+2020-12-07 21:01:19.205 GMT [22730] STATEMENT:  CREATE OR REPLACE PROCEDURE removeOldOrders(removeFromDate DATE)
+	    LANGUAGE plpgsql AS
+	    $$
+	    BEGIN
+	        DELETE o FROM orders o 
+	        INNER JOIN collections c ON o.OrderID = c.OrderID
+	        WHERE removeFromDate - INTERVAL '8 days' > c.CollectionDate;
+	    END;
+	    $$;
+2020-12-07 21:04:37.563 GMT [22730] ERROR:  procedure removeoldorders(timestamp with time zone) does not exist at character 6
+2020-12-07 21:04:37.563 GMT [22730] HINT:  No procedure matches the given name and argument types. You might need to add explicit type casts.
+2020-12-07 21:04:37.563 GMT [22730] STATEMENT:  call removeOldOrders(NOW());
+2020-12-07 21:05:09.465 GMT [22730] ERROR:  update or delete on table "orders" violates foreign key constraint "collections_orderid_fkey" on table "collections"
+2020-12-07 21:05:09.465 GMT [22730] DETAIL:  Key (orderid)=(10) is still referenced from table "collections".
+2020-12-07 21:05:09.465 GMT [22730] CONTEXT:  SQL statement "DELETE FROM orders o 
+	        USING collections c
+	        WHERE o.OrderID = c.OrderID
+	        AND removeFromDate - INTERVAL '8 days' > c.CollectionDate"
+	PL/pgSQL function removeoldorders(date) line 3 at SQL statement
+2020-12-07 21:05:09.465 GMT [22730] STATEMENT:  call removeOldOrders(CURRENT_DATE);
+2020-12-07 21:25:24.048 GMT [15986] LOG:  using stale statistics instead of current ones because stats collector is not responding
+2020-12-07 21:25:38.731 GMT [22730] ERROR:  update or delete on table "orders" violates foreign key constraint "collections_orderid_fkey" on table "collections"
+2020-12-07 21:25:38.731 GMT [22730] DETAIL:  Key (orderid)=(10) is still referenced from table "collections".
+2020-12-07 21:25:38.731 GMT [22730] CONTEXT:  SQL statement "DELETE FROM orders o 
+	        USING collections c
+	        WHERE o.OrderID = c.OrderID
+	        AND removeFromDate - INTERVAL '8 days' > c.CollectionDate"
+	PL/pgSQL function removeoldorders(date) line 3 at SQL statement
+2020-12-07 21:25:38.731 GMT [22730] STATEMENT:  call removeOldOrders(CURRENT_DATE);
+2020-12-07 21:25:44.486 GMT [22730] ERROR:  function deleterelatedorderproducts() does not exist
+2020-12-07 21:25:44.486 GMT [22730] STATEMENT:  CREATE TRIGGER removeOrders BEFORE DELETE
+	    ON orders 
+	    FOR EACH ROW EXECUTE FUNCTION deleteRelatedOrderProducts();
+2020-12-07 21:26:04.214 GMT [22730] ERROR:  update or delete on table "orders" violates foreign key constraint "collections_orderid_fkey" on table "collections"
+2020-12-07 21:26:04.214 GMT [22730] DETAIL:  Key (orderid)=(10) is still referenced from table "collections".
+2020-12-07 21:26:04.214 GMT [22730] CONTEXT:  SQL statement "DELETE FROM orders o 
+	        USING collections c
+	        WHERE o.OrderID = c.OrderID
+	        AND removeFromDate - INTERVAL '8 days' > c.CollectionDate"
+	PL/pgSQL function removeoldorders(date) line 3 at SQL statement
+2020-12-07 21:26:04.214 GMT [22730] STATEMENT:  call removeOldOrders(CURRENT_DATE);
+2020-12-07 21:27:23.708 GMT [22730] ERROR:  update or delete on table "orders" violates foreign key constraint "collections_orderid_fkey" on table "collections"
+2020-12-07 21:27:23.708 GMT [22730] DETAIL:  Key (orderid)=(10) is still referenced from table "collections".
+2020-12-07 21:27:23.708 GMT [22730] CONTEXT:  SQL statement "DELETE FROM orders o 
+	        USING collections c
+	        WHERE o.OrderID = c.OrderID
+	        AND removeFromDate - INTERVAL '8 days' > c.CollectionDate"
+	PL/pgSQL function removeoldorders(date) line 3 at SQL statement
+2020-12-07 21:27:23.708 GMT [22730] STATEMENT:  call removeOldOrders(CURRENT_DATE);
+2020-12-07 21:27:24.099 GMT [15986] LOG:  using stale statistics instead of current ones because stats collector is not responding
+2020-12-07 21:27:28.610 GMT [22730] ERROR:  update or delete on table "orders" violates foreign key constraint "collections_orderid_fkey" on table "collections"
+2020-12-07 21:27:28.610 GMT [22730] DETAIL:  Key (orderid)=(10) is still referenced from table "collections".
+2020-12-07 21:27:28.610 GMT [22730] CONTEXT:  SQL statement "DELETE FROM orders o 
+	        USING collections c
+	        WHERE o.OrderID = c.OrderID
+	        AND removeFromDate - INTERVAL '8 days' > c.CollectionDate"
+	PL/pgSQL function removeoldorders(date) line 3 at SQL statement
+2020-12-07 21:27:28.610 GMT [22730] STATEMENT:  call removeOldOrders(CURRENT_DATE);
+2020-12-07 21:29:24.108 GMT [15986] LOG:  using stale statistics instead of current ones because stats collector is not responding
+2020-12-07 21:31:24.121 GMT [15986] LOG:  using stale statistics instead of current ones because stats collector is not responding
+2020-12-07 21:33:27.542 GMT [22730] ERROR:  syntax error at or near "ON" at character 198
+2020-12-07 21:33:27.542 GMT [22730] STATEMENT:  CREATE TABLE orders (
+	    OrderID        INTEGER NOT NULL, 
+	    OrderType      VARCHAR(30) NOT NULL, 
+	    OrderCompleted INTEGER NOT NULL, 
+	    OrderPlaced    DATE, 
+	    PRIMARY KEY (OrderID),
+	    ON DELETE CASCADE 
+	);
+2020-12-07 21:33:27.549 GMT [22730] ERROR:  relation "orders" does not exist
+2020-12-07 21:33:27.549 GMT [22730] STATEMENT:  CREATE TABLE order_products (
+	    OrderID         INTEGER NOT NULL,
+	    ProductID       INTEGER NOT NULL, 
+	    ProductQuantity INTEGER NOT NULL, 
+	    FOREIGN KEY (OrderID) REFERENCES orders(OrderID),
+	    FOREIGN KEY (ProductID) REFERENCES inventory(ProductID)
+	);
+2020-12-07 21:33:27.561 GMT [22730] ERROR:  relation "orders" does not exist
+2020-12-07 21:33:27.561 GMT [22730] STATEMENT:  CREATE TABLE deliveries (
+	    OrderID       INTEGER NOT NULL,
+	    FName         VARCHAR(30) NOT NULL,
+	    LName         VARCHAR(30) NOT NULL,
+	    House         VARCHAR(30) NOT NULL,
+	    Street        VARCHAR(30) NOT NULL,
+	    City          VARCHAR(30) NOT NULL,
+	    DeliveryDate  date,
+	    FOREIGN KEY (OrderID) REFERENCES orders(OrderID)
+	);
+2020-12-07 21:33:27.574 GMT [22730] ERROR:  relation "orders" does not exist
+2020-12-07 21:33:27.574 GMT [22730] STATEMENT:  CREATE TABLE collections (
+	    OrderID         INTEGER NOT NULL,
+	    FName           VARCHAR(30) NOT NULL,
+	    LName           VARCHAR(30) NOT NULL,
+	    CollectionDate  date,
+	    FOREIGN KEY (OrderID) REFERENCES orders(OrderID)
+	);
+2020-12-07 21:33:27.610 GMT [22730] ERROR:  relation "orders" does not exist
+2020-12-07 21:33:27.610 GMT [22730] STATEMENT:  CREATE TABLE staff_orders (
+	    StaffID         INTEGER NOT NULL,
+	    OrderID         INTEGER NOT NULL,
+	    FOREIGN KEY (StaffID) REFERENCES staff(StaffID),
+	    FOREIGN KEY (OrderID) REFERENCES orders(OrderID) 
+	);
+2020-12-07 21:33:27.620 GMT [22730] ERROR:  relation "order_products" does not exist
+2020-12-07 21:33:27.620 GMT [22730] STATEMENT:  CREATE TRIGGER orderProductsTrigger AFTER INSERT OR UPDATE
+	    ON order_products
+	    FOR EACH ROW EXECUTE FUNCTION checkValidOrderProduct();
+2020-12-07 21:33:27.635 GMT [22730] ERROR:  relation "orders" does not exist
+2020-12-07 21:33:27.635 GMT [22730] STATEMENT:  CREATE TRIGGER removeOrders BEFORE DELETE
+	    ON orders 
+	    FOR EACH ROW EXECUTE FUNCTION deleteRelatedOrderProducts();
+2020-12-07 21:33:27.644 GMT [22730] ERROR:  relation "orders" does not exist at character 13
+2020-12-07 21:33:27.644 GMT [22730] STATEMENT:  INSERT INTO orders VALUES (10, 'Collection', 0, NOW());
+2020-12-07 21:33:27.644 GMT [22730] ERROR:  relation "collections" does not exist at character 13
+2020-12-07 21:33:27.644 GMT [22730] STATEMENT:  INSERT INTO collections VALUES (10, 'James', 'Smith', NOW() - INTERVAL '1 year');
+2020-12-07 21:33:35.177 GMT [22730] ERROR:  table "orders" does not exist
+2020-12-07 21:33:35.177 GMT [22730] STATEMENT:  DROP TABLE orders CASCADE;
+2020-12-07 21:33:35.178 GMT [22730] ERROR:  syntax error at or near "ON" at character 198
+2020-12-07 21:33:35.178 GMT [22730] STATEMENT:  CREATE TABLE orders (
+	    OrderID        INTEGER NOT NULL, 
+	    OrderType      VARCHAR(30) NOT NULL, 
+	    OrderCompleted INTEGER NOT NULL, 
+	    OrderPlaced    DATE, 
+	    PRIMARY KEY (OrderID),
+	    ON DELETE CASCADE 
+	);
+2020-12-07 21:33:35.178 GMT [22730] ERROR:  table "order_products" does not exist
+2020-12-07 21:33:35.178 GMT [22730] STATEMENT:  DROP TABLE order_products CASCADE;
+2020-12-07 21:33:35.186 GMT [22730] ERROR:  relation "orders" does not exist
+2020-12-07 21:33:35.186 GMT [22730] STATEMENT:  CREATE TABLE order_products (
+	    OrderID         INTEGER NOT NULL,
+	    ProductID       INTEGER NOT NULL, 
+	    ProductQuantity INTEGER NOT NULL, 
+	    FOREIGN KEY (OrderID) REFERENCES orders(OrderID),
+	    FOREIGN KEY (ProductID) REFERENCES inventory(ProductID)
+	);
+2020-12-07 21:33:35.190 GMT [22730] ERROR:  table "deliveries" does not exist
+2020-12-07 21:33:35.190 GMT [22730] STATEMENT:  DROP TABLE deliveries CASCADE;
+2020-12-07 21:33:35.195 GMT [22730] ERROR:  relation "orders" does not exist
+2020-12-07 21:33:35.195 GMT [22730] STATEMENT:  CREATE TABLE deliveries (
+	    OrderID       INTEGER NOT NULL,
+	    FName         VARCHAR(30) NOT NULL,
+	    LName         VARCHAR(30) NOT NULL,
+	    House         VARCHAR(30) NOT NULL,
+	    Street        VARCHAR(30) NOT NULL,
+	    City          VARCHAR(30) NOT NULL,
+	    DeliveryDate  date,
+	    FOREIGN KEY (OrderID) REFERENCES orders(OrderID)
+	);
+2020-12-07 21:33:35.198 GMT [22730] ERROR:  table "collections" does not exist
+2020-12-07 21:33:35.198 GMT [22730] STATEMENT:  DROP TABLE collections CASCADE;
+2020-12-07 21:33:35.206 GMT [22730] ERROR:  relation "orders" does not exist
+2020-12-07 21:33:35.206 GMT [22730] STATEMENT:  CREATE TABLE collections (
+	    OrderID         INTEGER NOT NULL,
+	    FName           VARCHAR(30) NOT NULL,
+	    LName           VARCHAR(30) NOT NULL,
+	    CollectionDate  date,
+	    FOREIGN KEY (OrderID) REFERENCES orders(OrderID)
+	);
+2020-12-07 21:33:35.239 GMT [22730] ERROR:  table "staff_orders" does not exist
+2020-12-07 21:33:35.239 GMT [22730] STATEMENT:  DROP TABLE staff_orders CASCADE;
+2020-12-07 21:33:35.243 GMT [22730] ERROR:  relation "orders" does not exist
+2020-12-07 21:33:35.243 GMT [22730] STATEMENT:  CREATE TABLE staff_orders (
+	    StaffID         INTEGER NOT NULL,
+	    OrderID         INTEGER NOT NULL,
+	    FOREIGN KEY (StaffID) REFERENCES staff(StaffID),
+	    FOREIGN KEY (OrderID) REFERENCES orders(OrderID) 
+	);
+2020-12-07 21:33:35.255 GMT [22730] ERROR:  relation "order_products" does not exist
+2020-12-07 21:33:35.255 GMT [22730] STATEMENT:  CREATE TRIGGER orderProductsTrigger AFTER INSERT OR UPDATE
+	    ON order_products
+	    FOR EACH ROW EXECUTE FUNCTION checkValidOrderProduct();
+2020-12-07 21:33:35.279 GMT [22730] ERROR:  relation "orders" does not exist
+2020-12-07 21:33:35.279 GMT [22730] STATEMENT:  CREATE TRIGGER removeOrders BEFORE DELETE
+	    ON orders 
+	    FOR EACH ROW EXECUTE FUNCTION deleteRelatedOrderProducts();
+2020-12-07 21:33:35.293 GMT [22730] ERROR:  relation "orders" does not exist at character 13
+2020-12-07 21:33:35.293 GMT [22730] STATEMENT:  INSERT INTO orders VALUES (10, 'Collection', 0, NOW());
+2020-12-07 21:33:35.294 GMT [22730] ERROR:  relation "collections" does not exist at character 13
+2020-12-07 21:33:35.294 GMT [22730] STATEMENT:  INSERT INTO collections VALUES (10, 'James', 'Smith', NOW() - INTERVAL '1 year');
+2020-12-07 21:41:09.273 GMT [15986] LOG:  using stale statistics instead of current ones because stats collector is not responding
+2020-12-07 21:41:16.503 GMT [22730] ERROR:  table "orders" does not exist
+2020-12-07 21:41:16.503 GMT [22730] STATEMENT:  DROP TABLE orders CASCADE;
+2020-12-07 21:41:16.519 GMT [22730] ERROR:  table "order_products" does not exist
+2020-12-07 21:41:16.519 GMT [22730] STATEMENT:  DROP TABLE order_products CASCADE;
+2020-12-07 21:41:16.529 GMT [22730] ERROR:  table "deliveries" does not exist
+2020-12-07 21:41:16.529 GMT [22730] STATEMENT:  DROP TABLE deliveries CASCADE;
+2020-12-07 21:41:16.540 GMT [22730] ERROR:  table "collections" does not exist
+2020-12-07 21:41:16.540 GMT [22730] STATEMENT:  DROP TABLE collections CASCADE;
+2020-12-07 21:41:16.566 GMT [22730] ERROR:  table "staff_orders" does not exist
+2020-12-07 21:41:16.566 GMT [22730] STATEMENT:  DROP TABLE staff_orders CASCADE;
+2020-12-07 21:41:16.613 GMT [22730] ERROR:  syntax error at or near "RETURN" at character 275
+2020-12-07 21:41:16.613 GMT [22730] STATEMENT:  CREATE OR REPLACE FUNCTION addUncollectedStock() RETURNS TRIGGER AS $removeOrders$
+	    DECLARE
+	    isSufficient BOOLEAN;
+	    BEGIN
+	        UPDATE inventory SET ProductStockAmount = ProductStockAmount + OLD.ProductQuantity WHERE ProductID = OLD.ProductID;     
+	    END; 
+	    RETURN NEW; 
+	    $removeOrders$
+	    LANGUAGE plpgsql;
+2020-12-07 21:41:16.613 GMT [22730] ERROR:  function adduncollectedstock() does not exist
+2020-12-07 21:41:16.613 GMT [22730] STATEMENT:  CREATE TRIGGER removeOrders BEFORE DELETE
+	    ON order_products 
+	    FOR EACH ROW EXECUTE FUNCTION addUncollectedStock();
+2020-12-07 21:41:59.184 GMT [22730] ERROR:  syntax error at or near "RETURN" at character 275
+2020-12-07 21:41:59.184 GMT [22730] STATEMENT:  CREATE OR REPLACE FUNCTION addUncollectedStock() RETURNS TRIGGER AS $removeOrders$
+	    DECLARE
+	    isSufficient BOOLEAN;
+	    BEGIN
+	        UPDATE inventory SET ProductStockAmount = ProductStockAmount + OLD.ProductQuantity WHERE ProductID = OLD.ProductID;     
+	    END; 
+	    RETURN NEW; 
+	    $removeOrders$
+	    LANGUAGE plpgsql;
+2020-12-07 21:41:59.184 GMT [22730] ERROR:  function adduncollectedstock() does not exist
+2020-12-07 21:41:59.184 GMT [22730] STATEMENT:  CREATE TRIGGER removeOrders BEFORE DELETE
+	    ON order_products 
+	    FOR EACH ROW EXECUTE FUNCTION addUncollectedStock();
+2020-12-07 21:43:09.346 GMT [15986] LOG:  using stale statistics instead of current ones because stats collector is not responding
+2020-12-07 21:45:09.294 GMT [15986] LOG:  using stale statistics instead of current ones because stats collector is not responding
+2020-12-07 21:45:19.207 GMT [22730] ERROR:  Insufficient stock to execute order
+2020-12-07 21:45:19.207 GMT [22730] CONTEXT:  PL/pgSQL function checkvalidorderproduct() line 7 at RAISE
+2020-12-07 21:45:19.207 GMT [22730] STATEMENT:  INSERT INTO order_products VALUES (10, 1, 50);
+2020-12-07 21:47:15.164 GMT [31045] ERROR:  control reached end of trigger procedure without RETURN
+2020-12-07 21:47:15.164 GMT [31045] CONTEXT:  PL/pgSQL function adduncollectedstock()
+	SQL statement "DELETE FROM ONLY "public"."order_products" WHERE $1 OPERATOR(pg_catalog.=) "orderid""
+	SQL statement "DELETE FROM orders o 
+	        USING collections c
+	        WHERE o.OrderID = c.OrderID
+	        AND removeFromDate - INTERVAL '8 days' > c.CollectionDate"
+	PL/pgSQL function removeoldorders(date) line 3 at SQL statement
+2020-12-07 21:47:15.164 GMT [31045] STATEMENT:  call removeOldOrders(CURRENT_DATE);
+2020-12-07 21:48:29.381 GMT [31045] ERROR:  update or delete on table "orders" violates foreign key constraint "collections_orderid_fkey" on table "collections"
+2020-12-07 21:48:29.381 GMT [31045] DETAIL:  Key (orderid)=(10) is still referenced from table "collections".
+2020-12-07 21:48:29.381 GMT [31045] CONTEXT:  SQL statement "DELETE FROM orders o 
+	        USING collections c
+	        WHERE o.OrderID = c.OrderID
+	        AND removeFromDate - INTERVAL '8 days' > c.CollectionDate"
+	PL/pgSQL function removeoldorders(date) line 3 at SQL statement
+2020-12-07 21:48:29.381 GMT [31045] STATEMENT:  call removeOldOrders(CURRENT_DATE);
+2020-12-07 21:49:09.318 GMT [15986] LOG:  using stale statistics instead of current ones because stats collector is not responding
+2020-12-07 21:51:09.358 GMT [15986] LOG:  using stale statistics instead of current ones because stats collector is not responding
+2020-12-07 22:13:09.639 GMT [15986] LOG:  using stale statistics instead of current ones because stats collector is not responding
+2020-12-07 22:13:19.949 GMT [1420] LOG:  using stale statistics instead of current ones because stats collector is not responding
+2020-12-07 22:13:24.583 GMT [15986] LOG:  using stale statistics instead of current ones because stats collector is not responding
+2020-12-07 22:24:27.446 GMT [15986] LOG:  using stale statistics instead of current ones because stats collector is not responding
+2020-12-07 22:26:27.554 GMT [15986] LOG:  using stale statistics instead of current ones because stats collector is not responding
+2020-12-07 22:30:23.803 GMT [31045] ERROR:  update or delete on table "orders" violates foreign key constraint "staff_orders_orderid_fkey" on table "staff_orders"
+2020-12-07 22:30:23.803 GMT [31045] DETAIL:  Key (orderid)=(1) is still referenced from table "staff_orders".
+2020-12-07 22:30:23.803 GMT [31045] CONTEXT:  SQL statement "DELETE FROM orders o 
+	        USING collections c
+	        WHERE o.OrderID = c.OrderID
+	        AND removeFromDate - INTERVAL '8 days' > c.CollectionDate"
+	PL/pgSQL function removeoldorders(date) line 3 at SQL statement
+2020-12-07 22:30:23.803 GMT [31045] STATEMENT:  call removeOldOrders(CURRENT_DATE);
+2020-12-07 22:33:10.694 GMT [31098] ERROR:  insert or update on table "order_products" violates foreign key constraint "order_products_productid_fkey"
+2020-12-07 22:33:10.694 GMT [31098] DETAIL:  Key (productid)=(34) is not present in table "inventory".
+2020-12-07 22:33:10.694 GMT [31098] CONTEXT:  SQL statement "INSERT INTO order_products (OrderID, ProductID, ProductQuantity) VALUES (ordID, prodID, prodQuantity)"
+	PL/pgSQL function insertorderproduct(integer,integer,integer) line 3 at SQL statement
+2020-12-07 22:33:10.694 GMT [31098] STATEMENT:  call insertOrderProduct($1, $2, $3)
