@@ -1,3 +1,7 @@
+-- TO DO 
+-- Think about ID sequence overlap and what we can do about it - we need to be able to be able to check if the new sequence id exists already and if so, skip until its not in use
+-- Add a boolean function that checks if the order date is < the delivery date
+
 DROP SEQUENCE IF EXISTS ProductIDSequence;
 CREATE SEQUENCE ProductIDSequence START 1 INCREMENT BY 1;
 
@@ -154,6 +158,24 @@ CREATE OR REPLACE PROCEDURE insertStaffOrder(staffID INTEGER, orderID INTEGER)
         INSERT INTO staff_orders (StaffID, OrderID) VALUES (staffID, orderID); 
     END;
     $$;
+
+-- Create a new order in orders and return it's ID created by sequence
+CREATE OR REPLACE PROCEDURE insertCollection(orderID INTEGER, fName VARCHAR, lName VARCHAR, collectionDate DATE)
+    LANGUAGE plpgsql AS
+    $$ 
+    BEGIN 
+        INSERT INTO collections (orderID, FName, LName, CollectionDate) VALUES (orderID, fName, lName, collectionDate);
+    END; 
+    $$; 
+
+-- Create a new order in orders and return it's ID created by sequence
+CREATE OR REPLACE PROCEDURE insertDelivery(orderID INTEGER, fName VARCHAR, lName VARCHAR, house VARCHAR, street VARCHAR, city VARCHAR, deliveryDate DATE)
+    LANGUAGE plpgsql AS
+    $$ 
+    BEGIN 
+        INSERT INTO deliveries (orderID, FName, LName, House, Street, City, DeliveryDate) VALUES (orderID, fName, lName, house, street, city, deliveryDate);
+    END; 
+    $$; 
 
 
 --INSERT INTO inventory(ProductID, ProductDesc, ProductPrice, ProductStockAmount) VALUES (1, "Cap", 10.5, 5);

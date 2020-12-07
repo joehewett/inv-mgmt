@@ -1833,3 +1833,75 @@
 2020-12-07 13:46:46.401 GMT [19910] STATEMENT:  y
 	select * from inventory;
 2020-12-07 13:48:24.121 GMT [39302] LOG:  using stale statistics instead of current ones because stats collector is not responding
+2020-12-07 15:09:54.641 GMT [39302] LOG:  using stale statistics instead of current ones because stats collector is not responding
+2020-12-07 16:29:55.676 GMT [39302] LOG:  using stale statistics instead of current ones because stats collector is not responding
+2020-12-07 16:30:06.315 GMT [32657] LOG:  using stale statistics instead of current ones because stats collector is not responding
+2020-12-07 16:54:13.927 GMT [19910] ERROR:  relation "deliverie" does not exist at character 15
+2020-12-07 16:54:13.927 GMT [19910] STATEMENT:  select * from deliverie;
+2020-12-07 16:54:15.224 GMT [19910] ERROR:  syntax error at or near "s" at character 1
+2020-12-07 16:54:15.224 GMT [19910] STATEMENT:  s
+	select * from deliverie;
+2020-12-07 16:55:02.900 GMT [16180] ERROR:  column "house" of relation "collections" does not exist at character 49
+2020-12-07 16:55:02.900 GMT [16180] QUERY:  INSERT INTO collections (orderID, FName, LName, House, Street, City, DeliveryDate) VALUES (orderID, fName, lName, house, street, city, deliveryDate)
+2020-12-07 16:55:02.900 GMT [16180] CONTEXT:  PL/pgSQL function insertdelivery(integer,character varying,character varying,character varying,character varying,character varying,date) line 3 at SQL statement
+2020-12-07 16:55:02.900 GMT [16180] STATEMENT:  call insertDelivery($1, $2, $3, $4, $5, $6, $7)
+2020-12-07 16:56:09.808 GMT [18638] ERROR:  column "house" of relation "collections" does not exist at character 49
+2020-12-07 16:56:09.808 GMT [18638] QUERY:  INSERT INTO collections (orderID, FName, LName, House, Street, City, DeliveryDate) VALUES (orderID, fName, lName, house, street, city, deliveryDate)
+2020-12-07 16:56:09.808 GMT [18638] CONTEXT:  PL/pgSQL function insertdelivery(integer,character varying,character varying,character varying,character varying,character varying,date) line 3 at SQL statement
+2020-12-07 16:56:09.808 GMT [18638] STATEMENT:  call insertDelivery($1, $2, $3, $4, $5, $6, $7)
+2020-12-07 17:03:14.147 GMT [38267] ERROR:  column "house" of relation "collections" does not exist at character 49
+2020-12-07 17:03:14.147 GMT [38267] QUERY:  INSERT INTO collections (orderID, FName, LName, House, Street, City, DeliveryDate) VALUES (orderID, fName, lName, house, street, city, deliveryDate)
+2020-12-07 17:03:14.147 GMT [38267] CONTEXT:  PL/pgSQL function insertdelivery(integer,character varying,character varying,character varying,character varying,character varying,date) line 3 at SQL statement
+2020-12-07 17:03:14.147 GMT [38267] STATEMENT:  call insertDelivery($1, $2, $3, $4, $5, $6, $7)
+2020-12-07 17:03:58.379 GMT [23566] ERROR:  column "house" of relation "collections" does not exist at character 49
+2020-12-07 17:03:58.379 GMT [23566] QUERY:  INSERT INTO collections (orderID, FName, LName, House, Street, City, DeliveryDate) VALUES (orderID, fName, lName, house, street, city, deliveryDate)
+2020-12-07 17:03:58.379 GMT [23566] CONTEXT:  PL/pgSQL function insertdelivery(integer,character varying,character varying,character varying,character varying,character varying,date) line 3 at SQL statement
+2020-12-07 17:03:58.379 GMT [23566] STATEMENT:  call insertDelivery($1, $2, $3, $4, $5, $6, $7)
+2020-12-07 17:05:24.051 GMT [19910] ERROR:  syntax error at or near "l" at character 1
+2020-12-07 17:05:24.051 GMT [19910] STATEMENT:  l
+	select * from order_products;
+2020-12-07 17:05:25.462 GMT [19910] ERROR:  syntax error at or near "#" at character 1
+2020-12-07 17:05:25.462 GMT [19910] STATEMENT:  #
+	select * from order_products;
+2020-12-07 19:07:19.454 GMT [13626] ERROR:  column "i.productprice" must appear in the GROUP BY clause or be used in an aggregate function at character 33
+2020-12-07 19:07:19.454 GMT [13626] STATEMENT:  SELECT SUM(p.ProductQuantity) * i.ProductPrice FROM order_products p
+	INNER JOIN orders o ON o.orderID = p.orderID
+	INNER JOIN inventory i ON i.productID = o.orderID
+	WHERE o.orderCompleted = 0;
+2020-12-07 19:07:28.637 GMT [39302] LOG:  using stale statistics instead of current ones because stats collector is not responding
+2020-12-07 19:09:28.679 GMT [39302] LOG:  using stale statistics instead of current ones because stats collector is not responding
+2020-12-07 19:19:12.646 GMT [39302] LOG:  using stale statistics instead of current ones because stats collector is not responding
+2020-12-07 19:24:58.002 GMT [39302] LOG:  using stale statistics instead of current ones because stats collector is not responding
+2020-12-07 19:41:41.577 GMT [9791] ERROR:  syntax error at or near "BY" at character 225
+2020-12-07 19:41:41.577 GMT [9791] STATEMENT:  SELECT i.ProductID, i.ProductDesc, i.ProductPrice * sales AS totalValue FROM inventory i INNER JOIN (    SELECT ProductID, SUM(ProductQuantity) FROM order_products     GROUP BY ProductID) p ON i.ProductID = b.ProductIDORDER BY totalValue DESC
+2020-12-07 19:42:45.530 GMT [34912] ERROR:  missing FROM-clause entry for table "b" at character 201
+2020-12-07 19:42:45.530 GMT [34912] STATEMENT:  SELECT i.ProductID, i.ProductDesc, i.ProductPrice * sales AS totalValue FROM inventory i 
+	INNER JOIN (SELECT ProductID, SUM(ProductQuantity) FROM order_products GROUP BY ProductID) p
+	ON i.ProductID = b.ProductID
+	ORDER BY totalValue DESC;
+2020-12-07 19:42:52.113 GMT [34912] ERROR:  column "sales" does not exist at character 53
+2020-12-07 19:42:52.113 GMT [34912] STATEMENT:  SELECT i.ProductID, i.ProductDesc, i.ProductPrice * sales AS totalValue FROM inventory i 
+	INNER JOIN (SELECT ProductID, SUM(ProductQuantity) FROM order_products GROUP BY ProductID) p
+	ON i.ProductID = p.ProductID
+	ORDER BY totalValue DESC;
+2020-12-07 19:44:52.129 GMT [33905] ERROR:  syntax error at or near "BY" at character 225
+2020-12-07 19:44:52.129 GMT [33905] STATEMENT:  SELECT i.ProductID, i.ProductDesc, i.ProductPrice * sales AS totalValue FROM inventory i INNER JOIN (    SELECT ProductID, SUM(ProductQuantity) FROM order_products     GROUP BY ProductID) p ON i.ProductID = b.ProductIDORDER BY totalValue DESC
+2020-12-07 19:47:58.472 GMT [39302] LOG:  using stale statistics instead of current ones because stats collector is not responding
+2020-12-07 19:48:49.066 GMT [19550] ERROR:  syntax error at or near "BY" at character 234
+2020-12-07 19:48:49.066 GMT [19550] STATEMENT:  SELECT i.ProductID, i.ProductDesc, i.ProductPrice * sales AS totalValue FROM inventory i INNER JOIN (    SELECT ProductID, SUM(ProductQuantity) AS sales FROM order_products     GROUP BY ProductID) p ON i.ProductID = p.ProductIDORDER BY totalValue DESC
+2020-12-07 20:14:41.165 GMT [27096] ERROR:  insert or update on table "staff_orders" violates foreign key constraint "staff_orders_staffid_fkey"
+2020-12-07 20:14:41.165 GMT [27096] DETAIL:  Key (staffid)=(60) is not present in table "staff".
+2020-12-07 20:14:41.165 GMT [27096] CONTEXT:  SQL statement "INSERT INTO staff_orders (StaffID, OrderID) VALUES (staffID, orderID)"
+	PL/pgSQL function insertstafforder(integer,integer) line 3 at SQL statement
+	SQL statement "CALL insertStaffOrder(staffID, newID)"
+	PL/pgSQL function insertorder(character varying,date,integer,integer) line 6 at CALL
+2020-12-07 20:14:41.165 GMT [27096] STATEMENT:  select * from insertOrder($1, $2, $3, $4)  as result
+2020-12-07 20:14:55.840 GMT [27096] ERROR:  Insufficient stock to execute order
+2020-12-07 20:14:55.840 GMT [27096] CONTEXT:  PL/pgSQL function checkvalidorderproduct() line 7 at RAISE
+	SQL statement "INSERT INTO order_products (OrderID, ProductID, ProductQuantity) VALUES (ordID, prodID, prodQuantity)"
+	PL/pgSQL function insertorderproduct(integer,integer,integer) line 3 at SQL statement
+2020-12-07 20:14:55.840 GMT [27096] STATEMENT:  call insertOrderProduct($1, $2, $3)
+2020-12-07 20:28:13.440 GMT [39302] LOG:  using stale statistics instead of current ones because stats collector is not responding
+2020-12-07 20:39:29.900 GMT [39302] LOG:  using stale statistics instead of current ones because stats collector is not responding
+2020-12-07 20:41:29.920 GMT [39302] LOG:  using stale statistics instead of current ones because stats collector is not responding
+2020-12-07 20:43:29.966 GMT [39302] LOG:  using stale statistics instead of current ones because stats collector is not responding
