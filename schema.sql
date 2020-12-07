@@ -1,3 +1,7 @@
+DROP SEQUENCE IF EXISTS ProductIDSequence;
+CREATE SEQUENCE ProductIDSequence START 1 INCREMENT BY 1;
+
+
 DROP TABLE inventory CASCADE;
 CREATE TABLE inventory (
     ProductID          integer not null, 
@@ -7,30 +11,6 @@ CREATE TABLE inventory (
     primary key (ProductID)
 );
 
-CREATE OR REPLACE FUNCTION sufficientStock(id INTEGER, q INTEGER)
-    RETURNS BOOLEAN LANGUAGE plpgsql AS
-    $$
-    DECLARE
-    isSufficient BOOLEAN;
-    BEGIN
-    SELECT ProductStockAmount >= q INTO isSufficient FROM inventory WHERE ProductID = id; 
-    RETURN isSufficient;
-    END;
-    $$;
-
-CREATE OR REPLACE PROCEDURE reduceStock(id INTEGER, soldQuantity INTEGER)
-    LANGUAGE plpgsql AS
-    $$
-    BEGIN
-    UPDATE inventory SET ProductStockAmount = ProductStockAmount - soldQuantity WHERE ProductID = id;     
-    END;
-    $$;
-
---INSERT INTO inventory(ProductID, ProductDesc, ProductPrice, ProductStockAmount) VALUES (1, "Cap", 10.5, 5);
-INSERT INTO inventory VALUES (1, 'testing1', 1, 1);
-INSERT INTO inventory VALUES (2, 'testing2', 2, 2);
-INSERT INTO inventory VALUES (3, 'testing3', 3, 3);
-INSERT INTO inventory VALUES (4, 'testing4', 4, 4);
 
 DROP TABLE orders CASCADE;
 CREATE TABLE orders (
@@ -86,3 +66,100 @@ CREATE TABLE staff_orders (
     foreign key (StaffID) references staff(StaffID),
     foreign key (OrderID) references orders(OrderID) 
 );
+
+-- Create a new order in orders and return it's ID created by sequence
+CREATE OR REPLACE FUNCTION insertOrder(orderType VARCHAR, orderPlaced DATE, orderCompleted INTEGER, staffID INTEGER)
+    RETURNS INTEGER LANGUAGE plpgsql AS
+    $$ 
+    DECLARE
+        newID INTEGER; 
+    BEGIN 
+        INSERT INTO orders (OrderID, OrderType, OrderCompleted, orderPlaced) VALUES (nextval('ProductIDSequence'), orderType, orderCompleted, orderPlaced) RETURNING OrderID INTO newID;
+        CALL insertStaffOrder(staffID, newID);
+        RETURN newID; 
+    END; 
+    $$; 
+
+-- Create a new row in order products
+-- Triggers checkValidOrderProduct call
+CREATE OR REPLACE PROCEDURE insertOrderProduct(ordID INTEGER, prodID INTEGER, prodQuantity INTEGER)
+    LANGUAGE plpgsql AS
+    $$
+    BEGIN
+        INSERT INTO order_products (OrderID, ProductID, ProductQuantity) VALUES (ordID, prodID, prodQuantity); 
+    END;
+    $$;
+
+-- Check that we have sufficient stock to process order for this item
+-- If so, reduce stock. If not, throw and exception to trigger rollback
+CREATE OR REPLACE FUNCTION checkValidOrderProduct() RETURNS TRIGGER AS $orderProductsTrigger$
+    DECLARE
+    isSufficient BOOLEAN;
+    BEGIN
+        SELECT sufficientStock(NEW.ProductID, NEW.ProductQuantity) INTO isSufficient;
+        IF NOT (isSufficient) THEN
+            RAISE EXCEPTION 'Insufficient stock to execute order';
+        ELSE 
+            CALL reduceStock(NEW.ProductID, NEW.ProductQuantity);
+        END IF;
+        RETURN NEW;
+    END; 
+    $orderProductsTrigger$
+    LANGUAGE plpgsql;
+
+-- Trigger to ensure new order_product row is valid, and if so reduce stock in inventory
+CREATE TRIGGER orderProductsTrigger AFTER INSERT OR UPDATE
+    ON order_products
+    FOR EACH ROW EXECUTE FUNCTION checkValidOrderProduct();
+
+
+-- Ensure ProductStockAmount is sufficient to process this order for this product
+CREATE OR REPLACE FUNCTION sufficientStock(id INTEGER, quantity INTEGER)
+    RETURNS BOOLEAN LANGUAGE plpgsql AS
+    $$
+    DECLARE
+        isSufficient BOOLEAN;
+    BEGIN
+        SELECT ProductStockAmount >= quantity INTO isSufficient FROM inventory WHERE ProductID = id; 
+        RETURN isSufficient;
+    END;
+    $$;
+
+-- Ensure ProductStockAmount is sufficient to process this order for this product
+CREATE OR REPLACE FUNCTION getQuantity(id INTEGER)
+    RETURNS INTEGER LANGUAGE plpgsql AS
+    $$
+    DECLARE
+        quantity INTEGER;
+    BEGIN
+        SELECT ProductStockAmount INTO quantity FROM inventory WHERE ProductID = id; 
+        RETURN quantity;
+    END;
+    $$;
+
+-- Reduce the stock of the given product in the inventory by given amount
+CREATE OR REPLACE PROCEDURE reduceStock(id INTEGER, soldQuantity INTEGER)
+    LANGUAGE plpgsql AS
+    $$
+    BEGIN
+        UPDATE inventory SET ProductStockAmount = ProductStockAmount - soldQuantity WHERE ProductID = id;     
+    END;
+    $$;
+
+-- Add a row to the staff orders table with the new order ID 
+CREATE OR REPLACE PROCEDURE insertStaffOrder(staffID INTEGER, orderID INTEGER)
+    LANGUAGE plpgsql AS
+    $$
+    BEGIN
+        INSERT INTO staff_orders (StaffID, OrderID) VALUES (staffID, orderID); 
+    END;
+    $$;
+
+
+--INSERT INTO inventory(ProductID, ProductDesc, ProductPrice, ProductStockAmount) VALUES (1, "Cap", 10.5, 5);
+INSERT INTO inventory VALUES (1, 'testing1', 1, 1);
+INSERT INTO inventory VALUES (2, 'testing2', 2, 2);
+INSERT INTO inventory VALUES (3, 'testing3', 3, 3);
+INSERT INTO inventory VALUES (4, 'testing4', 4, 4);
+INSERT INTO orders VALUES (10, 'Bikes', 0, NOW());
+INSERT INTO staff VALUES (4, 'James', 'Smith');

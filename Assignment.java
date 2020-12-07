@@ -1,151 +1,306 @@
 import java.io.*;
 import java.sql.*;
-import java.util.*; 
+import java.util.*;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 
 import java.util.Properties;
 
-// TO DO 
-// Create connection to database 
-// Create schema.sql for the tables 
-// Get simple data pulling from database
-// Get simple create data insertion to database
-
-// alternatively, complete option 1
- 
-
 class Assignment {
 
-	private static String readEntry(String prompt) {
-		try {
-			StringBuffer buffer = new StringBuffer();
-			System.out.print(prompt);
-			System.out.flush();
-			int c = System.in.read();
-			while(c != '\n' && c != -1) {
-				buffer.append((char)c);
-				c = System.in.read();
-			}
-			return buffer.toString().trim();
-		} catch (IOException e) {
-			return "";
-		}
- 	}
+    private static String readEntry(String prompt) {
+        try {
+            StringBuffer buffer = new StringBuffer();
+            System.out.print("\n" + prompt);
+            System.out.flush();
+            int c = System.in.read();
+            while (c != '\n' && c != -1) {
+                buffer.append((char) c);
+                c = System.in.read();
+            }
+            return buffer.toString().trim();
+        } catch (IOException e) {
+            return "";
+        }
+    }
 
-	public static void main(String args[]) throws SQLException, IOException {
-		// You should only need to fetch the connection details once
-		Connection conn = getConnection();
+    public static void main(String args[]) throws SQLException, IOException {
+        // You should only need to fetch the connection details once
+        Connection conn = getConnection();
         String opt = "";
 
-        while (opt != "0") {
-            printMenu(); 
+        while (true) {
+            printMenu();
             opt = readEntry("Enter your choice: ");
-            
+
             switch (opt) {
+                case "0":
+                    conn.close();
+                    System.out.println("Exiting Inventory Management...");
+                    return;
                 case "1":
-                    handleOption1(conn); 
+                    handleOption1(conn);
                     break;
                 case "2":
-                    //option2(); 
+                    // option2();
                     break;
                 case "3":
-                    //option3(); 
+                    // option3();
                     break;
                 case "4":
-                    //option4(); 
+                    // option4();
                     break;
                 case "5":
-                    //option5(); 
+                    // option5();
                     break;
                 case "6":
-                    //option6(); 
+                    // option6();
                     break;
                 case "7":
-                    //option7(); 
+                    // option7();
                     break;
                 case "8":
-                    //option8(); 
+                    option8(conn, 1000);
+
                     break;
                 default:
+                    System.out.println("That's not a valid option. Press a number between 0 and 8.");
                     // code block
             }
         }
+    }
 
-		conn.close();
-	}
-
-    /** 
-    * Handle the selection of option1, fetching arrays of products and their quantities related info
-    */
-    private static String handleOption1(Connection conn) {
+    /**
+     * @param conn An open database connection Handle the selection of option1,
+     *             fetching arrays of products and their quantities related info
+     */
+    private static void handleOption1(Connection conn) {
         ArrayList<Integer> productIDs = new ArrayList();
         ArrayList<Integer> quantities = new ArrayList();
         String saleDate = "01-jan-00";
-        int staffID = 0; 
+        int staffID = 0;
         String opt = "";
 
         while (!(opt.equals("n") || opt.equals("N"))) {
-            opt = readEntry("Enter a product ID: "); 
+            opt = readEntry("Enter a product ID: ");
             productIDs.add(Integer.valueOf(opt));
             opt = readEntry("Enter the quantity sold: ");
             quantities.add(Integer.valueOf(opt));
             opt = readEntry("Is there another product in the order?: ");
         }
-        
+
         saleDate = readEntry("Enter the date sold: ");
         staffID = Integer.valueOf(readEntry("Enter your staff ID: "));
 
         int[] productIDsArray = new int[productIDs.size()];
         int[] quantitiesArray = new int[quantities.size()];
 
+        // Convert from our array list to an array that the option1 function can use
         for (int i = 0; i < productIDs.size(); i++) {
-            productIDsArray[i] = productIDs.get(i); 
-            quantitiesArray[i] = quantities.get(i); 
+            productIDsArray[i] = productIDs.get(i);
+            quantitiesArray[i] = quantities.get(i);
         }
-        
-        option1(conn, productIDsArray, quantitiesArray, saleDate, staffID); 
-        return "";
+
+        option1(conn, productIDsArray, quantitiesArray, saleDate, staffID);
     }
 
-	/**
-	* @param conn An open database connection 
-	* @param productIDs An array of productIDs associated with an order
-    * @param quantities An array of quantities of a product. The index of a quantity correspeonds with an index in productIDs
-	* @param orderDate A string in the form of 'DD-Mon-YY' that represents the date the order was made
-	* @param staffID The id of the staff member who sold the order
-	*/
-	public static void option1(Connection conn, int[] productIDs, int[] quantities, String orderDate, int staffID) {
-        // ####SELECT Check that products and their respective quantities are avaialable. 
-        // ####UPDATE: If so, reduce stock count in inventory by quantities amount 
-        // INSERT: add an InStore, completed order to orders 
-        // INSERT: Add a row to order_products for each item in the order
-        // INSERT: add a staff order entry to staff_orders
-
-        // Create sequences for increment ID's 
-        // Create functions for checking stock count is sufficient, and decreases stock count
-
+    /**
+     * @param conn       An open database connection
+     * @param productIDs An array of productIDs associated with an order
+     * @param quantities An array of quantities of a product. The index of a
+     *                   quantity correspeonds with an index in productIDs
+     * @param orderDate  A string in the form of 'DD-Mon-YY' that represents the
+     *                   date the order was made
+     * @param staffID    The id of the staff member who sold the order
+     */
+    public static void option1(Connection conn, int[] productIDs, int[] quantities, String orderDate, int staffID) {
+        Boolean successfulOrder = false;
         try {
-            // Check we can have enough stock in our inventory to process this order. If not, don't update and return with error. 
+            // Turn off auto-commiting in case the order fails
+            conn.setAutoCommit(false);
+
+            // Create a new order
+            int id = insertOrder(conn, "In-Store", 1, getSQLDate(orderDate), staffID);
+            if (id < 1) {
+                throw new Exception("Failed to add a new order to orders table, aborting order...");
+            }
+
+            // For each product in the order, create an order_products row
             for (int i = 0; i < productIDs.length; i++) {
-                if (!sufficientStock(conn, productIDs[i], quantities[i])) {
-                    System.out.println("Unable to process order - insufficient stock in inventory for product ID " + productIDs[i]);
-                    return; 
+                insertOrderProduct(conn, id, productIDs[i], quantities[i]);
+            }
+
+            // Now that insertOrderProduct has handled the stock reductions, print the new
+            // stock levels
+            displayInventory(conn, productIDs);
+
+            // If we've made it this far without an SQLException then we know the order has
+            // completed successfully so commit changes to db
+            conn.setAutoCommit(true);
+            successfulOrder = true;
+
+        } catch (SQLException e) {
+            // Rollback the SQL since the order failed
+            System.out.println(
+                    "\nAn error occurred while trying to add the order:\n- Ensure there is enough stock in the inventory\n- Ensure the staff ID number exists\n");
+            // System.err.format("SQL State: %s\n%s", e.getSQLState(), e.getMessage());
+        } catch (Exception e) {
+            System.out.print("Exception while creating order...");
+            e.printStackTrace();
+        } finally {
+            // If an exception is thrown we want to roll back so check successfulOrder
+            // boolean in a finally block
+            if (!successfulOrder) {
+                try {
+                    System.out.println("Order unsuccessful - rolling back...\n");
+                    conn.rollback();
+                } catch (SQLException e) {
+                    System.err.format("Could not roll back to safe state:\nSQL State: %s\n%s", e.getSQLState(),
+                            e.getMessage());
                 }
             }
-            System.out.println("Sufficient stock for all items :) "); 
-            
-            // If we have determined we have sufficient stock to process the order, then update our inventory to reflect our sold stock 
+        }
+
+    }
+
+    /**
+     * @param conn An open database connection Handle the selection of option1,
+     *             fetching arrays of products and their quantities related info
+     */
+    private static void handleOption2(Connection conn) {
+        ArrayList<Integer> productIDs = new ArrayList();
+        ArrayList<Integer> quantities = new ArrayList();
+        String saleDate = "01-Jan-00";
+        int staffID = 0;
+        String collectionDate = ""; 
+        String firstName, lastName = "";
+
+        String opt = "";
+
+        while (!(opt.equals("n") || opt.equals("N"))) {
+            opt = readEntry("Enter a product ID: ");
+            productIDs.add(Integer.valueOf(opt));
+            opt = readEntry("Enter the quantity sold: ");
+            quantities.add(Integer.valueOf(opt));
+            opt = readEntry("Is there another product in the order?: ");
+        }
+
+        saleDate = readEntry("Enter the date sold: ");
+        collectionDate = readEntry("Enter the date of collection:"); 
+        firstName = readEntry("Enter the first name of the collector: "); 
+        lastName = readEntry("Enter the last name of the collector: "); 
+        staffID = Integer.valueOf(readEntry("Enter your staff ID: "));
+
+        int[] productIDsArray = new int[productIDs.size()];
+        int[] quantitiesArray = new int[quantities.size()];
+
+        // Convert from our array list to an array that the option1 function can use
+        for (int i = 0; i < productIDs.size(); i++) {
+            productIDsArray[i] = productIDs.get(i);
+            quantitiesArray[i] = quantities.get(i);
+        }
+
+        option2(conn, productIDsArray, quantitiesArray, saleDate, collectionDate, firstName, lastName, staffID);
+    }
+    /**
+     * @param conn      An open database connection
+     * @param productID A productID associated with an order
+     */
+    public static void displayInventory(Connection conn, int[] productIDs) {
+        int quantity;
+        try {
+            // Create a callable statement that calls getQuantity
+            // Iterate over the products and get the quantity remaining for each id
+            CallableStatement stmt = conn.prepareCall("{ call getQuantity(?) }");
+            System.out.println("");
             for (int i = 0; i < productIDs.length; i++) {
-                reduceStock(conn, productIDs[i], quantities[i]);
+                stmt.registerOutParameter(1, Types.INTEGER);
+                stmt.setInt(1, productIDs[i]);
+                stmt.execute();
+                quantity = stmt.getInt(1);
+                System.out.println("Product ID " + productIDs[i] + " stock is now at " + quantity);
             }
-
-
-        //} catch (SQLException e) {
-        //    System.err.format("SQL State: %s\n%s", e.getSQLState(), e.getMessage());
+            System.out.println("");
+            stmt.close();
+        } catch (SQLException e) {
+            System.err.format("SQL State: %s\n%s", e.getSQLState(), e.getMessage());
         } catch (Exception e) {
             e.printStackTrace();
         }
-	}
+    }
 
+    /**
+     * @param conn           An open database connection
+     * @param orderType      The type of order that was made, InHouse, Delivery etc
+     * @param orderCompleted An int representing a boolean, that tells us if the
+     *                       order is complete yet
+     * @param orderPlaced    An SQL date that tells us when the order was made,
+     *                       determined by user
+     * @param staffID        Id of the staff member that made the order
+     */
+    public static int insertOrder(Connection conn, String orderType, Integer orderCompleted, java.sql.Date orderPlaced,
+            Integer staffID) {
+        int newOrderID = -1;
+        try {
+            CallableStatement stmt = conn.prepareCall("{ call insertOrder(?, ?, ?, ?) }");
+            stmt.registerOutParameter(1, Types.INTEGER);
+            stmt.setString(1, orderType);
+            stmt.setDate(2, orderPlaced);
+            stmt.setInt(3, orderCompleted);
+            stmt.setInt(4, staffID);
+            stmt.execute();
+            newOrderID = stmt.getInt(1);
+            stmt.close();
+        } catch (SQLException e) {
+            System.err.format("SQL State: %s\n%s", e.getSQLState(), e.getMessage());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return newOrderID;
+    }
+
+    /**
+     * @param conn      An open database connection
+     * @param orderID   The ID of the order
+     * @param productID The ID of the product that we're going to add to the order
+     * @param quantity  Amount of said product that has been ordered in this order
+     * @throws SQLException If there is insufficient stock then this method will
+     *                      throw and SQLException which we can catch in the calling
+     *                      method
+     */
+    public static void insertOrderProduct(Connection conn, Integer orderID, Integer productID, Integer quantity)
+            throws SQLException {
+        CallableStatement stmt = conn.prepareCall("call insertOrderProduct(?, ?, ?)");
+        stmt.setInt(1, orderID);
+        stmt.setInt(2, productID);
+        stmt.setInt(3, quantity);
+        stmt.execute();
+        stmt.close();
+    }
+
+    /**
+     * @param userInput Date input by the user in string format that we need to convert 
+     */
+    public static java.sql.Date getSQLDate(String userInput) {
+        // Create the date formats that we're going to need to convert
+        SimpleDateFormat inputFormat = new SimpleDateFormat("dd-MMM-yy");
+        SimpleDateFormat sqlFormat = new SimpleDateFormat("yyyy-MM-dd");
+        // Create an actual date object from the users string
+        java.util.Date formattedUserInput;
+        try {
+            // Try to parse the user input - try catch to catch anything unusual
+            formattedUserInput = inputFormat.parse(userInput);
+            if (formattedUserInput != null) {
+                String newDate = sqlFormat.format(formattedUserInput); 
+                java.sql.Date finalDate = java.sql.Date.valueOf(newDate); 
+                return finalDate;
+            }
+        } catch (ParseException e) {
+            System.out.println("Unable to parse date input - usage: dd-MMM-yy e.g. 17-Nov-18");
+        }
+        return null;
+    }
+    
 	/**
 	* @param conn An open database connection 
 	* @param productID A productID associated with an order
@@ -156,13 +311,13 @@ class Assignment {
         try {
             // Call a user function sufficientStock that we have defined in our schema
             // The function simply returns a boolean that lets us know if we can 
-            CallableStatement upperFunc = conn.prepareCall("{ call sufficientStock(?, ?) }");
-            upperFunc.registerOutParameter(1, Types.BOOLEAN);
-            upperFunc.setInt(1, productID);
-            upperFunc.setInt(2, quantity);
-            upperFunc.execute();
-            isSufficient = upperFunc.getBoolean(1);
-            upperFunc.close();
+            CallableStatement stmt = conn.prepareCall("{ call sufficientStock(?, ?) }");
+            stmt.registerOutParameter(1, Types.BOOLEAN);
+            stmt.setInt(1, productID);
+            stmt.setInt(2, quantity);
+            stmt.execute();
+            isSufficient = stmt.getBoolean(1);
+            stmt.close();
         } catch (SQLException e) {
             System.err.format("SQL State: %s\n%s", e.getSQLState(), e.getMessage());
         } catch (Exception e) {
@@ -180,13 +335,12 @@ class Assignment {
         try {
             // Call a user function sufficientStock that we have defined in our schema
             // The function simply returns a boolean that lets us know if we can 
-            CallableStatement upperFunc = conn.prepareCall("{call reduceStock(?, ?)}");
-            upperFunc.setInt(1, productID);
-            upperFunc.setInt(2, quantity);
-            System.out.println("AssigneD quantities\n");
-            upperFunc.execute();
-            System.out.println("Executed...\n");
-            upperFunc.close();
+            CallableStatement stmt = conn.prepareCall("call reduceStock(?, ?)");
+            stmt.setInt(1, productID);
+            stmt.setInt(2, quantity);
+            stmt.execute();
+            System.out.println("Stock Reduced...\n");
+            stmt.close();
         } catch (SQLException e) {
             System.err.format("SQL State: %s\n%s", e.getSQLState(), e.getMessage());
         } catch (Exception e) {
@@ -206,6 +360,55 @@ class Assignment {
 	*/
 	public static void option2(Connection conn, int[] productIDs, int[] quantities, String orderDate, String collectionDate, String fName, String LName, int staffID) {
 		// Incomplete - Code for option 2 goes here
+        Boolean successfulOrder = false;
+        try {
+            // Turn off auto-commiting in case the order fails
+            conn.setAutoCommit(false);
+
+            // Create a new order
+            int id = insertOrder(conn, "Collection", 0, getSQLDate(orderDate), staffID);
+            if (id < 1) {
+                throw new Exception("Failed to add a new order to orders table, aborting order...");
+            }
+
+            // For each product in the order, create an order_products row
+            for (int i = 0; i < productIDs.length; i++) {
+                insertOrderProduct(conn, id, productIDs[i], quantities[i]);
+            }
+
+            // Insert the data into the collections table
+            insertCollection(id, fName, LName, collectionDate);
+            
+            // Now that insertOrderProduct has handled the stock reductions, print the new
+            // stock levels
+            displayInventory(conn, productIDs);
+
+            // If we've made it this far without an SQLException then we know the order has
+            // completed successfully so commit changes to db
+            conn.setAutoCommit(true);
+            successfulOrder = true;
+
+        } catch (SQLException e) {
+            // Rollback the SQL since the order failed
+            System.out.println(
+                    "\nAn error occurred while trying to add the order:\n- Ensure there is enough stock in the inventory\n- Ensure the staff ID number exists\n");
+            // System.err.format("SQL State: %s\n%s", e.getSQLState(), e.getMessage());
+        } catch (Exception e) {
+            System.out.print("Exception while creating order...");
+            e.printStackTrace();
+        } finally {
+            // If an exception is thrown we want to roll back so check successfulOrder
+            // boolean in a finally block
+            if (!successfulOrder) {
+                try {
+                    System.out.println("Order unsuccessful - rolling back...\n");
+                    conn.rollback();
+                } catch (SQLException e) {
+                    System.err.format("Could not roll back to safe state:\nSQL State: %s\n%s", e.getSQLState(),
+                            e.getMessage());
+                }
+            }
+        }
 	}
 
 	/**
@@ -260,7 +463,7 @@ class Assignment {
 	* @param year The target year we match employee and product sales against
 	*/
 	public static void option8(Connection conn, int year) {
-		// Incomplete - Code for option 8 goes here
+        // Incomplete - Code for option 8 goes here
 	}
 
     public static Connection getConnection(){
