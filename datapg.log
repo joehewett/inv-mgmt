@@ -2577,3 +2577,41 @@
 	    ) p ON i.ProductID = p.ProductID
 	    ORDER BY totalValue DESC;
 2020-12-08 15:14:18.295 GMT [20427] LOG:  using stale statistics instead of current ones because stats collector is not responding
+2020-12-08 15:30:17.515 GMT [26905] ERROR:  insert or update on table "staff_orders" violates foreign key constraint "staff_orders_staffid_fkey"
+2020-12-08 15:30:17.515 GMT [26905] DETAIL:  Key (staffid)=(3) is not present in table "staff".
+2020-12-08 15:30:17.515 GMT [26905] CONTEXT:  SQL statement "INSERT INTO staff_orders (StaffID, OrderID) VALUES (staffID, orderID)"
+	PL/pgSQL function insertstafforder(integer,integer) line 3 at SQL statement
+	SQL statement "CALL insertStaffOrder(staffID, newID)"
+	PL/pgSQL function insertorder(character varying,date,integer,integer) line 6 at CALL
+2020-12-08 15:30:17.515 GMT [26905] STATEMENT:  select * from insertOrder($1, $2, $3, $4)  as result
+2020-12-08 16:16:58.049 GMT [19391] ERROR:  operator does not exist: interval > date at character 71
+2020-12-08 16:16:58.049 GMT [19391] HINT:  No operator matches the given name and argument types. You might need to add explicit type casts.
+2020-12-08 16:16:58.049 GMT [19391] STATEMENT:  SELECT * FROM uncollectedCollectionsView WHERE $1 - INTERVAL '8 Days' > collectionDate
+2020-12-08 16:18:14.752 GMT [31538] ERROR:  operator does not exist: interval > date at character 73
+2020-12-08 16:18:14.752 GMT [31538] HINT:  No operator matches the given name and argument types. You might need to add explicit type casts.
+2020-12-08 16:18:14.752 GMT [31538] STATEMENT:  SELECT * FROM uncollectedCollectionsView WHERE ($1 - INTERVAL '8 Days') > collectionDate
+2020-12-08 16:20:13.012 GMT [38697] ERROR:  operator does not exist: integer - interval at character 59
+2020-12-08 16:20:13.012 GMT [38697] HINT:  No operator matches the given name and argument types. You might need to add explicit type casts.
+2020-12-08 16:20:13.012 GMT [38697] STATEMENT:  SELECT * FROM uncollectedCollectionsView WHERE 2020-01-12 - INTERVAL '8 Days' > collectionDate
+2020-12-08 16:23:24.185 GMT [12651] ERROR:  operator does not exist: interval > date at character 71
+2020-12-08 16:23:24.185 GMT [12651] HINT:  No operator matches the given name and argument types. You might need to add explicit type casts.
+2020-12-08 16:23:24.185 GMT [12651] STATEMENT:  SELECT * FROM uncollectedCollectionsView WHERE $1 - INTERVAL '8 Days' > collectionDate
+2020-12-08 16:30:01.895 GMT [39325] ERROR:  Insufficient stock to execute order
+2020-12-08 16:30:01.895 GMT [39325] CONTEXT:  PL/pgSQL function checkvalidorderproduct() line 7 at RAISE
+	SQL statement "INSERT INTO order_products (OrderID, ProductID, ProductQuantity) VALUES (ordID, prodID, prodQuantity)"
+	PL/pgSQL function insertorderproduct(integer,integer,integer) line 3 at SQL statement
+2020-12-08 16:30:01.895 GMT [39325] STATEMENT:  call insertOrderProduct($1, $2, $3)
+2020-12-08 16:35:09.206 GMT [11309] ERROR:  insert or update on table "staff_orders" violates foreign key constraint "staff_orders_staffid_fkey"
+2020-12-08 16:35:09.206 GMT [11309] DETAIL:  Key (staffid)=(6) is not present in table "staff".
+2020-12-08 16:35:09.206 GMT [11309] CONTEXT:  SQL statement "INSERT INTO staff_orders (StaffID, OrderID) VALUES (staffID, orderID)"
+	PL/pgSQL function insertstafforder(integer,integer) line 3 at SQL statement
+	SQL statement "CALL insertStaffOrder(staffID, newID)"
+	PL/pgSQL function insertorder(character varying,date,integer,integer) line 6 at CALL
+2020-12-08 16:35:09.206 GMT [11309] STATEMENT:  select * from insertOrder($1, $2, $3, $4)  as result
+2020-12-08 16:44:46.715 GMT [32280] ERROR:  insert or update on table "staff_orders" violates foreign key constraint "staff_orders_staffid_fkey"
+2020-12-08 16:44:46.715 GMT [32280] DETAIL:  Key (staffid)=(6) is not present in table "staff".
+2020-12-08 16:44:46.715 GMT [32280] CONTEXT:  SQL statement "INSERT INTO staff_orders (StaffID, OrderID) VALUES (staffID, orderID)"
+	PL/pgSQL function insertstafforder(integer,integer) line 3 at SQL statement
+	SQL statement "CALL insertStaffOrder(staffID, newID)"
+	PL/pgSQL function insertorder(character varying,date,integer,integer) line 6 at CALL
+2020-12-08 16:44:46.715 GMT [32280] STATEMENT:  select * from insertOrder($1, $2, $3, $4)  as result

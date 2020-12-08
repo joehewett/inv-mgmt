@@ -92,30 +92,36 @@ class Assignment {
         System.out.println("");
     }
 
-    /**
-     * @param conn       An open database connection
-     * @param productIDs An array of productIDs associated with an order
-     * @param quantities An array of quantities of a product. The index of a
-     *                   quantity correspeonds with an index in productIDs
-     * @param orderDate  A string in the form of 'DD-Mon-YY' that represents the
-     *                   date the order was made
-     * @param staffID    The id of the staff member who sold the order
-     */
-    public static void option1(Connection conn, int[] productIDs, int[] quantities, String orderDate, int staffID) {
+    public static void executeOrder(Connection conn, String orderType, int[] productIDs, int[] quantities, String orderDate, 
+            String deliveryOrCollectionDate, String fName, String LName,
+	        String house, String street, String city, int staffID) {
+        
         Boolean successfulOrder = false;
+        Integer orderCompleted = 0;
+
+        // Check the order type and determine the completion status. If not a valid status, return. 
+        if (orderType.equals("InStore")) {
+            orderCompleted = 1; 
+        } else if (orderType.equals("Delivery") || orderType.equals("Collection")) {
+            orderCompleted = 0; 
+        } else {
+            System.out.print("That is not a valid order type.\n"); 
+            return; 
+        }
+        
+        // If we couldn't process the date, return. getSQLDate will handle the exception for us.
+        java.sql.Date sqlDate = getSQLDate(orderDate); 
+        if (sqlDate == null) { return; }
+
         try {
             // Turn off auto-commiting in case the order fails
             conn.setAutoCommit(false);
 
-            java.sql.Date sqlDate = getSQLDate(orderDate); 
-            if (sqlDate == null) {
-                return; 
-            }
-
             // Create a new order
-            int id = insertOrder(conn, "In-Store", 1, getSQLDate(orderDate), staffID);
+            int id = insertOrder(conn, "InStore", orderCompleted, getSQLDate(orderDate), staffID);
             if (id < 1) {
-                throw new Exception("Failed to add a new order to orders table, aborting order...");
+                System.out.println("Something went wrong while creating a new order. Please try again.\n"); 
+                return; 
             }
 
             // For each product in the order, create an order_products row
@@ -123,8 +129,14 @@ class Assignment {
                 insertOrderProduct(conn, id, productIDs[i], quantities[i]);
             }
 
-            // Now that insertOrderProduct has handled the stock reductions, print the new
-            // stock levels
+            // If this is a collection or delivery then we have an extra step to do 
+            if (orderType.equals("Collection")) {
+                insertCollection(conn, id, fName, LName, getSQLDate(deliveryOrCollectionDate));
+            } else if (orderType.equals("Delivery")) {
+                insertDelivery(conn, id, fName, LName, house, street, city, getSQLDate(deliveryOrCollectionDate));
+            }
+
+            // Now that insertOrderProduct has handled the stock reductions, print the new stock amounts
             displayInventory(conn, productIDs);
 
             // If we've made it this far without an SQLException then we know the order has
@@ -134,8 +146,7 @@ class Assignment {
 
         } catch (SQLException e) {
             // Rollback the SQL since the order failed
-            System.out.println(
-                    "\nAn error occurred while trying to add the order:\n- Ensure there is enough stock in the inventory\n- Ensure the staff ID number exists\n");
+            System.out.println("\nAn error occurred while trying to add the order:\n- Ensure there is enough stock in the inventory\n- Ensure the staff ID number exists\n");
             // System.err.format("SQL State: %s\n%s", e.getSQLState(), e.getMessage());
         } catch (Exception e) {
             System.out.print("Exception while creating order...");
@@ -148,12 +159,24 @@ class Assignment {
                     System.out.println("Order unsuccessful - rolling back...\n");
                     conn.rollback();
                 } catch (SQLException e) {
-                    System.err.format("Could not roll back to safe state:\nSQL State: %s\n%s", e.getSQLState(),
-                            e.getMessage());
+                    System.err.format("Could not roll back to safe state:\nSQL State: %s\n%s", e.getSQLState(), e.getMessage());
                 }
             }
         }
+                
+    }
 
+    /**
+     * @param conn       An open database connection
+     * @param productIDs An array of productIDs associated with an order
+     * @param quantities An array of quantities of a product. The index of a
+     *                   quantity correspeonds with an index in productIDs
+     * @param orderDate  A string in the form of 'DD-Mon-YY' that represents the
+     *                   date the order was made
+     * @param staffID    The id of the staff member who sold the order
+     */
+    public static void option1(Connection conn, int[] productIDs, int[] quantities, String orderDate, int staffID) {
+        executeOrder(conn, "InStore", productIDs, quantities, orderDate, null, null, null, null, null, null, staffID); 
     }
 	/**
 	* @param conn An open database connection 
@@ -166,56 +189,7 @@ class Assignment {
 	* @param staffID The id of the staff member who sold the order
 	*/
 	public static void option2(Connection conn, int[] productIDs, int[] quantities, String orderDate, String collectionDate, String fName, String LName, int staffID) {
-		// Incomplete - Code for option 2 goes here
-        Boolean successfulOrder = false;
-        try {
-            // Turn off auto-commiting in case the order fails
-            conn.setAutoCommit(false);
-
-            // Create a new order
-            int id = insertOrder(conn, "Collection", 0, getSQLDate(orderDate), staffID);
-            if (id < 1) {
-                throw new Exception("Failed to add a new order to orders table, aborting order...");
-            }
-
-            // For each product in the order, create an order_products row
-            for (int i = 0; i < productIDs.length; i++) {
-                insertOrderProduct(conn, id, productIDs[i], quantities[i]);
-            }
-
-            // Insert the data into the collections table
-            insertCollection(conn, id, fName, LName, getSQLDate(collectionDate));
-            
-            // Now that insertOrderProduct has handled the stock reductions, print the new
-            // stock levels
-            displayInventory(conn, productIDs);
-
-            // If we've made it this far without an SQLException then we know the order has
-            // completed successfully so commit changes to db
-            conn.setAutoCommit(true);
-            successfulOrder = true;
-
-        } catch (SQLException e) {
-            // Rollback the SQL since the order failed
-            System.out.println(
-                    "\nAn error occurred while trying to add the order:\n- Ensure there is enough stock in the inventory\n- Ensure the staff ID number exists\n");
-            System.err.format("SQL State: %s\n%s", e.getSQLState(), e.getMessage());
-        } catch (Exception e) {
-            System.out.print("Exception while creating order...");
-            e.printStackTrace();
-        } finally {
-            // If an exception is thrown we want to roll back so check successfulOrder
-            // boolean in a finally block
-            if (!successfulOrder) {
-                try {
-                    System.out.println("Order unsuccessful - rolling back...\n");
-                    conn.rollback();
-                } catch (SQLException e) {
-                    System.err.format("Could not roll back to safe state:\nSQL State: %s\n%s", e.getSQLState(),
-                            e.getMessage());
-                }
-            }
-        }
+        executeOrder(conn, "Collection", productIDs, quantities, orderDate, collectionDate, fName, LName, null, null, null, staffID); 
 	}
 
 	/**
@@ -232,57 +206,8 @@ class Assignment {
 	* @param staffID The id of the staff member who sold the order
 	*/
 	public static void option3(Connection conn, int[] productIDs, int[] quantities, String orderDate, String deliveryDate, String fName, String LName,
-				   String house, String street, String city, int staffID) {
-		// Incomplete - Code for option 2 goes here
-        Boolean successfulOrder = false;
-        try {
-            // Turn off auto-commiting in case the order fails
-            conn.setAutoCommit(false);
-
-            // Create a new order
-            int id = insertOrder(conn, "Delivery", 0, getSQLDate(orderDate), staffID);
-            if (id < 1) {
-                throw new Exception("Failed to add a new order to orders table, aborting order...");
-            }
-
-            // For each product in the order, create an order_products row
-            for (int i = 0; i < productIDs.length; i++) {
-                insertOrderProduct(conn, id, productIDs[i], quantities[i]);
-            }
-
-            // Insert the data into the collections table
-            insertDelivery(conn, id, fName, LName, house, street, city, getSQLDate(deliveryDate));
-            
-            // Now that insertOrderProduct has handled the stock reductions, print the new
-            // stock levels
-            displayInventory(conn, productIDs);
-
-            // If we've made it this far without an SQLException then we know the order has
-            // completed successfully so commit changes to db
-            conn.setAutoCommit(true);
-            successfulOrder = true;
-
-        } catch (SQLException e) {
-            // Rollback the SQL since the order failed
-            System.out.println(
-                    "\nAn error occurred while trying to add the order:\n- Ensure there is enough stock in the inventory\n- Ensure the staff ID number exists\n");
-            System.err.format("SQL State: %s\n%s", e.getSQLState(), e.getMessage());
-        } catch (Exception e) {
-            System.out.print("Exception while creating order...");
-            e.printStackTrace();
-        } finally {
-            // If an exception is thrown we want to roll back so check successfulOrder
-            // boolean in a finally block
-            if (!successfulOrder) {
-                try {
-                    System.out.println("Order unsuccessful - rolling back...\n");
-                    conn.rollback();
-                } catch (SQLException e) {
-                    System.err.format("Could not roll back to safe state:\nSQL State: %s\n%s", e.getSQLState(),
-                            e.getMessage());
-                }
-            }
-        }
+		    String house, String street, String city, int staffID) {
+        executeOrder(conn, "Delivery", productIDs, quantities, orderDate, deliveryDate, fName, LName, house, street, city, staffID); 
 	}
 
 	/**
@@ -313,21 +238,33 @@ class Assignment {
         // Call a procedure that DELETES all orders WHERE id IN (SELECT id FROM ORDERS WHERE date too old)
         // We have a trigger that deletes all order_products when an order is deleted
         // We have another trigger trigger that re adds all inventory when order product gets deleted
-        try {
-            Statement st = conn.createStatement();
-            ResultSet rs = st.executeQuery(
-                "SELECT * FROM uncollectedCollectionsView WHERE CURRENT_DATE - INTERVAL '8 Days' > collectionDate"
-            );
-            while (rs.next()) {
-                System.out.println("Order " + rs.getInt(1) + " has been cancelled");
-            }
+        java.sql.Date sqlDate = getSQLDate(date); 
+        Boolean deletionsMade = false;
 
+        try {
+            // Get the result set of ID's that we're going to delete. We'll need them so we can display after the delete has happened
+            PreparedStatement pst = conn.prepareStatement("SELECT * FROM uncollectedCollectionsView WHERE ? > collectionDate + INTERVAL '8 Days'");
+            pst.setDate(1, sqlDate);
+            ResultSet rs = pst.executeQuery();
+
+            // Call a procedure that identifies and deletes all old orders.
+            // The relevant tables have triggers on DELETE to perform necessary updates e.g. add old stock back to inventory
             CallableStatement stmt = conn.prepareCall("call removeOldOrders(?)");
             stmt.setDate(1, getSQLDate(date));
             stmt.execute();
             stmt.close();
 
-            System.out.println("Removed orders 8 days older than " + date + " and updated inventory.\n");
+            // Use the dataset we created earlier to print out the orders that we cancelled
+            while (rs.next()) {
+                deletionsMade = true;
+                System.out.println("Order " + rs.getInt(1) + " has been cancelled");
+            }
+
+            if (deletionsMade) {
+                System.out.println("Removed orders 8 days older than " + date + " and updated inventory.\n");
+            } else {
+                System.out.println("No orders were found that were 8 days older than " + date + "\n");
+            }
         } catch (SQLException e) {
             System.err.format("SQL State: %s\n%s", e.getSQLState(), e.getMessage());
         } catch (Exception e) {
@@ -358,7 +295,8 @@ class Assignment {
 	* @param conn An open database connection 
 	*/
 	public static void option7(Connection conn) {
-		// Incomplete - Code for option 7 goes here
+        // Incomplete - Code for option 7 goes here
+        // Find 
 	}
 
 	/**
@@ -419,24 +357,22 @@ class Assignment {
      * @param orderPlaced    An SQL date that tells us when the order was made,
      *                       determined by user
      * @param staffID        Id of the staff member that made the order
+     * @throws SQLException  Will generate an SQL exception usually in the case of an FK violation
      */
-    public static int insertOrder(Connection conn, String orderType, Integer orderCompleted, java.sql.Date orderPlaced, Integer staffID) {
+    public static int insertOrder(Connection conn, String orderType, Integer orderCompleted, java.sql.Date orderPlaced, Integer staffID)
+            throws SQLException {
         int newOrderID = -1;
-        try {
-            CallableStatement stmt = conn.prepareCall("{ call insertOrder(?, ?, ?, ?) }");
-            stmt.registerOutParameter(1, Types.INTEGER);
-            stmt.setString(1, orderType);
-            stmt.setDate(2, orderPlaced);
-            stmt.setInt(3, orderCompleted);
-            stmt.setInt(4, staffID);
-            stmt.execute();
-            newOrderID = stmt.getInt(1);
-            stmt.close();
-        } catch (SQLException e) {
-            System.err.format("SQL State: %s\n%s", e.getSQLState(), e.getMessage());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+
+        CallableStatement stmt = conn.prepareCall("{ call insertOrder(?, ?, ?, ?) }");
+        stmt.registerOutParameter(1, Types.INTEGER);
+        stmt.setString(1, orderType);
+        stmt.setDate(2, orderPlaced);
+        stmt.setInt(3, orderCompleted);
+        stmt.setInt(4, staffID);
+        stmt.execute();
+        newOrderID = stmt.getInt(1);
+        stmt.close();
+
         return newOrderID;
     }
 
@@ -516,7 +452,7 @@ class Assignment {
                 java.sql.Date finalDate = java.sql.Date.valueOf(newDate); 
                 return finalDate;
             }
-        } catch (ParseException e) {
+        } catch (Exception e) {
             System.out.println("Unable to parse date input - usage: dd-MMM-yy e.g. 17-Nov-18");
         }
         return null;

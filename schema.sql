@@ -1,6 +1,7 @@
 -- TO DO 
 -- Think about ID sequence overlap and what we can do about it - we need to be able to be able to check if the new sequence id exists already and if so, skip until its not in use
--- Add a boolean function that checks if the order date is < the delivery date
+-- Add a boolean function or restraint that checks if the order date is < the delivery date
+-- Get the staff names instead of just ID's for opt 6
 
 DROP SEQUENCE IF EXISTS ProductIDSequence;
 CREATE SEQUENCE ProductIDSequence START 1 INCREMENT BY 1;
@@ -209,15 +210,6 @@ CREATE TRIGGER removeOrders BEFORE DELETE
     FOR EACH ROW EXECUTE FUNCTION addUncollectedStock();  
 
 -- View - gets the highest selling products in descending order of total value
-CREATE OR REPLACE VIEW bestproductsview AS 
-    SELECT i.ProductID, i.ProductDesc, COALESCE(i.ProductPrice * sales, 0) AS totalValue FROM inventory i 
-    INNER JOIN (
-        SELECT ProductID, SUM(ProductQuantity) AS sales 
-        FROM order_products 
-        GROUP BY ProductID
-    ) p ON i.ProductID = p.ProductID
-    ORDER BY totalValue DESC; 
-
 CREATE OR REPLACE VIEW profitableProductsView AS 
     SELECT i.ProductID, i.ProductDesc, COALESCE(i.ProductPrice * sales,0) AS totalValue FROM inventory i 
     LEFT OUTER JOIN (
@@ -248,7 +240,8 @@ CREATE OR REPLACE VIEW lifetimeSalesView AS
     ) x 
     ON x.id = s.OrderID 
     GROUP BY s.StaffID
-    HAVING SUM(totalOrderValue) > 4;
+    HAVING SUM(totalOrderValue) > 4
+    ORDER BY lifetimeSales DESC;
 
 
 --INSERT INTO inventory(ProductID, ProductDesc, ProductPrice, ProductStockAmount) VALUES (1, "Cap", 10.5, 5);
