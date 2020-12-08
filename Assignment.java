@@ -11,7 +11,7 @@ class Assignment {
     public static String readEntry(String prompt) {
         try {
             StringBuffer buffer = new StringBuffer();
-            System.out.print("\n" + prompt);
+            System.out.print(prompt);
             System.out.flush();
             int c = System.in.read();
             while (c != '\n' && c != -1) {
@@ -32,6 +32,7 @@ class Assignment {
         while (true) {
             printMenu();
             opt = readEntry("Enter your choice: ");
+            System.out.println("");
 
             switch (opt) {
                 case "0":
@@ -52,16 +53,16 @@ class Assignment {
                     Order order3 = new Order("Delivery");
                     order3.handleOption(); 
                     option3(conn, order3.productIDsArray, order3.quantitiesArray, order3.saleDate, order3.collectionDate, order3.firstName, order3.lastName, order3.house, order3.street, order3.city, order3.staffID);
-                    // option3();
                     break;
                 case "4":
                     option4(conn);
                     break;
                 case "5":
-                    // option5();
+                    String userDate = readEntry("Enter the date: ");
+                    option5(conn, userDate);
                     break;
                 case "6":
-                    // option6();
+                    option6(conn);
                     break;
                 case "7":
                     // option7();
@@ -88,6 +89,7 @@ class Assignment {
         System.out.print("(8) Employee of the Year\n");
         System.out.print("(9) Show Inventory\n");
         System.out.print("(0) Quit\n");
+        System.out.println("");
     }
 
     /**
@@ -104,6 +106,11 @@ class Assignment {
         try {
             // Turn off auto-commiting in case the order fails
             conn.setAutoCommit(false);
+
+            java.sql.Date sqlDate = getSQLDate(orderDate); 
+            if (sqlDate == null) {
+                return; 
+            }
 
             // Create a new order
             int id = insertOrder(conn, "In-Store", 1, getSQLDate(orderDate), staffID);
@@ -283,67 +290,44 @@ class Assignment {
      * @throws SQLException
      */
     public static void option4(Connection conn) throws SQLException {
-        // comma separated list with product id, desc and total amount of money made by selling item from all orders ever
-        // descending order
-        // One product per line
-
-        // SELECT ProductID, ProductDesc, SUM(ProductPrice) FROM Inventory
-        
+        // Select a view that we have predefined in the shchema
         Statement st = conn.createStatement();
         ResultSet rs = st.executeQuery(
-            "SELECT i.ProductID, i.ProductDesc, i.ProductPrice * sales AS totalValue FROM inventory i " +
-            "INNER JOIN (" +
-            "    SELECT ProductID, SUM(ProductQuantity) AS sales FROM order_products " +
-            "    GROUP BY ProductID) p " +
-            "ON i.ProductID = p.ProductID " + 
-            "ORDER BY totalValue DESC;"
+            "SELECT * FROM profitableProductsView"
         );
-        String dividerLine = "------------------------------";
-        String columnSpacer = " ";
 
-        ResultSetMetaData metadata = rs.getMetaData(); 
-        System.out.format("%-30s%-1s%-30s%-1s%-30s", dividerLine, columnSpacer, dividerLine, columnSpacer, dividerLine);
-        System.out.println("");
-
-            System.out.format("%-30s%-1s%-30s%-1s%-30s", "| Product ID", columnSpacer, "| Product Description", columnSpacer, "| Product Price");
-            System.out.println();
-
-        System.out.format("%-30s%-1s%-30s%-1s%-30s", dividerLine, columnSpacer, dividerLine, columnSpacer, dividerLine);
-        System.out.println("");
-
-
-        while (rs.next()) {
-            System.out.format("%-30s%-1s%-30s%-1s%-30s", "| " + rs.getInt(1), columnSpacer, "| " + rs.getString(2), columnSpacer, "| " + rs.getInt(3));
-            System.out.println("");
-        }
-
-        System.out.format("%-30s%-1s%-30s%-1s%-30s", dividerLine, columnSpacer, dividerLine, columnSpacer, dividerLine);
-        System.out.println();
+        // Call a custom formatting function that prints out table nicely
+        formatTable(rs);
 
         rs.close();
         st.close();
 	}
+
 
 	/**
 	* @param conn An open database connection 
 	* @param date The target date to test collection deliveries against
 	*/
 	public static void option5(Connection conn, String date) {
-        // Get all orders that have a collection date older than the provided date
-        // Re-Add all the items for the order to product stock amount
-        // Delete the order and any data related to that order 
-        // Takes date
-        
         // Identify all orders that are 8 days older than the provided date
         // Call a procedure that DELETES all orders WHERE id IN (SELECT id FROM ORDERS WHERE date too old)
-        // Add a trigger to orders that deletes all order_products when an order is deleted
-        // Add a trigger that re adds all inventory when order product gets deleted? 
-        
+        // We have a trigger that deletes all order_products when an order is deleted
+        // We have another trigger trigger that re adds all inventory when order product gets deleted
         try {
-            CallableStatement stmt = conn.prepareCall("{ call removeOldOrders(?) }");
+            Statement st = conn.createStatement();
+            ResultSet rs = st.executeQuery(
+                "SELECT * FROM uncollectedCollectionsView WHERE CURRENT_DATE - INTERVAL '8 Days' > collectionDate"
+            );
+            while (rs.next()) {
+                System.out.println("Order " + rs.getInt(1) + " has been cancelled");
+            }
+
+            CallableStatement stmt = conn.prepareCall("call removeOldOrders(?)");
             stmt.setDate(1, getSQLDate(date));
             stmt.execute();
             stmt.close();
+
+            System.out.println("Removed orders 8 days older than " + date + " and updated inventory.\n");
         } catch (SQLException e) {
             System.err.format("SQL State: %s\n%s", e.getSQLState(), e.getMessage());
         } catch (Exception e) {
@@ -355,7 +339,19 @@ class Assignment {
 	* @param conn An open database connection 
 	*/
 	public static void option6(Connection conn) {
-		// Incomplete - Code for option 6 goes here
+        try {
+            Statement st = conn.createStatement();
+            ResultSet rs = st.executeQuery(
+                "SELECT * FROM lifetimeSalesView"
+            );
+
+            formatTable(rs); 
+
+        } catch (SQLException e) {
+            System.err.format("SQL State: %s\n%s", e.getSQLState(), e.getMessage());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 	}
 
 	/**
@@ -572,6 +568,62 @@ class Assignment {
             e.printStackTrace();
         }
     }
+
+	/**
+     * @param rs The dataset we want to print out
+     */
+    public static void formatTable(ResultSet rs) throws SQLException {
+        String dividerLine = "------------------------------";
+        String columnSpacer = " ";
+        String formatString = ""; 
+
+        ResultSetMetaData md = rs.getMetaData(); 
+        Integer colCount = md.getColumnCount();
+
+        if (colCount == 2) {
+            formatString = "%-30s%-1s%-30s";
+        } else if (colCount == 3) {
+            formatString = "%-30s%-1s%-30s%-1s%-30s";
+        } else {
+            System.out.println("I don't know how to format this table\n"); 
+        }
+
+        // Title bar with surrounding dashes
+        System.out.println("");
+        if (colCount == 2) {
+            System.out.format(formatString, dividerLine, columnSpacer, dividerLine);
+            System.out.println("");
+            System.out.format(formatString, "| Staff Name", columnSpacer, "| Lifetime Sales");
+            System.out.println();
+            System.out.format(formatString, dividerLine, columnSpacer, dividerLine);
+            System.out.println("");
+        } else if (colCount == 3) {
+            System.out.format(formatString, dividerLine, columnSpacer, dividerLine, columnSpacer, dividerLine);
+            System.out.println("");
+            System.out.format(formatString, "| Product ID", columnSpacer, "| Product Description", columnSpacer, "| Total Sales");
+            System.out.println();
+            System.out.format(formatString, dividerLine, columnSpacer, dividerLine, columnSpacer, dividerLine);
+            System.out.println("");
+        }
+
+        // Rows of the table, starting with | 
+        while (rs.next()) {
+            if (colCount == 2) {
+                System.out.format(formatString, "| " + rs.getInt(1), columnSpacer, "| £" + rs.getInt(2));
+            } else if (colCount == 3) {
+                System.out.format(formatString, "| " + rs.getInt(1), columnSpacer, "| " + rs.getString(2), columnSpacer, "| £" + rs.getInt(3));
+            }
+            System.out.println("");
+        }
+
+        // Bottom line to finish off table
+        if (colCount == 2) {
+            System.out.format(formatString, dividerLine, columnSpacer, dividerLine);
+        } else if (colCount == 3) {
+            System.out.format(formatString, dividerLine, columnSpacer, dividerLine, columnSpacer, dividerLine);
+        }
+        System.out.println("\n");
+    }
 }
 
 class Order {
@@ -617,6 +669,8 @@ class Order {
         }
 
         staffID = Integer.valueOf(Assignment.readEntry("Enter your staff ID: "));
+
+        System.out.println("");
 
         quantitiesArray = new int[quantities.size()];
         productIDsArray = new int[quantities.size()];

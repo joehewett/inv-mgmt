@@ -2205,3 +2205,375 @@
 2020-12-07 22:33:10.694 GMT [31098] CONTEXT:  SQL statement "INSERT INTO order_products (OrderID, ProductID, ProductQuantity) VALUES (ordID, prodID, prodQuantity)"
 	PL/pgSQL function insertorderproduct(integer,integer,integer) line 3 at SQL statement
 2020-12-07 22:33:10.694 GMT [31098] STATEMENT:  call insertOrderProduct($1, $2, $3)
+2020-12-07 23:42:28.494 GMT [15986] LOG:  using stale statistics instead of current ones because stats collector is not responding
+2020-12-08 00:12:58.993 GMT [15986] LOG:  using stale statistics instead of current ones because stats collector is not responding
+2020-12-08 00:20:26.301 GMT [38757] ERROR:  column i.price does not exist at character 41
+2020-12-08 00:20:26.301 GMT [38757] STATEMENT:  SELECT op.OrderID, op.ProductQuantity * i.Price FROM order_products op 
+	INNER JOIN inventory i ON op.ProductID = i.ProductID;
+2020-12-08 00:21:32.595 GMT [38757] ERROR:  missing FROM-clause entry for table "i" at character 41
+2020-12-08 00:21:32.595 GMT [38757] STATEMENT:  SELECT op.OrderID, op.ProductQuantity * i.Price FROM order_products op 
+	;
+2020-12-08 00:23:34.995 GMT [38757] ERROR:  syntax error at or near "INSERT" at character 41
+2020-12-08 00:23:34.995 GMT [38757] STATEMENT:  INSERT INTO staff_orders VALUES (4, 10)
+	INSERT INTO staff_orders VALUES (4, 11)
+2020-12-08 00:25:51.926 GMT [38757] ERROR:  column "op.productquantity" must appear in the GROUP BY clause or be used in an aggregate function at character 20
+2020-12-08 00:25:51.926 GMT [38757] STATEMENT:  SELECT op.OrderID, op.ProductQuantity * i.ProductPrice AS saleValue FROM order_products op 
+	INNER JOIN inventory i ON op.ProductID = i.ProductID GROUP BY orderID;
+2020-12-08 00:26:19.469 GMT [38757] ERROR:  column "op.productquantity" must appear in the GROUP BY clause or be used in an aggregate function at character 20
+2020-12-08 00:26:19.469 GMT [38757] STATEMENT:  SELECT op.OrderID, op.ProductQuantity * i.ProductPrice AS saleValue FROM order_products op 
+	INNER JOIN inventory i ON op.ProductID = i.ProductID GROUP BY op.orderID;
+2020-12-08 00:27:48.407 GMT [38757] ERROR:  subquery in FROM must have an alias at character 40
+2020-12-08 00:27:48.407 GMT [38757] HINT:  For example, FROM (SELECT ...) [AS] foo.
+2020-12-08 00:27:48.407 GMT [38757] STATEMENT:  SELECT op.OrderID, SUM(saleValue) FROM (
+	SELECT op.OrderID, op.ProductQuantity * i.ProductPrice AS saleValue FROM order_products op 
+	INNER JOIN inventory i ON op.ProductID = i.ProductID) GROUP BY orderID;
+2020-12-08 00:28:27.518 GMT [38757] ERROR:  missing FROM-clause entry for table "op" at character 8
+2020-12-08 00:28:27.518 GMT [38757] STATEMENT:  SELECT op.OrderID, SUM(saleValue) FROM (
+	SELECT op.OrderID, op.ProductQuantity * i.ProductPrice AS saleValue FROM order_products op 
+	INNER JOIN inventory i ON op.ProductID = i.ProductID) w GROUP BY orderID;
+2020-12-08 00:30:06.844 GMT [38757] ERROR:  column w.orderid does not exist at character 8
+2020-12-08 00:30:06.844 GMT [38757] STATEMENT:  SELECT w.orderID, SUM(saleValue) FROM (
+	SELECT op.OrderID AS id, op.ProductQuantity * i.ProductPrice AS saleValue FROM order_products op 
+	INNER JOIN inventory i ON op.ProductID = i.ProductID) w GROUP BY w.orderID;
+2020-12-08 00:36:39.203 GMT [38757] ERROR:  syntax error at or near ";" at character 287
+2020-12-08 00:36:39.203 GMT [38757] STATEMENT:  SELECT s.StaffID, x.totalOrderValue FROM staff s INNER JOIN (
+	SELECT w.id, SUM(saleValue) As totalOrderValue FROM (
+	SELECT op.OrderID AS id, op.ProductQuantity * i.ProductPrice AS saleValue FROM order_products op 
+	INNER JOIN inventory i ON op.ProductID = i.ProductID) w GROUP BY w.id) x;
+2020-12-08 00:36:47.419 GMT [38757] ERROR:  subquery in FROM must have an alias at character 61
+2020-12-08 00:36:47.419 GMT [38757] HINT:  For example, FROM (SELECT ...) [AS] foo.
+2020-12-08 00:36:47.419 GMT [38757] STATEMENT:  SELECT s.StaffID, x.totalOrderValue FROM staff s INNER JOIN (
+	SELECT w.id, SUM(saleValue) As totalOrderValue FROM (
+	SELECT op.OrderID AS id, op.ProductQuantity * i.ProductPrice AS saleValue FROM order_products op 
+	INNER JOIN inventory i ON op.ProductID = i.ProductID) w GROUP BY w.id);
+2020-12-08 00:37:11.314 GMT [38757] ERROR:  syntax error at or near ";" at character 291
+2020-12-08 00:37:11.314 GMT [38757] STATEMENT:  SELECT s.StaffID, x.totalOrderValue FROM staff s INNER JOIN (
+	SELECT w.id, SUM(saleValue) As totalOrderValue FROM (
+	SELECT op.OrderID AS id, op.ProductQuantity * i.ProductPrice AS saleValue FROM order_products op 
+	INNER JOIN inventory i ON op.ProductID = i.ProductID) w GROUP BY w.id) AS x
+	;
+2020-12-08 00:37:14.739 GMT [38757] ERROR:  syntax error at or near ";" at character 290
+2020-12-08 00:37:14.739 GMT [38757] STATEMENT:  SELECT s.StaffID, x.totalOrderValue FROM staff s INNER JOIN (
+	SELECT w.id, SUM(saleValue) As totalOrderValue FROM (
+	SELECT op.OrderID AS id, op.ProductQuantity * i.ProductPrice AS saleValue FROM order_products op 
+	INNER JOIN inventory i ON op.ProductID = i.ProductID) w GROUP BY w.id) AS x;
+2020-12-08 00:41:42.651 GMT [38757] ERROR:  syntax error at or near "GROUP" at character 334
+2020-12-08 00:41:42.651 GMT [38757] STATEMENT:  SELECT s.StaffID, x.totalOrderValue 
+	FROM staff s
+	INNER JOIN (
+	    SELECT w.id, SUM(saleValue) AS totalOrderValue 
+	    FROM (
+	        SELECT op.OrderID AS id, op.ProductQuantity * i.ProductPrice AS saleValue 
+	        FROM order_products op 
+	        INNER JOIN inventory i ON op.ProductID = i.ProductID
+	    ) w 
+	    GROUP BY w.id
+	) x GROUP BY s.staffID;
+2020-12-08 04:10:17.254 GMT [15986] LOG:  using stale statistics instead of current ones because stats collector is not responding
+2020-12-08 04:10:27.575 GMT [29567] LOG:  using stale statistics instead of current ones because stats collector is not responding
+2020-12-08 04:10:32.016 GMT [15986] LOG:  using stale statistics instead of current ones because stats collector is not responding
+2020-12-08 04:12:06.960 GMT [31098] FATAL:  terminating connection due to administrator command
+2020-12-08 04:12:08.321 GMT [31098] LOG:  could not send data to client: Broken pipe
+2020-12-08 04:12:08.062 GMT [15934] LOG:  background worker "logical replication launcher" (PID 16004) exited with exit code 1
+2020-12-08 04:12:09.394 GMT [15934] LOG:  received smart shutdown request
+2020-12-08 04:12:09.624 GMT [15934] LOG:  received SIGHUP, reloading configuration files
+2020-12-08 04:12:09.857 GMT [15981] LOG:  shutting down
+2020-12-08 04:12:10.354 GMT [15934] LOG:  database system is shut down
+2020-12-08 11:25:39.426 GMT [12417] LOG:  starting PostgreSQL 12.3 on x86_64-pc-linux-gnu, compiled by gcc (GCC) 4.8.5 20150623 (Red Hat 4.8.5-39), 64-bit
+2020-12-08 11:25:39.438 GMT [12417] LOG:  listening on Unix socket "/dcs/19/u1813151/Documents/cs258/postgres/tmp/.s.PGSQL.5432"
+2020-12-08 11:25:39.499 GMT [12419] LOG:  database system was shut down at 2020-12-08 11:25:37 GMT
+2020-12-08 11:25:39.516 GMT [12417] LOG:  database system is ready to accept connections
+2020-12-08 11:38:21.912 GMT [12605] ERROR:  aggregate functions are not allowed in WHERE at character 379
+2020-12-08 11:38:21.912 GMT [12605] STATEMENT:  SELECT s.StaffID, SUM(totalOrderValue) FROM staff_orders s INNER JOIN (
+	    SELECT w.id as id, SUM(saleValue) As totalOrderValue 
+	    FROM (
+	        SELECT op.OrderID AS id, op.ProductQuantity * i.ProductPrice AS saleValue FROM order_products op 
+	        INNER JOIN inventory i 
+	            ON op.ProductID = i.ProductID
+	    ) w 
+	    GROUP BY w.id
+	) x ON x.id = s.OrderID WHERE SUM(totalOrderValue) > 10 GROUP BY s.StaffID;
+2020-12-08 11:45:54.224 GMT [27770] ERROR:  syntax error at or near "WHERE" at character 422
+2020-12-08 11:45:54.224 GMT [27770] STATEMENT:  SELECT s.StaffID, SUM(totalOrderValue) AS lifetimeSales 
+	FROM staff_orders s 
+	INNER JOIN (
+	    SELECT w.id as id, SUM(saleValue) As totalOrderValue 
+	    FROM (
+	        SELECT op.OrderID AS id, op.ProductQuantity * i.ProductPrice AS saleValue 
+	        FROM order_products op 
+	        INNER JOIN inventory i 
+	            ON op.ProductID = i.ProductID
+	    ) w 
+	    GROUP BY w.id
+	) x 
+	ON x.id = s.OrderID 
+	GROUP BY s.StaffID
+	WHERE lifetimeSales > 7;
+2020-12-08 11:46:07.102 GMT [27770] ERROR:  column "lifetimesales" does not exist at character 409
+2020-12-08 11:46:07.102 GMT [27770] STATEMENT:  SELECT s.StaffID, SUM(totalOrderValue) AS lifetimeSales 
+	FROM staff_orders s 
+	INNER JOIN (
+	    SELECT w.id as id, SUM(saleValue) As totalOrderValue 
+	    FROM (
+	        SELECT op.OrderID AS id, op.ProductQuantity * i.ProductPrice AS saleValue 
+	        FROM order_products op 
+	        INNER JOIN inventory i 
+	            ON op.ProductID = i.ProductID
+	    ) w 
+	    GROUP BY w.id
+	) x 
+	ON x.id = s.OrderID 
+	WHERE lifetimeSales > 7
+	GROUP BY s.StaffID;
+2020-12-08 12:01:54.580 GMT [27770] ERROR:  aggregate functions are not allowed in WHERE at character 409
+2020-12-08 12:01:54.580 GMT [27770] STATEMENT:  SELECT s.StaffID, SUM(totalOrderValue) AS lifetimeSales 
+	FROM staff_orders s 
+	INNER JOIN (
+	    SELECT w.id as id, SUM(saleValue) As totalOrderValue 
+	    FROM (
+	        SELECT op.OrderID AS id, op.ProductQuantity * i.ProductPrice AS saleValue 
+	        FROM order_products op 
+	        INNER JOIN inventory i 
+	            ON op.ProductID = i.ProductID
+	    ) w 
+	    GROUP BY w.id
+	) x 
+	ON x.id = s.OrderID 
+	WHERE SUM(totalOrderValue) > 1
+	GROUP BY s.StaffID;
+2020-12-08 12:02:14.488 GMT [27770] ERROR:  column "lifetimesales" does not exist at character 409
+2020-12-08 12:02:14.488 GMT [27770] STATEMENT:  SELECT s.StaffID, SUM(totalOrderValue) AS lifetimeSales 
+	FROM staff_orders s 
+	INNER JOIN (
+	    SELECT w.id as id, SUM(saleValue) As totalOrderValue 
+	    FROM (
+	        SELECT op.OrderID AS id, op.ProductQuantity * i.ProductPrice AS saleValue 
+	        FROM order_products op 
+	        INNER JOIN inventory i 
+	            ON op.ProductID = i.ProductID
+	    ) w 
+	    GROUP BY w.id
+	) x 
+	ON x.id = s.OrderID 
+	WHERE lifetimeSales > 1
+	GROUP BY s.StaffID;
+2020-12-08 12:07:55.174 GMT [27770] ERROR:  column "lifetimesales" does not exist at character 429
+2020-12-08 12:07:55.174 GMT [27770] STATEMENT:  SELECT s.StaffID, SUM(totalOrderValue) AS lifetimeSales 
+	FROM staff_orders s 
+	INNER JOIN (
+	    SELECT w.id as id, SUM(saleValue) As totalOrderValue 
+	    FROM (
+	        SELECT op.OrderID AS id, op.ProductQuantity * i.ProductPrice AS saleValue 
+	        FROM order_products op 
+	        INNER JOIN inventory i 
+	            ON op.ProductID = i.ProductID
+	    ) w 
+	    GROUP BY w.id
+	) x 
+	ON x.id = s.OrderID 
+	GROUP BY s.StaffID
+	HAVING lifetimeSales > 5;
+2020-12-08 12:08:32.406 GMT [27770] ERROR:  column "lifetimesales" does not exist at character 429
+2020-12-08 12:08:32.406 GMT [27770] STATEMENT:  SELECT s.StaffID, SUM(totalOrderValue) AS lifetimeSales 
+	FROM staff_orders s 
+	INNER JOIN (
+	    SELECT w.id as id, SUM(saleValue) As totalOrderValue 
+	    FROM (
+	        SELECT op.OrderID AS id, op.ProductQuantity * i.ProductPrice AS saleValue 
+	        FROM order_products op 
+	        INNER JOIN inventory i 
+	            ON op.ProductID = i.ProductID
+	    ) w 
+	    GROUP BY w.id
+	) x 
+	ON x.id = s.OrderID 
+	GROUP BY s.StaffID
+	HAVING lifetimeSales > 5;
+2020-12-08 12:08:33.478 GMT [27770] ERROR:  column "lifetimesales" does not exist at character 429
+2020-12-08 12:08:33.478 GMT [27770] STATEMENT:  SELECT s.StaffID, SUM(totalOrderValue) AS lifetimeSales 
+	FROM staff_orders s 
+	INNER JOIN (
+	    SELECT w.id as id, SUM(saleValue) As totalOrderValue 
+	    FROM (
+	        SELECT op.OrderID AS id, op.ProductQuantity * i.ProductPrice AS saleValue 
+	        FROM order_products op 
+	        INNER JOIN inventory i 
+	            ON op.ProductID = i.ProductID
+	    ) w 
+	    GROUP BY w.id
+	) x 
+	ON x.id = s.OrderID 
+	GROUP BY s.StaffID
+	HAVING lifetimeSales > 5;
+2020-12-08 12:25:00.709 GMT [27770] ERROR:  syntax error at or near "INSERT" at character 130
+2020-12-08 12:25:00.709 GMT [27770] STATEMENT:  CREATE OR REPLACE VIEW unitsSoldView AS 
+	SELECT ProductID, SUM(ProductQuantity) AS sales FROM order_products GROUP BY ProductID
+	
+	INSERT INTO inventory VALUES (1, 'testing1', 1, 1);
+2020-12-08 12:25:00.736 GMT [27770] ERROR:  insert or update on table "order_products" violates foreign key constraint "order_products_productid_fkey"
+2020-12-08 12:25:00.736 GMT [27770] DETAIL:  Key (productid)=(1) is not present in table "inventory".
+2020-12-08 12:25:00.736 GMT [27770] STATEMENT:  INSERT INTO order_products VALUES (10, 1, 1);
+2020-12-08 12:25:00.753 GMT [27770] ERROR:  syntax error at or near ")" at character 196
+2020-12-08 12:25:00.753 GMT [27770] STATEMENT:  SELECT s.StaffID, SUM(totalOrderValue) AS lifetimeSales 
+	FROM staff_orders s 
+	INNER JOIN (
+	    SELECT w.id as id, SUM(saleValue) As totalOrderValue 
+	    FROM (
+	        unitsSoldView
+	        
+	    ) w 
+	    GROUP BY w.id
+	) x 
+	ON x.id = s.OrderID 
+	GROUP BY s.StaffID
+	HAVING SUM(totalOrderValue) > 6;
+2020-12-08 12:25:17.806 GMT [27770] ERROR:  syntax error at or near "INSERT" at character 130
+2020-12-08 12:25:17.806 GMT [27770] STATEMENT:  CREATE OR REPLACE VIEW unitsSoldView AS 
+	SELECT ProductID, SUM(ProductQuantity) AS sales FROM order_products GROUP BY ProductID
+	
+	INSERT INTO inventory VALUES (1, 'testing1', 1, 1);
+2020-12-08 12:25:17.830 GMT [27770] ERROR:  insert or update on table "order_products" violates foreign key constraint "order_products_productid_fkey"
+2020-12-08 12:25:17.830 GMT [27770] DETAIL:  Key (productid)=(1) is not present in table "inventory".
+2020-12-08 12:25:17.830 GMT [27770] STATEMENT:  INSERT INTO order_products VALUES (10, 1, 1);
+2020-12-08 12:25:17.846 GMT [27770] ERROR:  relation "unitssoldview" does not exist at character 159
+2020-12-08 12:25:17.846 GMT [27770] STATEMENT:  SELECT s.StaffID, SUM(totalOrderValue) AS lifetimeSales 
+	FROM staff_orders s 
+	INNER JOIN (
+	    SELECT w.id as id, SUM(saleValue) As totalOrderValue 
+	    FROM unitsSoldView w 
+	    GROUP BY w.id
+	) x 
+	ON x.id = s.OrderID 
+	GROUP BY s.StaffID
+	HAVING SUM(totalOrderValue) > 6;
+2020-12-08 12:25:19.363 GMT [27770] ERROR:  syntax error at or near "INSERT" at character 130
+2020-12-08 12:25:19.363 GMT [27770] STATEMENT:  CREATE OR REPLACE VIEW unitsSoldView AS 
+	SELECT ProductID, SUM(ProductQuantity) AS sales FROM order_products GROUP BY ProductID
+	
+	INSERT INTO inventory VALUES (1, 'testing1', 1, 1);
+2020-12-08 12:25:19.388 GMT [27770] ERROR:  insert or update on table "order_products" violates foreign key constraint "order_products_productid_fkey"
+2020-12-08 12:25:19.388 GMT [27770] DETAIL:  Key (productid)=(1) is not present in table "inventory".
+2020-12-08 12:25:19.388 GMT [27770] STATEMENT:  INSERT INTO order_products VALUES (10, 1, 1);
+2020-12-08 12:25:19.407 GMT [27770] ERROR:  relation "unitssoldview" does not exist at character 159
+2020-12-08 12:25:19.407 GMT [27770] STATEMENT:  SELECT s.StaffID, SUM(totalOrderValue) AS lifetimeSales 
+	FROM staff_orders s 
+	INNER JOIN (
+	    SELECT w.id as id, SUM(saleValue) As totalOrderValue 
+	    FROM unitsSoldView w 
+	    GROUP BY w.id
+	) x 
+	ON x.id = s.OrderID 
+	GROUP BY s.StaffID
+	HAVING SUM(totalOrderValue) > 6;
+2020-12-08 12:25:54.945 GMT [27770] ERROR:  column w.id does not exist at character 103
+2020-12-08 12:25:54.945 GMT [27770] STATEMENT:  SELECT s.StaffID, SUM(totalOrderValue) AS lifetimeSales 
+	FROM staff_orders s 
+	INNER JOIN (
+	    SELECT w.id as id, SUM(saleValue) As totalOrderValue 
+	    FROM unitsSoldView w 
+	    GROUP BY w.id
+	) x 
+	ON x.id = s.OrderID 
+	GROUP BY s.StaffID
+	HAVING SUM(totalOrderValue) > 6;
+2020-12-08 12:26:39.253 GMT [27770] ERROR:  column "salevalue" does not exist at character 126
+2020-12-08 12:26:39.253 GMT [27770] STATEMENT:  SELECT s.StaffID, SUM(totalOrderValue) AS lifetimeSales 
+	FROM staff_orders s 
+	INNER JOIN (
+	    SELECT w.ProductID as id, SUM(saleValue) As totalOrderValue 
+	    FROM unitsSoldView w 
+	    GROUP BY w.ProductID
+	) x 
+	ON x.id = s.OrderID 
+	GROUP BY s.StaffID
+	HAVING SUM(totalOrderValue) > 6;
+2020-12-08 12:31:00.392 GMT [27770] ERROR:  relation "lifetimesalesview" does not exist at character 15
+2020-12-08 12:31:00.392 GMT [27770] STATEMENT:  SELECT * from lifetimeSalesView;
+2020-12-08 12:50:20.919 GMT [12424] LOG:  using stale statistics instead of current ones because stats collector is not responding
+2020-12-08 12:50:58.744 GMT [34742] ERROR:  relation "highestsellingproductsview" does not exist at character 15
+2020-12-08 12:50:58.744 GMT [34742] STATEMENT:  SELECT * FROM highestSellingProductsView
+2020-12-08 12:51:26.669 GMT [36316] ERROR:  relation "highestsellingproductsview" does not exist at character 15
+2020-12-08 12:51:26.669 GMT [36316] STATEMENT:  SELECT * FROM highestSellingProductsView
+2020-12-08 12:52:34.950 GMT [39188] ERROR:  relation "highestsellingproductsview" does not exist at character 15
+2020-12-08 12:52:34.950 GMT [39188] STATEMENT:  SELECT * FROM highestSellingProductsView
+2020-12-08 13:04:43.793 GMT [2104] ERROR:  relation "highestSellingProductsView" does not exist at character 15
+2020-12-08 13:04:43.793 GMT [2104] STATEMENT:  SELECT * FROM "highestSellingProductsView"
+2020-12-08 13:12:45.395 GMT [30183] ERROR:  relation "bestproductsview" does not exist at character 15
+2020-12-08 13:12:45.395 GMT [30183] STATEMENT:  SELECT * FROM bestProductsView
+2020-12-08 13:13:20.402 GMT [15434] ERROR:  relation "bestproductview" does not exist at character 15
+2020-12-08 13:13:20.402 GMT [15434] STATEMENT:  select * from bestproductview;
+2020-12-08 13:13:25.407 GMT [15434] ERROR:  relation "bestproductsview" does not exist at character 15
+2020-12-08 13:13:25.407 GMT [15434] STATEMENT:  select * from bestproductsview
+	;
+2020-12-08 13:13:28.079 GMT [15434] ERROR:  relation "bestproductsview" does not exist at character 15
+2020-12-08 13:13:28.079 GMT [15434] STATEMENT:  select * from bestproductsview;
+2020-12-08 13:14:06.553 GMT [33806] ERROR:  relation "bestproductsview" does not exist at character 15
+2020-12-08 13:14:06.553 GMT [33806] STATEMENT:  SELECT * FROM bestProductsView
+2020-12-08 13:22:43.060 GMT [12417] LOG:  received fast shutdown request
+2020-12-08 13:22:43.062 GMT [12417] LOG:  aborting any active transactions
+2020-12-08 13:22:43.063 GMT [19832] FATAL:  terminating connection due to administrator command
+2020-12-08 13:22:43.065 GMT [12417] LOG:  background worker "logical replication launcher" (PID 12426) exited with exit code 1
+2020-12-08 13:22:43.065 GMT [12421] LOG:  shutting down
+2020-12-08 13:22:43.123 GMT [12417] LOG:  database system is shut down
+2020-12-08 13:22:51.452 GMT [20252] LOG:  starting PostgreSQL 12.3 on x86_64-pc-linux-gnu, compiled by gcc (GCC) 4.8.5 20150623 (Red Hat 4.8.5-39), 64-bit
+2020-12-08 13:22:51.516 GMT [20252] LOG:  listening on Unix socket "/dcs/19/u1813151/Documents/cs258/postgres/tmp/.s.PGSQL.5432"
+2020-12-08 13:22:51.575 GMT [20423] LOG:  database system was shut down at 2020-12-08 13:22:43 GMT
+2020-12-08 13:22:51.584 GMT [20252] LOG:  database system is ready to accept connections
+2020-12-08 13:31:31.931 GMT [20756] ERROR:  relation "highestsellingproductsview" does not exist at character 15
+2020-12-08 13:31:31.931 GMT [20756] STATEMENT:  select * from highestSellingProductsView;
+2020-12-08 13:54:41.250 GMT [20756] ERROR:  relation "completed" does not exist at character 15
+2020-12-08 13:54:41.250 GMT [20756] STATEMENT:  select * from completed;
+2020-12-08 14:12:08.176 GMT [10898] ERROR:  removeoldorders(unknown) is a procedure at character 15
+2020-12-08 14:12:08.176 GMT [10898] HINT:  To call a procedure, use CALL.
+2020-12-08 14:12:08.176 GMT [10898] STATEMENT:  select * from removeOldOrders($1)  as result
+2020-12-08 14:32:31.302 GMT [9968] ERROR:  syntax error at or near "c" at character 83
+2020-12-08 14:32:31.302 GMT [9968] STATEMENT:  CREATE OR REPLACE VIEW uncollectedCollections AS 
+	    SELECT o.OrderID AS OrderID c.CollectionDate FROM orders o
+	    INNER JOIN collections c
+	    ON o.OrderID = c.OrderID
+	    WHERE o.OrderCompleted = 0;
+2020-12-08 14:33:03.778 GMT [9968] ERROR:  relation "uncollectedcollectionsview" does not exist at character 15
+2020-12-08 14:33:03.778 GMT [9968] STATEMENT:  SELECT * FROM uncollectedCollectionsView;
+2020-12-08 14:33:16.154 GMT [9968] ERROR:  relation "uncollectedcollectionsview" does not exist at character 15
+2020-12-08 14:33:16.154 GMT [9968] STATEMENT:  SELECT * FROM uncollectedCollectionsView;
+2020-12-08 14:33:17.154 GMT [9968] ERROR:  relation "uncollectedcollectionsview" does not exist at character 15
+2020-12-08 14:33:17.154 GMT [9968] STATEMENT:  SELECT * FROM uncollectedCollectionsView;
+2020-12-08 14:33:37.636 GMT [9968] ERROR:  view "uncollectedcollections" does not exist
+2020-12-08 14:33:37.636 GMT [9968] STATEMENT:  DROP VIEW uncollectedCollections;
+2020-12-08 14:37:17.861 GMT [20427] LOG:  using stale statistics instead of current ones because stats collector is not responding
+2020-12-08 14:55:02.998 GMT [20427] LOG:  using stale statistics instead of current ones because stats collector is not responding
+2020-12-08 14:57:33.123 GMT [9968] ERROR:  relation "profitableproductsview" does not exist at character 15
+2020-12-08 14:57:33.123 GMT [9968] STATEMENT:  SELECT * FROM profitableproductsview;
+2020-12-08 14:57:40.013 GMT [9968] ERROR:  relation "profitableproductsview" does not exist at character 15
+2020-12-08 14:57:40.013 GMT [9968] STATEMENT:  SELECT * FROM profitableProductsView;
+2020-12-08 14:57:45.771 GMT [9968] ERROR:  syntax error at or near "OUTER" at character 149
+2020-12-08 14:57:45.771 GMT [9968] STATEMENT:  CREATE OR REPLACE VIEW profitableProductsView AS 
+	    SELECT i.ProductID, i.ProductDesc, i.ProductPrice * sales AS totalValue FROM inventory i 
+	    OUTER JOIN (
+	        SELECT ProductID, SUM(ProductQuantity) AS sales 
+	        FROM order_products 
+	        GROUP BY ProductID
+	    ) p ON i.ProductID = p.ProductID
+	    ORDER BY totalValue DESC;
+2020-12-08 14:57:54.868 GMT [9968] ERROR:  relation "profitableproductsview" does not exist at character 15
+2020-12-08 14:57:54.868 GMT [9968] STATEMENT:  SELECT * FROM profitableProductsView;
+2020-12-08 14:59:03.046 GMT [20427] LOG:  using stale statistics instead of current ones because stats collector is not responding
+2020-12-08 14:59:08.415 GMT [9968] ERROR:  syntax error at or near ")" at character 118
+2020-12-08 14:59:08.415 GMT [9968] STATEMENT:  CREATE OR REPLACE VIEW bestproductsview AS 
+	    SELECT i.ProductID, i.ProductDesc, COALESCE(i.ProductPrice * sales),0) AS totalValue FROM inventory i 
+	    INNER JOIN (
+	        SELECT ProductID, SUM(ProductQuantity) AS sales 
+	        FROM order_products 
+	        GROUP BY ProductID
+	    ) p ON i.ProductID = p.ProductID
+	    ORDER BY totalValue DESC;
+2020-12-08 15:03:13.193 GMT [9968] ERROR:  column "i.productid" must appear in the GROUP BY clause or be used in an aggregate function at character 56
+2020-12-08 15:03:13.193 GMT [9968] STATEMENT:  CREATE OR REPLACE VIEW bestproductsview AS 
+	    SELECT i.ProductID, i.ProductDesc, MAX(COALESCE(i.ProductPrice * sales ,0)) AS totalValue FROM inventory i 
+	    INNER JOIN (
+	        SELECT ProductID, SUM(ProductQuantity) AS sales 
+	        FROM order_products 
+	        GROUP BY ProductID
+	    ) p ON i.ProductID = p.ProductID
+	    ORDER BY totalValue DESC;
+2020-12-08 15:14:18.295 GMT [20427] LOG:  using stale statistics instead of current ones because stats collector is not responding

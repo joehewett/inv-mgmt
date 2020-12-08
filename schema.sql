@@ -184,9 +184,16 @@ CREATE OR REPLACE PROCEDURE removeOldOrders(removeFromDate DATE)
         DELETE FROM orders o 
         USING collections c
         WHERE o.OrderID = c.OrderID
-        AND removeFromDate - INTERVAL '8 days' > c.CollectionDate;
+        AND removeFromDate - INTERVAL '8 days' > c.CollectionDate
+        AND o.OrderCompleted = 0;
     END;
     $$;
+
+CREATE VIEW uncollectedCollectionsView AS 
+    SELECT o.OrderID AS OrderID, c.CollectionDate FROM orders o
+    INNER JOIN collections c
+    ON o.OrderID = c.OrderID
+    WHERE o.OrderCompleted = 0;
 
 CREATE OR REPLACE FUNCTION addUncollectedStock() RETURNS TRIGGER AS $removeOrders$
     BEGIN
@@ -196,11 +203,52 @@ CREATE OR REPLACE FUNCTION addUncollectedStock() RETURNS TRIGGER AS $removeOrder
     $removeOrders$
     LANGUAGE plpgsql;
 
--- Delete all orders from 
+-- Before we delete a row from order_products, add the stock back to the inventory
 CREATE TRIGGER removeOrders BEFORE DELETE
     ON order_products 
     FOR EACH ROW EXECUTE FUNCTION addUncollectedStock();  
 
+-- View - gets the highest selling products in descending order of total value
+CREATE OR REPLACE VIEW bestproductsview AS 
+    SELECT i.ProductID, i.ProductDesc, COALESCE(i.ProductPrice * sales, 0) AS totalValue FROM inventory i 
+    INNER JOIN (
+        SELECT ProductID, SUM(ProductQuantity) AS sales 
+        FROM order_products 
+        GROUP BY ProductID
+    ) p ON i.ProductID = p.ProductID
+    ORDER BY totalValue DESC; 
+
+CREATE OR REPLACE VIEW profitableProductsView AS 
+    SELECT i.ProductID, i.ProductDesc, COALESCE(i.ProductPrice * sales,0) AS totalValue FROM inventory i 
+    LEFT OUTER JOIN (
+        SELECT ProductID, SUM(ProductQuantity) AS sales 
+        FROM order_products 
+        GROUP BY ProductID
+    ) p ON i.ProductID = p.ProductID
+    ORDER BY totalValue DESC; 
+
+-- View - gets a table of product IDs with the price * quantity sold for that product in the order_product row 
+-- used in opt6 as a componenet part
+CREATE OR REPLACE VIEW unitsSoldView AS 
+    SELECT op.OrderID AS id, op.ProductQuantity * i.ProductPrice AS saleValue 
+    FROM order_products op 
+    INNER JOIN inventory i 
+        ON op.ProductID = i.ProductID;
+
+-- View - Get the lifetime sales of all members of staff over 50,000
+-- Works by getting the total value of each order, then linking with the staff table
+-- It then groups by staffID, summing the order values for that staff member. A final HAVING checks that this total is >= 50k 
+CREATE OR REPLACE VIEW lifetimeSalesView AS
+    SELECT s.StaffID, SUM(totalOrderValue) AS lifetimeSales 
+    FROM staff_orders s 
+    INNER JOIN (
+        SELECT w.id as id, SUM(saleValue) As totalOrderValue 
+        FROM unitsSoldView w 
+        GROUP BY w.id
+    ) x 
+    ON x.id = s.OrderID 
+    GROUP BY s.StaffID
+    HAVING SUM(totalOrderValue) > 4;
 
 
 --INSERT INTO inventory(ProductID, ProductDesc, ProductPrice, ProductStockAmount) VALUES (1, "Cap", 10.5, 5);
@@ -208,9 +256,29 @@ INSERT INTO inventory VALUES (1, 'testing1', 1, 1);
 INSERT INTO inventory VALUES (2, 'testing2', 2, 2);
 INSERT INTO inventory VALUES (3, 'testing3', 3, 3);
 INSERT INTO inventory VALUES (4, 'testing4', 4, 4);
+INSERT INTO inventory VALUES (5, 'testing4', 5, 5);
+
 INSERT INTO staff VALUES (4, 'James', 'Smith');
+INSERT INTO staff VALUES (5, 'James', 'Smith');
 
 INSERT INTO orders VALUES (10, 'Collection', 0, NOW());
+INSERT INTO orders VALUES (11, 'Collection', 0, NOW());
+INSERT INTO orders VALUES (12, 'Collection', 0, NOW());
+
 INSERT INTO collections VALUES (10, 'James', 'Smith', NOW() - INTERVAL '1 year');
+INSERT INTO collections VALUES (11, 'James', 'Smith', NOW() - INTERVAL '1 year');
+INSERT INTO collections VALUES (12, 'James', 'Smith', NOW() - INTERVAL '1 year');
+
 INSERT INTO order_products VALUES (10, 1, 1);
-INSERT INTO staff_orders VALUES (4, 10)
+INSERT INTO order_products VALUES (10, 2, 1);
+INSERT INTO order_products VALUES (11, 3, 1);
+
+
+INSERT INTO order_products VALUES (12, 2, 1);
+INSERT INTO order_products VALUES (12, 3, 1);
+INSERT INTO order_products VALUES (12, 4, 1);
+
+INSERT INTO staff_orders VALUES (4, 10);
+INSERT INTO staff_orders VALUES (4, 11);
+INSERT INTO staff_orders VALUES (5, 12);
+
