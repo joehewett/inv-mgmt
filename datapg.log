@@ -2791,3 +2791,506 @@
 2020-12-09 14:03:31.940 GMT [2168] STATEMENT:  1
 	3
 	select * from mostValuableStaff;
+2020-12-09 14:58:37.630 GMT [2168] ERROR:  syntax error at or near "form" at character 10
+2020-12-09 14:58:37.630 GMT [2168] STATEMENT:  select * form allSaleValeus;
+2020-12-09 14:58:40.197 GMT [2168] ERROR:  syntax error at or near "form" at character 10
+2020-12-09 14:58:40.197 GMT [2168] STATEMENT:  select * form allSaleValues;
+2020-12-09 15:18:56.569 GMT [2168] ERROR:  syntax error at or near "20" at character 24
+2020-12-09 15:18:56.569 GMT [2168] STATEMENT:  CREATE OR REPLACE VIEW 20kYearItems AS 
+	    SELECT 
+	
+	
+	
+	CREATE OR REPLACE VIEW lifetimeSalesView AS
+	    SELECT s.StaffID, SUM(totalOrderValue) AS lifetimeSales 
+	    FROM staff_orders s 
+	    INNER JOIN (
+	        SELECT w.id as id, SUM(saleValue) As totalOrderValue 
+	        FROM allSaleValues w 
+	        GROUP BY w.id
+	    ) x 
+	    ON x.id = s.OrderID 
+	    GROUP BY s.StaffID
+	    HAVING SUM(totalOrderValue) > 4
+	    ORDER BY lifetimeSales DESC;
+2020-12-09 15:20:38.251 GMT [2168] ERROR:  column o.orderplace does not exist at character 53
+2020-12-09 15:20:38.251 GMT [2168] HINT:  Perhaps you meant to reference the column "o.orderplaced".
+2020-12-09 15:20:38.251 GMT [2168] STATEMENT:  CREATE OR REPLACE VIEW allSaleValues AS 
+	    SELECT o.OrderPlace, op.productID, op.OrderID AS id, op.ProductQuantity * i.ProductPrice AS saleValue 
+	    FROM order_products op 
+	    INNER JOIN inventory i ON op.ProductID = i.ProductID
+	    INNER JOIN orders o ON op.OrderID = o.OrderID;
+2020-12-09 15:20:38.251 GMT [2168] ERROR:  relation "allsalevalues" does not exist at character 223
+2020-12-09 15:20:38.251 GMT [2168] STATEMENT:  CREATE OR REPLACE VIEW lifetimeSalesView AS
+	    SELECT s.StaffID, SUM(totalOrderValue) AS lifetimeSales 
+	    FROM staff_orders s 
+	    INNER JOIN (
+	        SELECT w.id as id, SUM(saleValue) As totalOrderValue 
+	        FROM allSaleValues w 
+	        GROUP BY w.id
+	    ) x 
+	    ON x.id = s.OrderID 
+	    GROUP BY s.StaffID
+	    HAVING SUM(totalOrderValue) > 4
+	    ORDER BY lifetimeSales DESC;
+2020-12-09 16:53:32.662 GMT [2168] ERROR:  more than one row returned by a subquery used as an expression
+2020-12-09 16:53:32.662 GMT [2168] STATEMENT:  select (SELECT productid FROM order_products) = (SELECT productid FROM order_Products);
+2020-12-09 17:13:15.331 GMT [30578] ERROR:  syntax error at or near "CREATE" at character 59
+2020-12-09 17:13:15.331 GMT [30578] STATEMENT:  CREATE OR REPLACE VIEW staffItems AS 
+	    SELECT staffID,
+	CREATE OR REPLACE FUNCTION get20kItemsForYear(yr DATE)
+	    RETURNS INTEGER LANGUAGE plpgsql AS
+	    $$
+	    BEGIN
+	        SELECT ProductID FROM 
+	        RETURN quantity;
+	    END;
+	    $$;
+2020-12-09 17:13:15.333 GMT [30578] ERROR:  syntax error at or near "WHERE" at character 1
+2020-12-09 17:13:15.333 GMT [30578] STATEMENT:  WHERE 
+	    EXISTS( SELECT 
+	                1 
+	            FROM 
+	                table_2 
+	            WHERE 
+	                column_2 = table_1.column_1)
+	
+	
+	
+	CREATE OR REPLACE VIEW lifetimeSalesView AS
+	    SELECT s.StaffID, SUM(totalOrderValue) AS lifetimeSales 
+	    FROM staff_orders s 
+	    INNER JOIN (
+	        SELECT w.id as id, SUM(saleValue) As totalOrderValue 
+	        FROM allSaleValues w 
+	        GROUP BY w.id
+	    ) x 
+	    ON x.id = s.OrderID 
+	    GROUP BY s.StaffID
+	    HAVING SUM(totalOrderValue) > 4
+	    ORDER BY lifetimeSales DESC;
+2020-12-09 17:13:31.036 GMT [30578] ERROR:  syntax error at or near "CREATE" at character 59
+2020-12-09 17:13:31.036 GMT [30578] STATEMENT:  CREATE OR REPLACE VIEW staffItems AS 
+	    SELECT staffID,
+	CREATE OR REPLACE FUNCTION get20kItemsForYear(yr DATE)
+	    RETURNS INTEGER LANGUAGE plpgsql AS
+	    $$
+	    BEGIN
+	        SELECT ProductID FROM 
+	        RETURN quantity;
+	    END;
+	    $$;
+2020-12-09 17:16:01.138 GMT [30578] ERROR:  syntax error at or near "GROUP" at character 131
+2020-12-09 17:16:01.138 GMT [30578] STATEMENT:  SELECT staffID, productID FROM order_products op 
+	INNER JOIN staff_orders so ON op.OrderID = so.OrderID
+	INNER JOIN year20kItems y
+	GROUP BY staffID, productID;
+2020-12-09 17:16:45.613 GMT [30578] ERROR:  column reference "productid" is ambiguous at character 162
+2020-12-09 17:16:45.613 GMT [30578] STATEMENT:  SELECT * FROM order_products op 
+	INNER JOIN staff_orders so ON op.OrderID = so.OrderID
+	INNER JOIN year20kItems y ON y.ProductID = op.ProductID
+	GROUP BY staffID, productID;
+2020-12-09 17:17:10.805 GMT [30578] ERROR:  column "op.orderid" must appear in the GROUP BY clause or be used in an aggregate function at character 8
+2020-12-09 17:17:10.805 GMT [30578] STATEMENT:  SELECT * FROM order_products op 
+	INNER JOIN staff_orders so ON op.OrderID = so.OrderID
+	INNER JOIN year20kItems y ON y.ProductID = op.ProductID
+	GROUP BY so.staffID, op.productID;
+2020-12-09 17:24:46.021 GMT [30578] ERROR:  relation "staff20kitems" does not exist at character 15
+2020-12-09 17:24:46.021 GMT [30578] STATEMENT:  select * from staff20kitems;
+2020-12-09 17:24:52.589 GMT [30578] ERROR:  relation "staff20kitems" does not exist at character 15
+2020-12-09 17:24:52.589 GMT [30578] STATEMENT:  select * from staff20kitems;
+2020-12-09 17:25:44.694 GMT [30578] ERROR:  syntax error at or near "WHERE" at character 62
+2020-12-09 17:25:44.694 GMT [30578] STATEMENT:  select staffID, count(*) from staff20kitems group by staffid WHERE count(*) = 3;
+2020-12-09 17:25:59.965 GMT [30578] ERROR:  aggregate functions are not allowed in WHERE at character 51
+2020-12-09 17:25:59.965 GMT [30578] STATEMENT:  select staffID, count(*) from staff20kitems WHERE count(*) = 3 group by staffid;
+2020-12-09 17:28:26.405 GMT [30578] ERROR:  syntax error at or near ";" at character 254
+2020-12-09 17:28:26.405 GMT [30578] STATEMENT:  SELECT StaffID FROM (
+	        SELECT so.StaffID, op.ProductID FROM order_products op 
+	        INNER JOIN staff_orders so ON op.OrderID = so.OrderID
+	        INNER JOIN year20kItems y ON y.ProductID = op.ProductID
+	        GROUP BY so.staffID, op.productID;
+	    ) AS s 
+	    GROUP BY StaffID 
+	    HAVING COUNT(*) = (SELECT COUNT(*) FROM year20kItems);
+2020-12-09 17:28:45.517 GMT [30578] ERROR:  cannot drop columns from view
+2020-12-09 17:28:45.517 GMT [30578] STATEMENT:  CREATE OR REPLACE VIEW staff20kItems AS 
+	    SELECT StaffID FROM (
+	        SELECT so.StaffID, op.ProductID FROM order_products op 
+	        INNER JOIN staff_orders so ON op.OrderID = so.OrderID
+	        INNER JOIN year20kItems y ON y.ProductID = op.ProductID
+	        GROUP BY so.staffID, op.productID
+	    ) AS s 
+	    GROUP BY StaffID 
+	    HAVING COUNT(*) = (SELECT COUNT(*) FROM year20kItems);
+2020-12-09 17:33:22.758 GMT [30578] ERROR:  insert or update on table "order_products" violates foreign key constraint "order_products_productid_fkey"
+2020-12-09 17:33:22.758 GMT [30578] DETAIL:  Key (productid)=(5) is not present in table "inventory".
+2020-12-09 17:33:22.758 GMT [30578] STATEMENT:  INSERT INTO order_products VALUES (10, 5, 1000);
+2020-12-09 17:33:22.758 GMT [30578] ERROR:  insert or update on table "order_products" violates foreign key constraint "order_products_productid_fkey"
+2020-12-09 17:33:22.758 GMT [30578] DETAIL:  Key (productid)=(4) is not present in table "inventory".
+2020-12-09 17:33:22.758 GMT [30578] STATEMENT:  INSERT INTO order_products VALUES (10, 4, 1000);
+2020-12-09 17:33:47.373 GMT [30578] ERROR:  insert or update on table "order_products" violates foreign key constraint "order_products_productid_fkey"
+2020-12-09 17:33:47.373 GMT [30578] DETAIL:  Key (productid)=(5) is not present in table "inventory".
+2020-12-09 17:33:47.373 GMT [30578] STATEMENT:  INSERT INTO order_products VALUES (10, 5, 1000);
+2020-12-09 17:33:47.373 GMT [30578] ERROR:  insert or update on table "order_products" violates foreign key constraint "order_products_productid_fkey"
+2020-12-09 17:33:47.373 GMT [30578] DETAIL:  Key (productid)=(4) is not present in table "inventory".
+2020-12-09 17:33:47.373 GMT [30578] STATEMENT:  INSERT INTO order_products VALUES (10, 4, 1000);
+2020-12-09 17:33:47.373 GMT [30578] ERROR:  insert or update on table "order_products" violates foreign key constraint "order_products_productid_fkey"
+2020-12-09 17:33:47.373 GMT [30578] DETAIL:  Key (productid)=(4) is not present in table "inventory".
+2020-12-09 17:33:47.373 GMT [30578] STATEMENT:  INSERT INTO order_products VALUES (11, 4, 1000);
+2020-12-09 17:33:47.384 GMT [30578] ERROR:  insert or update on table "order_products" violates foreign key constraint "order_products_productid_fkey"
+2020-12-09 17:33:47.384 GMT [30578] DETAIL:  Key (productid)=(4) is not present in table "inventory".
+2020-12-09 17:33:47.384 GMT [30578] STATEMENT:  INSERT INTO order_products VALUES (12, 4, 1000);
+2020-12-09 17:47:44.977 GMT [24983] ERROR:  column "s.staffid" must appear in the GROUP BY clause or be used in an aggregate function at character 8
+2020-12-09 17:47:44.977 GMT [24983] STATEMENT:  SELECT s.StaffID, SUM(totalOrderValue) AS lifetimeSales 
+	    FROM staff_orders s 
+	    INNER JOIN (
+	        SELECT w.id as id, SUM(saleValue) As totalOrderValue 
+	        FROM allSaleValues w 
+	        GROUP BY w.id
+	    ) x 
+	    ON x.id = s.OrderID;
+2020-12-09 18:11:40.869 GMT [11063] ERROR:  column "s.staffid" must appear in the GROUP BY clause or be used in an aggregate function at character 8
+2020-12-09 18:11:40.869 GMT [11063] STATEMENT:  SELECT s.StaffID, SUM(totalOrderValue) AS lifetimeSales 
+	    FROM staff_orders s 
+	    INNER JOIN (
+	        SELECT w.id as id, SUM(saleValue) As totalOrderValue 
+	        FROM allSaleValues w 
+	        GROUP BY w.id
+	    ) x 
+	    ON x.id = s.OrderID;
+2020-12-09 18:42:56.682 GMT [32627] ERROR:  column "o.orderplaced" must appear in the GROUP BY clause or be used in an aggregate function at character 82
+2020-12-09 18:42:56.682 GMT [32627] STATEMENT:  CREATE OR REPLACE VIEW yearlySales30k AS
+	    SELECT s.StaffID, DATE_PART('year', o.OrderPlaced)
+	    FROM staff_orders s 
+	    INNER JOIN (
+	        SELECT w.id as id, SUM(saleValue) As totalOrderValue 
+	        FROM allSaleValues w 
+	        GROUP BY w.id
+	    ) x 
+	    ON x.id = s.OrderID 
+	    INNER JOIN orders o ON o.OrderID = s.OrderID
+	    GROUP BY s.StaffID
+	    HAVING SUM(totalOrderValue) > 30000
+	    ORDER BY SUM(totalOrderValue) DESC;
+2020-12-09 18:53:21.911 GMT [32627] ERROR:  column "allsalevalues.staffid" must appear in the GROUP BY clause or be used in an aggregate function at character 52
+2020-12-09 18:53:21.911 GMT [32627] STATEMENT:  CREATE OR REPLACE VIEW year20kItems AS 
+	    SELECT StaffID, DATE_PART('year',orderPlaced) AS yr, ProductID, SUM(saleValue) 
+	    FROM allSaleValues 
+	    GROUP BY yr, ProductID
+	    HAVING SUM(saleValue) > 20000;
+2020-12-09 18:53:21.911 GMT [32627] ERROR:  relation "year20kitems" does not exist at character 213
+2020-12-09 18:53:21.911 GMT [32627] STATEMENT:  CREATE OR REPLACE VIEW staff20kItems AS 
+	    SELECT StaffID FROM (
+	        SELECT so.StaffID, op.ProductID FROM order_products op 
+	        INNER JOIN staff_orders so ON op.OrderID = so.OrderID
+	        INNER JOIN year20kItems y ON y.ProductID = op.ProductID
+	        GROUP BY so.staffID, op.productID
+	    ) AS s 
+	    GROUP BY StaffID 
+	    HAVING COUNT(*) = 2;
+2020-12-09 18:53:44.494 GMT [32627] ERROR:  column "allsalevalues.staffid" must appear in the GROUP BY clause or be used in an aggregate function at character 52
+2020-12-09 18:53:44.494 GMT [32627] STATEMENT:  CREATE OR REPLACE VIEW year20kItems AS 
+	    SELECT StaffID, DATE_PART('year',orderPlaced) AS yr, ProductID, SUM(saleValue) 
+	    FROM allSaleValues 
+	    GROUP BY yr, ProductID
+	    HAVING SUM(saleValue) > 20000;
+2020-12-09 18:53:44.494 GMT [32627] ERROR:  relation "year20kitems" does not exist at character 213
+2020-12-09 18:53:44.494 GMT [32627] STATEMENT:  CREATE OR REPLACE VIEW staff20kItems AS 
+	    SELECT StaffID FROM (
+	        SELECT so.StaffID, op.ProductID FROM order_products op 
+	        INNER JOIN staff_orders so ON op.OrderID = so.OrderID
+	        INNER JOIN year20kItems y ON y.ProductID = op.ProductID
+	        GROUP BY so.staffID, op.productID
+	    ) AS s 
+	    GROUP BY StaffID 
+	    HAVING COUNT(*) = 2;
+2020-12-09 18:54:05.934 GMT [32627] ERROR:  syntax error at or near "l" at character 1
+2020-12-09 18:54:05.934 GMT [32627] STATEMENT:  l
+	select * from year20kitems;
+2020-12-09 19:02:09.161 GMT [32627] ERROR:  column "y.yr" must appear in the GROUP BY clause or be used in an aggregate function at character 46
+2020-12-09 19:02:09.161 GMT [32627] STATEMENT:  CREATE OR REPLACE VIEW ss AS 
+	        SELECT y.yr, so.StaffID, op.ProductID FROM order_products op 
+	        INNER JOIN staff_orders so ON op.OrderID = so.OrderID
+	        INNER JOIN year20kItems y ON y.ProductID = op.ProductID
+	        GROUP BY so.staffID, op.productID;
+2020-12-09 19:15:19.093 GMT [32627] ERROR:  column reference "yr" is ambiguous at character 90
+2020-12-09 19:15:19.093 GMT [32627] STATEMENT:  select * from staff20kitems s INNER JOIN yearlysales30k y ON s.StaffID = y.StaffID WHERE yr =2020;
+2020-12-09 19:25:39.605 GMT [32627] ERROR:  syntax error at or near "into" at character 36
+2020-12-09 19:25:39.605 GMT [32627] STATEMENT:  select productID from year20kitems into pids;
+2020-12-09 19:27:18.068 GMT [32627] ERROR:  syntax error at or near "into" at character 36
+2020-12-09 19:27:18.068 GMT [32627] STATEMENT:  select productID from year20kitems into pids;
+2020-12-09 19:39:42.561 GMT [11063] ERROR:  column x.productid does not exist at character 194
+2020-12-09 19:39:42.561 GMT [11063] HINT:  Perhaps you meant to reference the column "y.productid".
+2020-12-09 19:39:42.561 GMT [11063] STATEMENT:  SELECT StaffID FROM (
+	    SELECT s.yr, s.StaffID 
+	    FROM staff20kItems s 
+	    INNER JOIN yearlySales30k y ON s.StaffID = y.StaffId 
+	    ) AS x 
+	    INNER JOIN year20kItems y ON y.ProductID = x.ProductID;
+2020-12-09 19:39:51.876 GMT [11063] ERROR:  column x.productid does not exist at character 194
+2020-12-09 19:39:51.876 GMT [11063] HINT:  Perhaps you meant to reference the column "y.productid".
+2020-12-09 19:39:51.876 GMT [11063] STATEMENT:  SELECT StaffID FROM (
+	    SELECT s.yr, s.StaffID 
+	    FROM staff20kItems s 
+	    INNER JOIN yearlySales30k y ON s.StaffID = y.StaffId 
+	    ) AS x 
+	    INNER JOIN year20kItems y ON y.ProductID = x.ProductID;
+2020-12-09 19:47:49.199 GMT [11063] ERROR:  column "x.staffid" must appear in the GROUP BY clause or be used in an aggregate function at character 8
+2020-12-09 19:47:49.199 GMT [11063] STATEMENT:  SELECT StaffID, COUNT(*) FROM (
+	    SELECT s.yr, s.StaffID, s.ProductID
+	    FROM staff20kItems s 
+	    INNER JOIN yearlySales30k y ON s.StaffID = y.StaffId 
+	) AS x 
+	INNER JOIN year20kItems y ON y.ProductID = x.ProductID;
+2020-12-09 19:49:08.017 GMT [11063] ERROR:  column reference "yr" is ambiguous at character 17
+2020-12-09 19:49:08.017 GMT [11063] STATEMENT:  SELECT StaffID, yr, COUNT(*) FROM (
+	    SELECT s.yr, s.StaffID, s.ProductID
+	    FROM staff20kItems s 
+	    INNER JOIN yearlySales30k y ON s.StaffID = y.StaffId 
+	) AS x 
+	INNER JOIN year20kItems y ON y.ProductID = x.ProductID
+	GROUP BY StaffID;
+2020-12-09 19:49:21.687 GMT [11063] ERROR:  column "x.yr" must appear in the GROUP BY clause or be used in an aggregate function at character 17
+2020-12-09 19:49:21.687 GMT [11063] STATEMENT:  SELECT StaffID, x.yr, COUNT(*) FROM (
+	    SELECT s.yr, s.StaffID, s.ProductID
+	    FROM staff20kItems s 
+	    INNER JOIN yearlySales30k y ON s.StaffID = y.StaffId 
+	) AS x 
+	INNER JOIN year20kItems y ON y.ProductID = x.ProductID
+	GROUP BY StaffID;
+2020-12-09 19:49:38.229 GMT [11063] ERROR:  column reference "yr" is ambiguous at character 244
+2020-12-09 19:49:38.229 GMT [11063] STATEMENT:  SELECT StaffID, x.yr, COUNT(*) FROM (
+	    SELECT s.yr, s.StaffID, s.ProductID
+	    FROM staff20kItems s 
+	    INNER JOIN yearlySales30k y ON s.StaffID = y.StaffId 
+	) AS x 
+	INNER JOIN year20kItems y ON y.ProductID = x.ProductID
+	GROUP BY StaffID, yr;
+2020-12-09 19:49:52.470 GMT [11063] ERROR:  syntax error at or near "deptstore" at character 1
+2020-12-09 19:49:52.470 GMT [11063] STATEMENT:  deptstore-# GROUP BY StaffID, yr;
+2020-12-09 19:49:53.387 GMT [11063] ERROR:  syntax error at or near "deptstore" at character 1
+2020-12-09 19:49:53.387 GMT [11063] STATEMENT:  deptstore-# GROUP BY StaffID, yr;
+2020-12-09 19:53:34.365 GMT [11063] ERROR:  syntax error at or near "WHERE" at character 323
+2020-12-09 19:53:34.365 GMT [11063] STATEMENT:  SELECT StaffID, x.yr, COUNT(*) FROM (
+	    SELECT s.yr, s.StaffID, s.ProductID
+	    FROM staff20kItems s 
+	    INNER JOIN yearlySales30k y ON s.StaffID = y.StaffId 
+	) AS x 
+	INNER JOIN year20kItems y ON y.ProductID = x.ProductID
+	GROUP BY StaffID, x.yr
+	HAVING COUNT(*) = (SELECT COUNT(*) FROM year20kItems i WHERE i.yr = 2020)
+	WHERE x.yr = 2020;
+2020-12-09 20:15:15.991 GMT [26945] ERROR:  syntax error at end of input at character 132
+2020-12-09 20:15:15.991 GMT [26945] STATEMENT:  SELECT StaffID FROM staffYearly20kProductSales s WHERE s.yr = $1 AND s.count = (SELECT COUNT(*) FROM year20kItems i WHERE i.yr = $2
+2020-12-09 20:15:30.249 GMT [29891] ERROR:  relation "staffyearly20kproductsales" does not exist at character 21
+2020-12-09 20:15:30.249 GMT [29891] STATEMENT:  SELECT StaffID FROM staffYearly20kProductSales s WHERE s.yr = $1 AND s.count = (SELECT COUNT(*) FROM year20kItems i WHERE i.yr = $2)
+2020-12-09 20:15:44.297 GMT [32627] ERROR:  syntax error at or near "REPLACE" at character 8
+2020-12-09 20:15:44.297 GMT [32627] STATEMENT:  CREATE REPLACE VIEW staffYearly20kProductSales AS 
+	    SELECT StaffID, x.yr, COUNT(*) FROM (
+	        SELECT s.yr, s.StaffID, s.ProductID
+	        FROM staff20kItems s 
+	        INNER JOIN yearlySales30k y ON s.StaffID = y.StaffId 
+	    ) AS x 
+	    INNER JOIN year20kItems y ON y.ProductID = x.ProductID
+	    GROUP BY StaffID, x.yr
+	INSERT INTO orders VALUES (10, 'Collection', 0, NOW());
+2020-12-09 20:15:44.302 GMT [32627] ERROR:  insert or update on table "collections" violates foreign key constraint "collections_orderid_fkey"
+2020-12-09 20:15:44.302 GMT [32627] DETAIL:  Key (orderid)=(10) is not present in table "orders".
+2020-12-09 20:15:44.302 GMT [32627] STATEMENT:  INSERT INTO collections VALUES (10, 'James', 'Smith', NOW() - INTERVAL '3 year');
+2020-12-09 20:15:44.316 GMT [32627] ERROR:  insert or update on table "order_products" violates foreign key constraint "order_products_orderid_fkey"
+2020-12-09 20:15:44.316 GMT [32627] DETAIL:  Key (orderid)=(10) is not present in table "orders".
+2020-12-09 20:15:44.316 GMT [32627] STATEMENT:  INSERT INTO order_products VALUES (10, 5, 1001);
+2020-12-09 20:15:44.321 GMT [32627] ERROR:  insert or update on table "staff_orders" violates foreign key constraint "staff_orders_orderid_fkey"
+2020-12-09 20:15:44.321 GMT [32627] DETAIL:  Key (orderid)=(10) is not present in table "orders".
+2020-12-09 20:15:44.321 GMT [32627] STATEMENT:  INSERT INTO staff_orders VALUES (1, 10);
+2020-12-09 20:16:00.285 GMT [32627] ERROR:  syntax error at or near "INSERT" at character 331
+2020-12-09 20:16:00.285 GMT [32627] STATEMENT:  CREATE OR REPLACE VIEW staffYearly20kProductSales AS 
+	    SELECT StaffID, x.yr, COUNT(*) FROM (
+	        SELECT s.yr, s.StaffID, s.ProductID
+	        FROM staff20kItems s 
+	        INNER JOIN yearlySales30k y ON s.StaffID = y.StaffId 
+	    ) AS x 
+	    INNER JOIN year20kItems y ON y.ProductID = x.ProductID
+	    GROUP BY StaffID, x.yr
+	INSERT INTO orders VALUES (10, 'Collection', 0, NOW());
+2020-12-09 20:16:00.290 GMT [32627] ERROR:  insert or update on table "collections" violates foreign key constraint "collections_orderid_fkey"
+2020-12-09 20:16:00.290 GMT [32627] DETAIL:  Key (orderid)=(10) is not present in table "orders".
+2020-12-09 20:16:00.290 GMT [32627] STATEMENT:  INSERT INTO collections VALUES (10, 'James', 'Smith', NOW() - INTERVAL '3 year');
+2020-12-09 20:16:00.303 GMT [32627] ERROR:  insert or update on table "order_products" violates foreign key constraint "order_products_orderid_fkey"
+2020-12-09 20:16:00.303 GMT [32627] DETAIL:  Key (orderid)=(10) is not present in table "orders".
+2020-12-09 20:16:00.303 GMT [32627] STATEMENT:  INSERT INTO order_products VALUES (10, 5, 1001);
+2020-12-09 20:16:00.308 GMT [32627] ERROR:  insert or update on table "staff_orders" violates foreign key constraint "staff_orders_orderid_fkey"
+2020-12-09 20:16:00.308 GMT [32627] DETAIL:  Key (orderid)=(10) is not present in table "orders".
+2020-12-09 20:16:00.308 GMT [32627] STATEMENT:  INSERT INTO staff_orders VALUES (1, 10);
+2020-12-09 20:45:58.545 GMT [32627] ERROR:  missing FROM-clause entry for table "s" at character 385
+2020-12-09 20:45:58.545 GMT [32627] STATEMENT:  CREATE OR REPLACE VIEW staffYearly20kProductSales AS 
+	    SELECT st.fName || ' ' || st.lName AS fullName, StaffID, x.yr, COUNT(*) FROM (
+	        SELECT s.yr, s.StaffID, s.ProductID
+	        FROM staff20kItems s 
+	        INNER JOIN yearlySales30k y ON s.StaffID = y.StaffId 
+	    ) AS x 
+	    INNER JOIN year20kItems y ON y.ProductID = x.ProductID
+	    INNER JOIN staff st ON st.StaffID = s.StaffID
+	    GROUP BY StaffID, x.yr;
+2020-12-09 20:46:12.345 GMT [32627] ERROR:  missing FROM-clause entry for table "s" at character 385
+2020-12-09 20:46:12.345 GMT [32627] STATEMENT:  CREATE OR REPLACE VIEW staffYearly20kProductSales AS 
+	    SELECT st.fName || ' ' || st.lName AS fullName, StaffID, x.yr, COUNT(*) FROM (
+	        SELECT s.yr, s.StaffID, s.ProductID
+	        FROM staff20kItems s 
+	        INNER JOIN yearlySales30k y ON s.StaffID = y.StaffId 
+	    ) AS x 
+	    INNER JOIN year20kItems y ON y.ProductID = x.ProductID
+	    INNER JOIN staff st ON st.StaffID = s.StaffID
+	    GROUP BY StaffID, x.yr;
+2020-12-09 20:46:34.290 GMT [32627] ERROR:  column reference "staffid" is ambiguous at character 385
+2020-12-09 20:46:34.290 GMT [32627] STATEMENT:  CREATE OR REPLACE VIEW staffYearly20kProductSales AS 
+	    SELECT st.fName || ' ' || st.lName AS fullName, StaffID, x.yr, COUNT(*) FROM (
+	        SELECT s.yr, s.StaffID, s.ProductID
+	        FROM staff20kItems s 
+	        INNER JOIN yearlySales30k y ON s.StaffID = y.StaffId 
+	    ) AS x 
+	    INNER JOIN year20kItems y ON y.ProductID = x.ProductID
+	    INNER JOIN staff st ON st.StaffID = StaffID
+	    GROUP BY StaffID, x.yr;
+2020-12-09 20:47:35.087 GMT [32627] ERROR:  column "stid" does not exist at character 393
+2020-12-09 20:47:35.087 GMT [32627] STATEMENT:  CREATE OR REPLACE VIEW staffYearly20kProductSales AS 
+	    SELECT st.fName || ' ' || st.lName AS fullName, StaffID as stid, x.yr, COUNT(*) FROM (
+	        SELECT s.yr, s.StaffID, s.ProductID
+	        FROM staff20kItems s 
+	        INNER JOIN yearlySales30k y ON s.StaffID = y.StaffId 
+	    ) AS x 
+	    INNER JOIN year20kItems y ON y.ProductID = x.ProductID
+	    INNER JOIN staff st ON st.StaffID = stid
+	    GROUP BY StaffID, x.yr;
+2020-12-09 20:48:07.373 GMT [32627] ERROR:  column reference "staffid" is ambiguous at character 107
+2020-12-09 20:48:07.373 GMT [32627] STATEMENT:  CREATE OR REPLACE VIEW staffYearly20kProductSales AS 
+	    SELECT st.fName || ' ' || st.lName AS fullName, StaffID, x.yr, COUNT(*) FROM (
+	        SELECT s.yr, s.StaffID, s.ProductID
+	        FROM staff20kItems s 
+	        INNER JOIN yearlySales30k y ON s.StaffID = y.StaffId 
+	    ) AS x 
+	    INNER JOIN year20kItems y ON y.ProductID = x.ProductID
+	    INNER JOIN staff st ON st.StaffID = x.StaffID
+	    GROUP BY StaffID, x.yr;
+2020-12-09 20:48:41.573 GMT [32627] ERROR:  column x.fullname does not exist at character 427
+2020-12-09 20:48:41.573 GMT [32627] STATEMENT:  CREATE OR REPLACE VIEW staffYearly20kProductSales AS 
+	    SELECT st.fName || ' ' || st.lName AS fullName, x.StaffID, x.yr, COUNT(*) FROM (
+	        SELECT s.yr, s.StaffID, s.ProductID
+	        FROM staff20kItems s 
+	        INNER JOIN yearlySales30k y ON s.StaffID = y.StaffId 
+	    ) AS x 
+	    INNER JOIN year20kItems y ON y.ProductID = x.ProductID
+	    INNER JOIN staff st ON st.StaffID = x.StaffID
+	    GROUP BY x.StaffID, x.yr, x.fullName;
+2020-12-09 21:29:03.242 GMT [11063] ERROR:  column "x.staffid" must appear in the GROUP BY clause or be used in an aggregate function at character 8
+2020-12-09 21:29:03.242 GMT [11063] STATEMENT:  SELECT x.StaffID, x.yr, COUNT(*) FROM (
+	        SELECT s.yr, s.StaffID, s.ProductID
+	        FROM staff20kItems s 
+	        INNER JOIN yearlySales30k y ON s.StaffID = y.StaffId 
+	    ) AS x 
+	    INNER JOIN year20kItems y ON y.ProductID = x.ProductID
+	    INNER JOIN staff st ON st.StaffID = x.StaffID;
+2020-12-09 21:38:56.662 GMT [32627] ERROR:  relation "yearlyssales30k" does not exist at character 15
+2020-12-09 21:38:56.662 GMT [32627] STATEMENT:  select * from yearlyssales30k
+	;
+2020-12-09 21:56:42.527 GMT [32627] ERROR:  syntax error at or near "INSERT" at character 274
+2020-12-09 21:56:42.527 GMT [32627] STATEMENT:  SELECT * FROM (
+	        SELECT s.yr, s.StaffID, s.ProductID
+	        FROM staff20kItems s 
+	        INNER JOIN yearlySales30k y ON s.StaffID = y.StaffId 
+	    ) AS x 
+	    INNER JOIN year20kItems y ON y.ProductID = x.ProductID
+	    INNER JOIN staff st ON st.StaffID = x.StaffID
+	INSERT INTO orders VALUES (10, 'Collection', 0, NOW() - INTERVAL '3 years');
+2020-12-09 21:56:42.533 GMT [32627] ERROR:  insert or update on table "collections" violates foreign key constraint "collections_orderid_fkey"
+2020-12-09 21:56:42.533 GMT [32627] DETAIL:  Key (orderid)=(10) is not present in table "orders".
+2020-12-09 21:56:42.533 GMT [32627] STATEMENT:  INSERT INTO collections VALUES (10, 'James', 'Smith', NOW() - INTERVAL '3 year');
+2020-12-09 21:56:42.549 GMT [32627] ERROR:  insert or update on table "order_products" violates foreign key constraint "order_products_orderid_fkey"
+2020-12-09 21:56:42.549 GMT [32627] DETAIL:  Key (orderid)=(10) is not present in table "orders".
+2020-12-09 21:56:42.549 GMT [32627] STATEMENT:  INSERT INTO order_products VALUES (10, 5, 1001);
+2020-12-09 21:56:42.549 GMT [32627] ERROR:  insert or update on table "order_products" violates foreign key constraint "order_products_orderid_fkey"
+2020-12-09 21:56:42.549 GMT [32627] DETAIL:  Key (orderid)=(10) is not present in table "orders".
+2020-12-09 21:56:42.549 GMT [32627] STATEMENT:  INSERT INTO order_products VALUES (10, 4, 1001);
+2020-12-09 21:56:42.554 GMT [32627] ERROR:  insert or update on table "staff_orders" violates foreign key constraint "staff_orders_orderid_fkey"
+2020-12-09 21:56:42.554 GMT [32627] DETAIL:  Key (orderid)=(10) is not present in table "orders".
+2020-12-09 21:56:42.554 GMT [32627] STATEMENT:  INSERT INTO staff_orders VALUES (1, 10);
+2020-12-09 21:56:42.558 GMT [32627] ERROR:  column "staff20kitems.yr" must appear in the GROUP BY clause or be used in an aggregate function at character 17
+2020-12-09 21:56:42.558 GMT [32627] STATEMENT:  SELECT StaffID, yr, COUNT(ProductID) 
+	FROM staff20kItems 
+	GROUP BY StaffID;
+2020-12-09 22:01:34.953 GMT [32627] ERROR:  syntax error at or near "INNER" at character 80
+2020-12-09 22:01:34.953 GMT [32627] STATEMENT:  SELECT StaffID, yr, COUNT(ProductID)
+	FROM staff20kItems d
+	GROUP BY StaffID, yr
+	INNER JOIN yearlySales30k y ON y.StaffID = d.StaffID
+	INNER JOIN yearlySales30k x ON x.yr = d.yr;
+2020-12-09 22:02:04.912 GMT [32627] ERROR:  column reference "staffid" is ambiguous at character 8
+2020-12-09 22:02:04.912 GMT [32627] STATEMENT:  SELECT StaffID, yr, COUNT(ProductID)
+	FROM staff20kItems d
+	INNER JOIN yearlySales30k y ON y.StaffID = d.StaffID
+	INNER JOIN yearlySales30k x ON x.yr = d.yr;
+2020-12-09 22:02:04.912 GMT [32627] ERROR:  syntax error at or near "GROUP" at character 1
+2020-12-09 22:02:04.912 GMT [32627] STATEMENT:  GROUP BY StaffID, yr
+2020-12-09 22:11:01.952 GMT [32627] ERROR:  missing FROM-clause entry for table "st" at character 93
+2020-12-09 22:11:01.952 GMT [32627] STATEMENT:  CREATE OR REPLACE VIEW staffYearly20kProductSales AS 
+	    SELECT DISTINCT s.fName || ' ' || st.lName AS fullName, q.staffid, q.yr, q.count FROM (
+	        SELECT StaffID, yr, COUNT(ProductID)
+	        FROM staff20kItems d
+	        GROUP BY StaffID, yr
+	    ) q 
+	    INNER JOIN yearlySales30k y ON y.StaffID = q.StaffID
+	    INNER JOIN yearlySales30k x ON x.yr = q.yr
+	    INNER JOIN staff s ON s.StaffID = q.StaffID;
+2020-12-09 22:11:03.116 GMT [32627] ERROR:  relation "staffyearly20kproductsales" does not exist at character 15
+2020-12-09 22:11:03.116 GMT [32627] STATEMENT:  select * from staffYearly20kProductSales;
+2020-12-09 22:11:14.814 GMT [9693] FATAL:  lock file "postmaster.pid" already exists
+2020-12-09 22:11:14.814 GMT [9693] HINT:  Is another postmaster (PID 1117) running in data directory "/dcs/19/u1813151/Documents/cs258/postgres/data"?
+2020-12-09 22:11:16.808 GMT [1117] LOG:  received fast shutdown request
+2020-12-09 22:11:16.809 GMT [1117] LOG:  aborting any active transactions
+2020-12-09 22:11:16.819 GMT [11063] FATAL:  terminating connection due to administrator command
+2020-12-09 22:11:16.819 GMT [17898] FATAL:  terminating connection due to administrator command
+2020-12-09 22:11:16.821 GMT [1117] LOG:  background worker "logical replication launcher" (PID 1156) exited with exit code 1
+2020-12-09 22:11:16.821 GMT [1150] LOG:  shutting down
+2020-12-09 22:11:16.928 GMT [1117] LOG:  database system is shut down
+2020-12-09 22:11:18.089 GMT [10068] LOG:  starting PostgreSQL 12.3 on x86_64-pc-linux-gnu, compiled by gcc (GCC) 4.8.5 20150623 (Red Hat 4.8.5-39), 64-bit
+2020-12-09 22:11:18.096 GMT [10068] LOG:  listening on Unix socket "/dcs/19/u1813151/Documents/cs258/postgres/tmp/.s.PGSQL.5432"
+2020-12-09 22:11:18.177 GMT [10076] LOG:  database system was shut down at 2020-12-09 22:11:16 GMT
+2020-12-09 22:11:18.196 GMT [10068] LOG:  database system is ready to accept connections
+2020-12-09 22:11:28.002 GMT [10937] ERROR:  missing FROM-clause entry for table "st" at character 93
+2020-12-09 22:11:28.002 GMT [10937] STATEMENT:  CREATE OR REPLACE VIEW staffYearly20kProductSales AS 
+	    SELECT DISTINCT s.fName || ' ' || st.lName AS fullName, q.staffid, q.yr, q.count FROM (
+	        SELECT StaffID, yr, COUNT(ProductID)
+	        FROM staff20kItems d
+	        GROUP BY StaffID, yr
+	    ) q 
+	    INNER JOIN yearlySales30k y ON y.StaffID = q.StaffID
+	    INNER JOIN yearlySales30k x ON x.yr = q.yr
+	    INNER JOIN staff s ON s.StaffID = q.StaffID;
+2020-12-09 22:11:42.665 GMT [10937] ERROR:  relation "staffyearly20kproductsales" does not exist at character 15
+2020-12-09 22:11:42.665 GMT [10937] STATEMENT:  select * from staffYearly20kProductSales;
+2020-12-09 22:31:19.778 GMT [10937] ERROR:  syntax error at or near "staffYearly20kProductSales" at character 1
+2020-12-09 22:31:19.778 GMT [10937] STATEMENT:  staffYearly20kProductSales;
+2020-12-09 23:01:18.862 GMT [39770] ERROR:  insert or update on table "staff_orders" violates foreign key constraint "staff_orders_staffid_fkey"
+2020-12-09 23:01:18.862 GMT [39770] DETAIL:  Key (staffid)=(4) is not present in table "staff".
+2020-12-09 23:01:18.862 GMT [39770] CONTEXT:  SQL statement "INSERT INTO staff_orders (StaffID, OrderID) VALUES (staffID, orderID)"
+	PL/pgSQL function insertstafforder(integer,integer) line 3 at SQL statement
+	SQL statement "CALL insertStaffOrder(staffID, newID)"
+	PL/pgSQL function insertorder(character varying,date,integer,integer) line 6 at CALL
+2020-12-09 23:01:18.862 GMT [39770] STATEMENT:  select * from insertOrder($1, $2, $3, $4)  as result
+2020-12-09 23:11:02.714 GMT [3875] ERROR:  insert or update on table "staff_orders" violates foreign key constraint "staff_orders_staffid_fkey"
+2020-12-09 23:11:02.714 GMT [3875] DETAIL:  Key (staffid)=(4) is not present in table "staff".
+2020-12-09 23:11:02.714 GMT [3875] CONTEXT:  SQL statement "INSERT INTO staff_orders (StaffID, OrderID) VALUES (staffID, orderID)"
+	PL/pgSQL function insertstafforder(integer,integer) line 3 at SQL statement
+	SQL statement "CALL insertStaffOrder(staffID, newID)"
+	PL/pgSQL function insertorder(character varying,date,integer,integer) line 6 at CALL
+2020-12-09 23:11:02.714 GMT [3875] STATEMENT:  select * from insertOrder($1, $2, $3, $4)  as result
+2020-12-09 23:23:32.953 GMT [3875] LOG:  unexpected EOF on client connection with an open transaction
+2020-12-09 23:24:02.420 GMT [7712] ERROR:  insert or update on table "staff_orders" violates foreign key constraint "staff_orders_staffid_fkey"
+2020-12-09 23:24:02.420 GMT [7712] DETAIL:  Key (staffid)=(4) is not present in table "staff".
+2020-12-09 23:24:02.420 GMT [7712] CONTEXT:  SQL statement "INSERT INTO staff_orders (StaffID, OrderID) VALUES (staffID, orderID)"
+	PL/pgSQL function insertstafforder(integer,integer) line 3 at SQL statement
+	SQL statement "CALL insertStaffOrder(staffID, newID)"
+	PL/pgSQL function insertorder(character varying,date,integer,integer) line 6 at CALL
+2020-12-09 23:24:02.420 GMT [7712] STATEMENT:  select * from insertOrder($1, $2, $3, $4)  as result
+2020-12-09 23:35:08.086 GMT [32326] ERROR:  column "fullname" does not exist at character 8
+2020-12-09 23:35:08.086 GMT [32326] STATEMENT:  SELECT fullName, lifetimeSales FROM lifetimeSalesView

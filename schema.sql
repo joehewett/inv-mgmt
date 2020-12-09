@@ -1,9 +1,4 @@
 -- TO DO 
--- Think about ID sequence overlap and what we can do about it - we need to be able to be able to check if the new sequence id exists already and if so, skip until its not in use
--- Add a boolean function or restraint that checks if the order date is < the delivery date
--- Get the staff names instead of just ID's for opt 6
--- Input validation for order info
--- Update queries to reflect 50k, 20k etc
 
 DROP SEQUENCE IF EXISTS ProductIDSequence;
 CREATE SEQUENCE ProductIDSequence START 1 INCREMENT BY 1;
@@ -78,14 +73,15 @@ CREATE TABLE staff_orders (
 
 
 --INSERT INTO inventory(ProductID, ProductDesc, ProductPrice, ProductStockAmount) VALUES (1, "Cap", 10.5, 5);
-INSERT INTO inventory VALUES (1, 'testing1', 1, 100);
-INSERT INTO inventory VALUES (2, 'testing2', 2, 200);
-INSERT INTO inventory VALUES (3, 'testing3', 3, 300);
-INSERT INTO inventory VALUES (4, 'testing4', 4, 400);
-INSERT INTO inventory VALUES (5, 'testing4', 5, 500);
+INSERT INTO inventory VALUES (1, 'testing1', 10, 1000);
+INSERT INTO inventory VALUES (2, 'testing2', 20, 2000);
+INSERT INTO inventory VALUES (3, 'testing3', 30, 3000);
+INSERT INTO inventory VALUES (4, 'testing4', 40, 4000);
+INSERT INTO inventory VALUES (5, 'testing4', 50, 5000);
 
-INSERT INTO staff VALUES (4, 'Dimun', 'Dimmer');
-INSERT INTO staff VALUES (5, 'Benson', 'McHedge');
+INSERT INTO staff VALUES (1, 'Dimun', 'Dimmer');
+INSERT INTO staff VALUES (2, 'Benson', 'McHedge');
+INSERT INTO staff VALUES (3, 'Donald', 'Ronald');
 
 
 
@@ -209,6 +205,15 @@ CREATE OR REPLACE PROCEDURE removeOldOrders(removeFromDate DATE)
     END;
     $$;
 
+-- View - gets a table of product IDs with the price * quantity sold for that product in the order_product row 
+-- used in opt6 as a componenet part to simplify the query
+CREATE OR REPLACE VIEW allSaleValues AS 
+    SELECT so.StaffID, o.OrderPlaced, op.productID, op.OrderID AS id, op.ProductQuantity * i.ProductPrice AS saleValue 
+    FROM order_products op 
+    INNER JOIN inventory i ON op.ProductID = i.ProductID
+    INNER JOIN orders o ON op.OrderID = o.OrderID
+    INNER JOIN staff_orders so ON o.OrderID = so.OrderID;
+
 -- View all collections that have not been collected, regardless of date. We can then filter this view further later
 CREATE VIEW uncollectedCollectionsView AS 
     SELECT o.OrderID AS OrderID, c.CollectionDate FROM orders o
@@ -241,30 +246,23 @@ CREATE OR REPLACE VIEW profitableProductsView AS
     ) p ON i.ProductID = p.ProductID
     ORDER BY totalValue DESC; 
 
--- View - gets a table of product IDs with the price * quantity sold for that product in the order_product row 
--- used in opt6 as a componenet part to simplify the query
-CREATE OR REPLACE VIEW allSaleValues AS 
-    SELECT op.productID, op.OrderID AS id, op.ProductQuantity * i.ProductPrice AS saleValue 
-    FROM order_products op 
-    INNER JOIN inventory i 
-        ON op.ProductID = i.ProductID;
-
-
 -- View - Get the lifetime sales of all members of staff over 50,000
 -- Works by getting the total value of each order, then linking with the staff table
 -- It then groups by staffID, summing the order values for that staff member. A final HAVING checks that this total is >= 50k 
 CREATE OR REPLACE VIEW lifetimeSalesView AS
-    SELECT s.StaffID, SUM(totalOrderValue) AS lifetimeSales 
-    FROM staff_orders s 
+    SELECT s.fName || ' ' || s.lName AS fullName, so.StaffID, SUM(totalOrderValue) AS lifetimeSales 
+    FROM staff_orders so 
     INNER JOIN (
         SELECT w.id as id, SUM(saleValue) As totalOrderValue 
         FROM allSaleValues w 
         GROUP BY w.id
     ) x 
-    ON x.id = s.OrderID 
-    GROUP BY s.StaffID
-    HAVING SUM(totalOrderValue) > 4
+    ON x.id = so.OrderID 
+    INNER JOIN staff s ON s.StaffID = so.StaffID
+    GROUP BY so.StaffID, fullName
+    HAVING SUM(totalOrderValue) > 50000
     ORDER BY lifetimeSales DESC;
+    
 
 -- View -- Uses opt4's view to get the profitableProducts > 20k and then joins with inventory, order_products, staff_orders and staff
 -- to return a table with staff info, products sold, units of said product sold, and value of said product sold
@@ -278,11 +276,12 @@ CREATE OR REPLACE VIEW highestSellingProductSellersView AS
         INNER JOIN staff s ON so.StaffID = s.StaffID
         INNER JOIN (
             SELECT ProductID FROM profitableProductsView 
-            WHERE totalValue > 250
+            WHERE totalValue > 20000
         ) x ON i.ProductID = x.ProductID
     ) AS x 
     GROUP BY staffID, fName, lName, ProductID;
 
+-- Get the staff in order of value of items they've sold that have sold > 20k 
 CREATE OR REPLACE VIEW mostValuableStaff AS
     SELECT staffID FROM (
         SELECT staffID, SUM(valOfProductSold) FROM highestSellingProductSellersView 
@@ -290,27 +289,64 @@ CREATE OR REPLACE VIEW mostValuableStaff AS
         ORDER BY SUM(valOfProductSold) DESC
     ) AS pv; 
     
+-- OPTION 8
+-- Get all items that have done 20k this year
+CREATE OR REPLACE VIEW year20kItems AS 
+    SELECT DATE_PART('year',orderPlaced) AS yr, ProductID, SUM(saleValue) 
+    FROM allSaleValues 
+    GROUP BY yr, ProductID
+    HAVING SUM(saleValue) > 20000;
 
+-- Get all staff sales of products that have done 20k this year
+CREATE OR REPLACE VIEW staff20kItems AS 
+    SELECT y.yr, so.StaffID, op.ProductID FROM order_products op 
+    INNER JOIN staff_orders so ON op.OrderID = so.OrderID
+    INNER JOIN year20kItems y ON y.ProductID = op.ProductID
+    GROUP BY so.staffID, op.productID, y.yr;
 
-INSERT INTO orders VALUES (10, 'Collection', 0, NOW());
-INSERT INTO orders VALUES (11, 'Collection', 0, NOW());
-INSERT INTO orders VALUES (12, 'Collection', 0, NOW());
+-- Get staff that have sold 30k this year
+CREATE OR REPLACE VIEW yearlySales30k AS
+    SELECT s.StaffID, DATE_PART('year', o.OrderPlaced) AS yr
+    FROM staff_orders s 
+    INNER JOIN (
+        SELECT w.id as id, SUM(saleValue) As totalOrderValue 
+        FROM allSaleValues w 
+        GROUP BY w.id
+    ) x 
+    ON x.id = s.OrderID 
+    INNER JOIN orders o ON o.OrderID = s.OrderID
+    GROUP BY s.StaffID, yr
+    HAVING SUM(totalOrderValue) > 30000
+    ORDER BY SUM(totalOrderValue) DESC;
 
-INSERT INTO collections VALUES (10, 'James', 'Smith', NOW() - INTERVAL '1 year');
-INSERT INTO collections VALUES (11, 'James', 'Smith', NOW() - INTERVAL '1 year');
+-- All staff that have sold 30k stock and count > 0 of products they've sold that have sold > 20k 
+CREATE OR REPLACE VIEW staffYearly20kProductSales AS 
+    SELECT DISTINCT s.fName || ' ' || s.lName AS fullName, q.staffid, q.yr, q.count FROM (
+        SELECT StaffID, yr, COUNT(ProductID)
+        FROM staff20kItems d
+        GROUP BY StaffID, yr
+    ) q 
+    INNER JOIN yearlySales30k y ON y.StaffID = q.StaffID
+    INNER JOIN yearlySales30k x ON x.yr = q.yr
+    INNER JOIN staff s ON s.StaffID = q.StaffID; 
+
+INSERT INTO orders VALUES (10, 'Collection', 0, NOW() - INTERVAL '3 years');
+INSERT INTO orders VALUES (11, 'Collection', 0, NOW() - INTERVAL '2 years');
+INSERT INTO orders VALUES (12, 'Collection', 0, NOW() - INTERVAL '3 years');
+
+INSERT INTO collections VALUES (10, 'James', 'Smith', NOW() - INTERVAL '3 year');
+INSERT INTO collections VALUES (11, 'James', 'Smith', NOW() - INTERVAL '2 year');
 INSERT INTO collections VALUES (12, 'James', 'Smith', NOW() - INTERVAL '1 year');
 
-INSERT INTO order_products VALUES (10, 1, 10);
-INSERT INTO order_products VALUES (10, 2, 20);
-INSERT INTO order_products VALUES (10, 3, 30);
-INSERT INTO order_products VALUES (11, 3, 30);
+INSERT INTO order_products VALUES (10, 5, 1001);
+INSERT INTO order_products VALUES (10, 4, 1001);
+---INSERT INTO order_products VALUES (10, 4, 1000);
+INSERT INTO order_products VALUES (11, 4, 2000);
+INSERT INTO order_products VALUES (12, 3, 1000);
+
+INSERT INTO staff_orders VALUES (1, 10);
+INSERT INTO staff_orders VALUES (1, 11);
+INSERT INTO staff_orders VALUES (2, 12);
 
 
-INSERT INTO order_products VALUES (12, 2, 20);
-INSERT INTO order_products VALUES (12, 3, 30);
-INSERT INTO order_products VALUES (12, 4, 40);
-
-INSERT INTO staff_orders VALUES (4, 10);
-INSERT INTO staff_orders VALUES (4, 11);
-INSERT INTO staff_orders VALUES (5, 12);
-
+-- Fullname, year, count(products)

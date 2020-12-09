@@ -1,10 +1,7 @@
 import java.io.*;
 import java.sql.*;
 import java.util.*;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
-
-import java.util.Properties;
 
 class Assignment {
 
@@ -41,18 +38,24 @@ class Assignment {
                     return;
                 case "1":
                     Order order1 = new Order("InStore");
-                    order1.handleOption(); 
-                    option1(conn, order1.productIDsArray, order1.quantitiesArray, order1.saleDate, order1.staffID);
+                    if (order1.handleOption()) {
+                        option1(conn, order1.productIDsArray, order1.quantitiesArray, order1.saleDate, order1.staffID);
+                    }
                     break;
                 case "2":
                     Order order2 = new Order("Collection");
-                    order2.handleOption(); 
-                    option2(conn, order2.productIDsArray, order2.quantitiesArray, order2.saleDate, order2.collectionDate, order2.firstName, order2.lastName, order2.staffID);
+                    if (order2.handleOption()) {
+                        option2(conn, order2.productIDsArray, order2.quantitiesArray, order2.saleDate,
+                            order2.collectionDate, order2.firstName, order2.lastName, order2.staffID);
+                    }
                     break;
                 case "3":
                     Order order3 = new Order("Delivery");
-                    order3.handleOption(); 
-                    option3(conn, order3.productIDsArray, order3.quantitiesArray, order3.saleDate, order3.collectionDate, order3.firstName, order3.lastName, order3.house, order3.street, order3.city, order3.staffID);
+                    if (order3.handleOption()) {
+                    option3(conn, order3.productIDsArray, order3.quantitiesArray, order3.saleDate,
+                            order3.collectionDate, order3.firstName, order3.lastName, order3.house, order3.street,
+                            order3.city, order3.staffID);
+                    }
                     break;
                 case "4":
                     option4(conn);
@@ -68,7 +71,8 @@ class Assignment {
                     option7(conn);
                     break;
                 case "8":
-                    option8(conn, 1000);
+                    Integer myYear = Integer.valueOf(readEntry("Enter a year: "));
+                    option8(conn, myYear);
 
                     break;
                 default:
@@ -90,41 +94,49 @@ class Assignment {
         System.out.println("");
     }
 
-	/**
-    * @param conn An open database connection 
-    * @param orderType One of InHouse, Delivery, Collection so we can process the order correctly 
-	* @param productIDs An array of productIDs associated with an order
-    * @param quantities An array of quantities of a product. The index of a quantity correspeonds with an index in productIDs
-	* @param orderDate A string in the form of 'DD-Mon-YY' that represents the date the order was made
-	* @param deliveryDate A string in the form of 'DD-Mon-YY' that represents the date the order will be delivered
-	* @param fName The first name of the customer who will receive the order
-	* @param LName The last name of the customer who will receive the order
-	* @param house The house name or number of the delivery address
-	* @param street The street name of the delivery address
-	* @param city The city name of the delivery address
-	* @param staffID The id of the staff member who sold the order
-	*/
-    public static void executeOrder(Connection conn, String orderType, int[] productIDs, int[] quantities, String orderDate, 
-            String deliveryOrCollectionDate, String fName, String LName,
-	        String house, String street, String city, int staffID) {
-        
+    /**
+     * @param conn         An open database connection
+     * @param orderType    One of InHouse, Delivery, Collection so we can process
+     *                     the order correctly
+     * @param productIDs   An array of productIDs associated with an order
+     * @param quantities   An array of quantities of a product. The index of a
+     *                     quantity correspeonds with an index in productIDs
+     * @param orderDate    A string in the form of 'DD-Mon-YY' that represents the
+     *                     date the order was made
+     * @param deliveryDate A string in the form of 'DD-Mon-YY' that represents the
+     *                     date the order will be delivered
+     * @param fName        The first name of the customer who will receive the order
+     * @param LName        The last name of the customer who will receive the order
+     * @param house        The house name or number of the delivery address
+     * @param street       The street name of the delivery address
+     * @param city         The city name of the delivery address
+     * @param staffID      The id of the staff member who sold the order
+     */
+    public static void executeOrder(Connection conn, String orderType, int[] productIDs, int[] quantities,
+            String orderDate, String deliveryOrCollectionDate, String fName, String LName, String house, String street,
+            String city, int staffID) {
+
         Boolean successfulOrder = false;
         Integer orderCompleted = 0;
 
-        // Check the order type and determine the completion status. If not a valid status, return. 
+        // Check the order type and determine the completion status. If not a valid
+        // status, return.
         if (orderType.equals("InStore")) {
-            orderCompleted = 1; 
+            orderCompleted = 1;
         } else if (orderType.equals("Delivery") || orderType.equals("Collection")) {
-            orderCompleted = 0; 
+            orderCompleted = 0;
         } else {
-            System.out.print("That is not a valid order type.\n"); 
+            System.out.print("That is not a valid order type.\n");
+            return;
+        }
+
+        // If we couldn't process the date, return. getSQLDate will handle the exception
+        try {
+            java.sql.Date sqlDate = getSQLDate(orderDate);
+        } catch (Exception e) {
+            System.out.println("That doesn't look like a valid date format - usage: dd-MMM-yy e.g. 17-Nov-20\n");
             return; 
         }
-        
-        // If we couldn't process the date, return. getSQLDate will handle the exception for us.
-        java.sql.Date sqlDate = getSQLDate(orderDate); 
-        if (sqlDate == null) { return; }
-        System.out.println("SqlDate is " + sqlDate);
 
         try {
             // Turn off auto-commiting in case the order fails
@@ -133,8 +145,8 @@ class Assignment {
             // Create a new order
             int id = insertOrder(conn, "InStore", orderCompleted, getSQLDate(orderDate), staffID);
             if (id < 1) {
-                System.out.println("Something went wrong while creating a new order. Please try again.\n"); 
-                return; 
+                System.out.println("Something went wrong while creating a new order. Please try again.\n");
+                return;
             }
 
             // For each product in the order, create an order_products row
@@ -142,14 +154,15 @@ class Assignment {
                 insertOrderProduct(conn, id, productIDs[i], quantities[i]);
             }
 
-            // If this is a collection or delivery then we have an extra step to do 
+            // If this is a collection or delivery then we have an extra step to do
             if (orderType.equals("Collection")) {
                 insertCollection(conn, id, fName, LName, getSQLDate(deliveryOrCollectionDate));
             } else if (orderType.equals("Delivery")) {
                 insertDelivery(conn, id, fName, LName, house, street, city, getSQLDate(deliveryOrCollectionDate));
             }
 
-            // Now that insertOrderProduct has handled the stock reductions, print the new stock amounts
+            // Now that insertOrderProduct has handled the stock reductions, print the new
+            // stock amounts
             displayInventory(conn, productIDs);
 
             // If we've made it this far without an SQLException then we know the order has
@@ -158,7 +171,8 @@ class Assignment {
             successfulOrder = true;
 
         } catch (SQLException e) {
-            System.out.println("\nAn error occurred while trying to add the order:\n- Ensure there is enough stock in the inventory\n- Ensure the staff ID number exists\n");
+            System.out.println(
+                    "\nAn error occurred while trying to add the order:\n- Ensure there is enough stock in the inventory\n- Ensure the staff ID number exists\n- Ensure all the products are valid\n");
             // System.err.format("SQL State: %s\n%s", e.getSQLState(), e.getMessage());
         } catch (Exception e) {
             System.out.print("Exception while creating order...");
@@ -171,7 +185,9 @@ class Assignment {
                     System.out.println("Order unsuccessful - rolling back...\n");
                     conn.rollback();
                 } catch (SQLException e) {
-                    System.err.format("CRITICAL ERROR - Could not roll back to safe state. Database might be offline. \nSQL State: %s\n%s", e.getSQLState(), e.getMessage());
+                    System.err.format(
+                            "CRITICAL ERROR - Could not roll back to safe state. Database might be offline. \nSQL State: %s\n%s",
+                            e.getSQLState(), e.getMessage());
                 }
             }
         }
@@ -187,79 +203,93 @@ class Assignment {
      * @param staffID    The id of the staff member who sold the order
      */
     public static void option1(Connection conn, int[] productIDs, int[] quantities, String orderDate, int staffID) {
-        executeOrder(conn, "InStore", productIDs, quantities, orderDate, null, null, null, null, null, null, staffID); 
+        executeOrder(conn, "InStore", productIDs, quantities, orderDate, null, null, null, null, null, null, staffID);
     }
 
-	/**
-	* @param conn An open database connection 
-	* @param productIDs An array of productIDs associated with an order
-    * @param quantities An array of quantities of a product. The index of a quantity correspeonds with an index in productIDs
-	* @param orderDate A string in the form of 'DD-Mon-YY' that represents the date the order was made
-	* @param collectionDate A string in the form of 'DD-Mon-YY' that represents the date the order will be collected
-	* @param fName The first name of the customer who will collect the order
-	* @param LName The last name of the customer who will collect the order
-	* @param staffID The id of the staff member who sold the order
-	*/
-	public static void option2(Connection conn, int[] productIDs, int[] quantities, String orderDate, String collectionDate, String fName, String LName, int staffID) {
-        executeOrder(conn, "Collection", productIDs, quantities, orderDate, collectionDate, fName, LName, null, null, null, staffID); 
-	}
+    /**
+     * @param conn           An open database connection
+     * @param productIDs     An array of productIDs associated with an order
+     * @param quantities     An array of quantities of a product. The index of a
+     *                       quantity correspeonds with an index in productIDs
+     * @param orderDate      A string in the form of 'DD-Mon-YY' that represents the
+     *                       date the order was made
+     * @param collectionDate A string in the form of 'DD-Mon-YY' that represents the
+     *                       date the order will be collected
+     * @param fName          The first name of the customer who will collect the
+     *                       order
+     * @param LName          The last name of the customer who will collect the
+     *                       order
+     * @param staffID        The id of the staff member who sold the order
+     */
+    public static void option2(Connection conn, int[] productIDs, int[] quantities, String orderDate,
+            String collectionDate, String fName, String LName, int staffID) {
+        executeOrder(conn, "Collection", productIDs, quantities, orderDate, collectionDate, fName, LName, null, null,
+                null, staffID);
+    }
 
-	/**
-	* @param conn An open database connection 
-	* @param productIDs An array of productIDs associated with an order
-    * @param quantities An array of quantities of a product. The index of a quantity correspeonds with an index in productIDs
-	* @param orderDate A string in the form of 'DD-Mon-YY' that represents the date the order was made
-	* @param deliveryDate A string in the form of 'DD-Mon-YY' that represents the date the order will be delivered
-	* @param fName The first name of the customer who will receive the order
-	* @param LName The last name of the customer who will receive the order
-	* @param house The house name or number of the delivery address
-	* @param street The street name of the delivery address
-	* @param city The city name of the delivery address
-	* @param staffID The id of the staff member who sold the order
-	*/
-	public static void option3(Connection conn, int[] productIDs, int[] quantities, String orderDate, String deliveryDate, String fName, String LName,
-		    String house, String street, String city, int staffID) {
-        executeOrder(conn, "Delivery", productIDs, quantities, orderDate, deliveryDate, fName, LName, house, street, city, staffID); 
-	}
+    /**
+     * @param conn         An open database connection
+     * @param productIDs   An array of productIDs associated with an order
+     * @param quantities   An array of quantities of a product. The index of a
+     *                     quantity correspeonds with an index in productIDs
+     * @param orderDate    A string in the form of 'DD-Mon-YY' that represents the
+     *                     date the order was made
+     * @param deliveryDate A string in the form of 'DD-Mon-YY' that represents the
+     *                     date the order will be delivered
+     * @param fName        The first name of the customer who will receive the order
+     * @param LName        The last name of the customer who will receive the order
+     * @param house        The house name or number of the delivery address
+     * @param street       The street name of the delivery address
+     * @param city         The city name of the delivery address
+     * @param staffID      The id of the staff member who sold the order
+     */
+    public static void option3(Connection conn, int[] productIDs, int[] quantities, String orderDate,
+            String deliveryDate, String fName, String LName, String house, String street, String city, int staffID) {
+        executeOrder(conn, "Delivery", productIDs, quantities, orderDate, deliveryDate, fName, LName, house, street,
+                city, staffID);
+    }
 
-	/**
+    /**
      * @param conn An open database connection
      * @throws SQLException
      */
     public static void option4(Connection conn) throws SQLException {
         // Select a view that we have predefined in the shchema
         Statement st = conn.createStatement();
-        ResultSet rs = st.executeQuery(
-            "SELECT * FROM profitableProductsView"
-        );
+        ResultSet rs = st.executeQuery("SELECT * FROM profitableProductsView");
 
         // Call a custom formatting function that prints out table nicely
         formatTable(rs);
 
         rs.close();
         st.close();
-	}
+    }
 
-	/**
-	* @param conn An open database connection 
-	* @param date The target date to test collection deliveries against
-	*/
-	public static void option5(Connection conn, String date) {
+    /**
+     * @param conn An open database connection
+     * @param date The target date to test collection deliveries against
+     */
+    public static void option5(Connection conn, String date) {
         // Identify all orders that are 8 days older than the provided date
-        // Call a procedure that DELETES all orders WHERE id IN (SELECT id FROM ORDERS WHERE date too old)
+        // Call a procedure that DELETES all orders WHERE id IN (SELECT id FROM ORDERS
+        // WHERE date too old)
         // We have a trigger that deletes all order_products when an order is deleted
-        // We have another trigger trigger that re adds all inventory when order product gets deleted
-        java.sql.Date sqlDate = getSQLDate(date); 
+        // We have another trigger trigger that re adds all inventory when order product
+        // gets deleted
+        java.sql.Date sqlDate = getSQLDate(date);
         Boolean deletionsMade = false;
 
         try {
-            // Get the result set of ID's that we're going to delete. We'll need them so we can display after the delete has happened
-            PreparedStatement pst = conn.prepareStatement("SELECT * FROM uncollectedCollectionsView WHERE ? > collectionDate + INTERVAL '8 Days'");
+            // Get the result set of ID's that we're going to delete. We'll need them so we
+            // can display after the delete has happened
+            PreparedStatement pst = conn.prepareStatement(
+                    "SELECT * FROM uncollectedCollectionsView WHERE ? > collectionDate + INTERVAL '8 Days'");
             pst.setDate(1, sqlDate);
             ResultSet rs = pst.executeQuery();
 
             // Call a procedure that identifies and deletes all old orders.
-            // The relevant tables have triggers on DELETE to perform necessary updates e.g. add old stock back to inventory
+            // The relevant tables have triggers on DELETE to perform necessary updates e.g.
+            // add old stock back to inventory
             CallableStatement stmt = conn.prepareCall("call removeOldOrders(?)");
             stmt.setDate(1, getSQLDate(date));
             stmt.execute();
@@ -278,116 +308,151 @@ class Assignment {
             }
 
             pst.close();
-            rs.close(); 
+            rs.close();
 
         } catch (SQLException e) {
             System.err.format("SQL State: %s\n%s", e.getSQLState(), e.getMessage());
         } catch (Exception e) {
             e.printStackTrace();
         }
-	}
+    }
 
-	/**
-	* @param conn An open database connection 
-	*/
-	public static void option6(Connection conn) {
+    /**
+     * @param conn An open database connection
+     */
+    public static void option6(Connection conn) {
         try {
             Statement st = conn.createStatement();
-            ResultSet rs = st.executeQuery(
-                "SELECT * FROM lifetimeSalesView"
-            );
-            
-            formatTable(rs); 
+            ResultSet rs = st.executeQuery("SELECT fullName, lifetimeSales FROM lifetimeSalesView");
+
+            formatTable(rs);
 
             st.close();
-            rs.close(); 
-            
+            rs.close();
+
         } catch (SQLException e) {
             System.err.format("SQL State: %s\n%s", e.getSQLState(), e.getMessage());
         } catch (Exception e) {
             e.printStackTrace();
         }
-	}
+    }
 
-	/**
-	* @param conn An open database connection 
-	*/
-	public static void option7(Connection conn) {
+    /**
+     * @param conn An open database connection
+     */
+    public static void option7(Connection conn) {
 
-        // Hashmap linking ID's to their profiles. Profiles contain name and all the orders/quantities that the staff member has 
+        // Hashmap linking ID's to their profiles. Profiles contain name and all the
+        // orders/quantities that the staff member has
         HashMap<Integer, Profile> people = new HashMap<Integer, Profile>();
         // Keep track of what products we see so that we can list them off later
-        ArrayList<Integer> ProductIDs = new ArrayList<Integer>(); 
-        
+        ArrayList<Integer> ProductIDs = new ArrayList<Integer>();
+
         try {
             Statement st = conn.createStatement();
             ResultSet rs = st.executeQuery("SELECT * FROM highestSellingProductSellersView");
 
-            // Parse the data into a structure that we can navigate later to display the data in the desired way
-            // Note that this is just to store the data, and no sorting or ordering is done 
+            // Parse the data into a structure that we can navigate later to display the
+            // data in the desired way
+            // Note that this is just to store the data, and no sorting or ordering is done
             while (rs.next()) {
-                Profile person; 
+                Profile person;
                 Integer staffID = rs.getInt(1);
                 Integer productID = rs.getInt(4);
 
                 // Lets keep a list of product IDs
                 if (!ProductIDs.contains(productID)) {
-                    ProductIDs.add(productID); 
+                    ProductIDs.add(productID);
                 }
 
-                // If this staffID already exists as key then we don't want to overwrite it - we want to fetch the list of objects and add to it 
+                // If this staffID already exists as key then we don't want to overwrite it - we
+                // want to fetch the list of objects and add to it
                 if (people.containsKey(staffID)) {
-                    person = (Profile)people.get(staffID);
+                    person = (Profile) people.get(staffID);
                 } else {
-                    // otherwise, we want to create a new list and put it in the Hashmap with the staffID as Key
+                    // otherwise, we want to create a new list and put it in the Hashmap with the
+                    // staffID as Key
                     person = new Profile(staffID, rs.getString(2) + " " + rs.getString(3));
                 }
-                person.addProduct(productID, rs.getInt(5), rs.getInt(6)); 
-                people.put(staffID, person); 
+                person.addProduct(productID, rs.getInt(5), rs.getInt(6));
+                people.put(staffID, person);
 
             }
 
             rs.close();
 
             // This is how we know what order to display the staff in
-            // Uses a view that manipulates the main highestSellingProductSellersView to get the ID's in order of descending value 
-            ResultSet sl = st.executeQuery("SELECT * FROM mostValuableStaff"); 
+            // Uses a view that manipulates the main highestSellingProductSellersView to get
+            // the ID's in order of descending value
+            ResultSet sl = st.executeQuery("SELECT * FROM mostValuableStaff");
 
-            System.out.format("%-15s%-1s", "Staff Name", " ");
-            for (int i = 0; i < ProductIDs.size(); i++ ) { 
-                //header += ", Product " + ProductIDs.get(i); 
-                System.out.format("%-15s%-1s", ", Product " + ProductIDs.get(i), " ");
+            System.out.print("Staff Name");
+            for (int i = 0; i < ProductIDs.size(); i++) {
+                // header += ", Product " + ProductIDs.get(i);
+                System.out.print(", Product " + ProductIDs.get(i));
             }
             System.out.println("");
 
-            // Loop over the staff list from mostValuableStaff and retrieve their information from the profiles we stored
-            while (sl.next()) { 
-                Integer staffID = sl.getInt(1); 
+            // Loop over the staff list from mostValuableStaff and retrieve their
+            // information from the profiles we stored
+            while (sl.next()) {
+                Integer staffID = sl.getInt(1);
                 Profile person = people.get(staffID);
 
-                System.out.format("%-15s%-1s", ", " + person.fullName, " ");
+                System.out.print(person.fullName);
                 for (int i = 0; i < ProductIDs.size(); i++) {
-                    System.out.format("%-15s%-1s", ", " + person.getProduct(ProductIDs.get(i)), " ");
+                    System.out.print(", " + person.getProduct(ProductIDs.get(i)));
                 }
                 System.out.println("");
             }
+            System.out.println("");
 
             sl.close();
-            st.close(); 
-        
+            st.close();
+
         } catch (SQLException e) {
             System.err.format("SQL State: %s\n%s", e.getSQLState(), e.getMessage());
         } catch (Exception e) {
             e.printStackTrace();
         }
-	}
+    }
 
-	/**
-	* @param conn An open database connection 
-	* @param year The target year we match employee and product sales against
-	*/
-	public static void option8(Connection conn, int year) {
+    /**
+     * @param conn An open database connection
+     * @param year The target year we match employee and product sales against
+     */
+    public static void option8(Connection conn, int year) {
         // Incomplete - Code for option 8 goes here
+
+        PreparedStatement pst;
+        try {
+            // We filter a view staffYearly20kProductSales
+            // Here we check how many "20k products" a person has sold for a given year, named s.count
+            // We compared this to the total number of items that sold 20k in a year given year. 
+            // If these numbers are equal for a given year, we know that the person has sold at least one of each product
+            // The 30k filtering happens prior to this step - see yearlySales30k.  
+            pst = conn.prepareStatement(
+                "SELECT fullName FROM staffYearly20kProductSales s " + 
+                "WHERE s.yr = ? " + 
+                "AND s.count = (" + 
+                "   SELECT COUNT(*) " + 
+                "   FROM year20kItems i " + 
+                "   WHERE i.yr = ?)"
+            );
+            pst.setInt(1, year);
+            pst.setInt(2, year);
+
+            ResultSet rs = pst.executeQuery();
+
+            System.out.println("\n-- Employees Of The Year " + year + " --");
+            while (rs.next()) {
+                System.out.println(rs.getString(1)); 
+            }
+            System.out.println("");
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
 	}
 
     public static Connection getConnection(){
@@ -563,16 +628,12 @@ class Assignment {
         // Title bar with surrounding dashes
         System.out.println("");
         if (colCount == 2) {
-            System.out.format(formatString, dividerLine, columnSpacer, dividerLine);
-            System.out.println("");
-            System.out.format(formatString, "| Staff Name", columnSpacer, "| Lifetime Sales"); 
+            System.out.format(formatString, "EmployeeName", columnSpacer, "TotalValueSold"); 
             System.out.println();
             System.out.format(formatString, dividerLine, columnSpacer, dividerLine);
             System.out.println("");
         } else if (colCount == 3) {
-            System.out.format(formatString, dividerLine, columnSpacer, dividerLine, columnSpacer, dividerLine);
-            System.out.println("");
-            System.out.format(formatString, "| Product ID", columnSpacer, "| Product Description", columnSpacer, "| Total Sales");
+            System.out.format(formatString, "Product ID", columnSpacer, "ProductDesc", columnSpacer, "TotalValueSold");
             System.out.println();
             System.out.format(formatString, dividerLine, columnSpacer, dividerLine, columnSpacer, dividerLine);
             System.out.println("");
@@ -581,9 +642,9 @@ class Assignment {
         // Rows of the table, starting with | 
         while (rs.next()) {
             if (colCount == 2) {
-                System.out.format(formatString, "| " + rs.getInt(1), columnSpacer, "| £" + rs.getInt(2));
+                System.out.format(formatString, rs.getString(1) + ",", columnSpacer, "£" + rs.getInt(2));
             } else if (colCount == 3) {
-                System.out.format(formatString, "| " + rs.getInt(1), columnSpacer, "| " + rs.getString(2), columnSpacer, "| £" + rs.getInt(3));
+                System.out.format(formatString, rs.getInt(1) + ",", columnSpacer, rs.getString(2) + ",", columnSpacer, "£" + rs.getInt(3));
             }
             System.out.println("");
         }
@@ -598,7 +659,9 @@ class Assignment {
     }
 }
 
+// Custom class for storing staff and their sales for option 7
 class Profile {
+
     public String fullName; 
     public Integer productID; 
     public HashMap<Integer, Integer> unitsSold; 
@@ -611,15 +674,19 @@ class Profile {
         valOfProductSold = 0; 
     }
 
+    // Add a product to the store of products that this staff member has sold
+    // First checks if that item exists in the HashMap - it should never since the SQL groups by StaffID & ProductID 
     public void addProduct(Integer productID, Integer units, Integer value) {
         if (unitsSold.containsKey(productID)) {
-            System.out.println("Looks like this item " + productID + " already exists for this person\n"); 
+            System.out.println("Something has gone wrong. It looks like this item " + productID + " already exists for this person\n"); 
         } else {
             unitsSold.put(productID, units);
             valOfProductSold += value;
         }
     }
 
+    // When outputting the table, check if this user has any units sold for the current product we're looking at
+    // If the productID key doesn't exist then we can be sure this person has sold 0 units of this product
     public Integer getProduct(Integer productID) {
         if (unitsSold.containsKey(productID)) {
             return unitsSold.get(productID);
@@ -639,50 +706,66 @@ class Order {
     public String house, street, city = ""; 
     public Integer staffID = 0;
 
-    String opt = "";
-
     public Order(String type) {
         orderType = type; 
         productIDs = new ArrayList();
         quantities = new ArrayList();
     }
 
-    public void handleOption() {
+    // Get user input for options 1,2,3
+    // Decides what to ask/store based on this.orderType passed at construction 
+    public Boolean handleOption() {
 
-        while (!(opt.equals("n") || opt.equals("N"))) {
-            opt = Assignment.readEntry("Enter a product ID: ");
-            productIDs.add(Integer.valueOf(opt));
-            opt = Assignment.readEntry("Enter the quantity sold: ");
-            quantities.add(Integer.valueOf(opt));
-            opt = Assignment.readEntry("Is there another product in the order?: ");
+        String opt = "y";
+
+        try {
+            while (opt.equals("y") || opt.equals("Y")) {
+                opt = Assignment.readEntry("Enter a product ID: ");
+                productIDs.add(Integer.valueOf(opt));
+                opt = Assignment.readEntry("Enter the quantity sold: ");
+                if (Integer.valueOf(opt) <= 0) {
+                    throw new Exception(); 
+                }
+                quantities.add(Integer.valueOf(opt));
+                opt = Assignment.readEntry("Is there another product in the order?: ");
+            }
+
+            saleDate = Assignment.readEntry("Enter the date sold: ");
+
+            if (orderType.equals("Collection") || orderType.equals("Delivery")) {
+                collectionDate = Assignment.readEntry("Enter the date of collection: "); 
+                if (Assignment.getSQLDate(saleDate).compareTo(Assignment.getSQLDate(collectionDate)) > 0) {
+                    System.out.println("\nYour delivery date can't be before your order date.");
+                    throw new Exception(); 
+                }
+                firstName = Assignment.readEntry("Enter the first name of the collector: "); 
+                lastName = Assignment.readEntry("Enter the last name of the collector: "); 
+            }
+
+
+            if (orderType.equals("Delivery")) {
+                house = Assignment.readEntry("Enter the house name/no: "); 
+                street = Assignment.readEntry("Enter the street: "); 
+                city = Assignment.readEntry("Enter the City: "); 
+            }
+
+            staffID = Integer.valueOf(Assignment.readEntry("Enter your staff ID: "));
+
+            System.out.println("");
+
+            quantitiesArray = new int[quantities.size()];
+            productIDsArray = new int[quantities.size()];
+
+            // Convert from our array list to an array that the option function can use
+            for (int i = 0; i < productIDs.size(); i++) {
+                productIDsArray[i] = productIDs.get(i);
+                quantitiesArray[i] = quantities.get(i);
+            }
+        } catch (Exception e) {
+            System.out.println("Your input is in the wrong format.\n");
+            return false; 
         }
-
-        saleDate = Assignment.readEntry("Enter the date sold: ");
-
-        if (orderType.equals("Collection") || orderType.equals("Delivery")) {
-            collectionDate = Assignment.readEntry("Enter the date of collection: "); 
-            firstName = Assignment.readEntry("Enter the first name of the collector: "); 
-            lastName = Assignment.readEntry("Enter the last name of the collector: "); 
-        }
-
-        if (orderType.equals("Delivery")) {
-            house = Assignment.readEntry("Enter the house name/no: "); 
-            street = Assignment.readEntry("Enter the street: "); 
-            city = Assignment.readEntry("Enter the City: "); 
-        }
-
-        staffID = Integer.valueOf(Assignment.readEntry("Enter your staff ID: "));
-
-        System.out.println("");
-
-        quantitiesArray = new int[quantities.size()];
-        productIDsArray = new int[quantities.size()];
-
-        // Convert from our array list to an array that the option1 function can use
-        for (int i = 0; i < productIDs.size(); i++) {
-            productIDsArray[i] = productIDs.get(i);
-            quantitiesArray[i] = quantities.get(i);
-        }
+        return true; 
 
     }
 }
