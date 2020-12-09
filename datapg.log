@@ -2615,3 +2615,179 @@
 	SQL statement "CALL insertStaffOrder(staffID, newID)"
 	PL/pgSQL function insertorder(character varying,date,integer,integer) line 6 at CALL
 2020-12-08 16:44:46.715 GMT [32280] STATEMENT:  select * from insertOrder($1, $2, $3, $4)  as result
+2020-12-08 16:56:34.691 GMT [20427] LOG:  using stale statistics instead of current ones because stats collector is not responding
+2020-12-08 17:02:49.625 GMT [20427] LOG:  using stale statistics instead of current ones because stats collector is not responding
+2020-12-08 17:25:54.546 GMT [9968] ERROR:  subquery in FROM must have an alias at character 98
+2020-12-08 17:25:54.546 GMT [9968] HINT:  For example, FROM (SELECT ...) [AS] foo.
+2020-12-08 17:25:54.546 GMT [9968] STATEMENT:  CREATE OR REPLACE VIEW unitsSoldView AS 
+	    SELECT id, SUM(saleValue) AS totalProductSales FROM (
+	    SELECT i.ProductID AS id, op.ProductQuantity * i.ProductPrice AS saleValue 
+	    FROM order_products op 
+	    INNER JOIN inventory i 
+	        ON op.ProductID = i.ProductID);
+2020-12-08 17:26:03.168 GMT [9968] ERROR:  subquery in FROM must have an alias at character 98
+2020-12-08 17:26:03.168 GMT [9968] HINT:  For example, FROM (SELECT ...) [AS] foo.
+2020-12-08 17:26:03.168 GMT [9968] STATEMENT:  CREATE OR REPLACE VIEW unitsSoldView AS 
+	    SELECT id, SUM(saleValue) AS totalProductSales FROM (
+	    SELECT i.ProductID AS id, op.ProductQuantity * i.ProductPrice AS saleValue 
+	    FROM order_products op 
+	    INNER JOIN inventory i 
+	        ON op.ProductID = i.ProductID);
+2020-12-08 17:26:29.046 GMT [9968] ERROR:  column "w.id" must appear in the GROUP BY clause or be used in an aggregate function at character 53
+2020-12-08 17:26:29.046 GMT [9968] STATEMENT:  CREATE OR REPLACE VIEW unitsSoldView AS 
+	    SELECT id, SUM(saleValue) AS totalProductSales FROM (
+	    SELECT i.ProductID AS id, op.ProductQuantity * i.ProductPrice AS saleValue 
+	    FROM order_products op 
+	    INNER JOIN inventory i 
+	        ON op.ProductID = i.ProductID) AS w;
+2020-12-08 17:26:43.399 GMT [9968] ERROR:  cannot change name of view column "salevalue" to "totalproductsales"
+2020-12-08 17:26:43.399 GMT [9968] STATEMENT:  CREATE OR REPLACE VIEW unitsSoldView AS 
+	    SELECT id, SUM(saleValue) AS totalProductSales FROM (
+	    SELECT i.ProductID AS id, op.ProductQuantity * i.ProductPrice AS saleValue 
+	    FROM order_products op 
+	    INNER JOIN inventory i 
+	        ON op.ProductID = i.ProductID) AS w GROUP BY w.id;
+2020-12-08 17:27:05.184 GMT [9968] ERROR:  cannot change name of view column "salevalue" to "sum"
+2020-12-08 17:27:05.184 GMT [9968] STATEMENT:  CREATE OR REPLACE VIEW unitsSoldView AS 
+	    SELECT id, SUM(saleValue) FROM (
+	    SELECT i.ProductID AS id, op.ProductQuantity * i.ProductPrice AS saleValue 
+	    FROM order_products op 
+	    INNER JOIN inventory i 
+	        ON op.ProductID = i.ProductID) AS w GROUP BY w.id;
+2020-12-08 17:50:04.882 GMT [3088] ERROR:  subquery in FROM must have an alias at character 86
+2020-12-08 17:50:04.882 GMT [3088] HINT:  For example, FROM (SELECT ...) [AS] foo.
+2020-12-08 17:50:04.882 GMT [3088] STATEMENT:  SELECT LISTAGG('''' || ProductID || '''', ',') WITHIN GROUP(ORDER BY ProductID) FROM (SELECT DISTINCT ProductID FROM SALES_TABLE)
+2020-12-08 18:02:20.505 GMT [20427] LOG:  using stale statistics instead of current ones because stats collector is not responding
+2020-12-08 18:06:35.576 GMT [20427] LOG:  using stale statistics instead of current ones because stats collector is not responding
+2020-12-08 18:34:56.476 GMT [9968] ERROR:  relation "uncollectedcollections" does not exist at character 15
+2020-12-08 18:34:56.476 GMT [9968] STATEMENT:  SELECT * FROM uncollectedCollections;
+2020-12-08 18:42:35.967 GMT [20427] LOG:  using stale statistics instead of current ones because stats collector is not responding
+2020-12-08 19:12:27.555 GMT [14223] ERROR:  subquery in FROM must have an alias at character 24
+2020-12-08 19:12:27.555 GMT [14223] HINT:  For example, FROM (SELECT ...) [AS] foo.
+2020-12-08 19:12:27.555 GMT [14223] STATEMENT:  SELECT so.StaffID FROM (
+	SELECT so.StaffID, i.ProductID, op.ProductQuantity * i.ProductPrice AS salePrice
+	FROM order_products op 
+	INNER JOIN staff_orders so ON op.OrderID = so.OrderID
+	INNER JOIN inventory i ON i.ProductID = op.ProductID);
+2020-12-08 19:12:49.570 GMT [14223] ERROR:  missing FROM-clause entry for table "so" at character 8
+2020-12-08 19:12:49.570 GMT [14223] STATEMENT:  SELECT so.StaffID FROM (
+	SELECT so.StaffID, i.ProductID, op.ProductQuantity * i.ProductPrice AS salePrice
+	FROM order_products op 
+	INNER JOIN staff_orders so ON op.OrderID = so.OrderID
+	INNER JOIN inventory i ON i.ProductID = op.ProductID) AS x;
+2020-12-08 19:17:57.114 GMT [14223] ERROR:  column "x.productquantity" must appear in the GROUP BY clause or be used in an aggregate function at character 28
+2020-12-08 19:17:57.114 GMT [14223] STATEMENT:  SELECT StaffID, ProductID, ProductQuantity, SUM(salePrice) AS valOfProductSold FROM (
+	    SELECT so.StaffID as StaffID, i.ProductID AS ProductID, op.ProductQuantity AS ProductQuantity, op.ProductQuantity * i.ProductPrice AS salePrice
+	    FROM order_products op 
+	    INNER JOIN staff_orders so ON op.OrderID = so.OrderID
+	    INNER JOIN inventory i ON i.ProductID = op.ProductID
+	) AS x 
+	GROUP BY StaffID, ProductID;
+2020-12-08 19:30:06.810 GMT [20427] LOG:  using stale statistics instead of current ones because stats collector is not responding
+2020-12-08 19:42:13.179 GMT [14223] ERROR:  column "fname" does not exist at character 8
+2020-12-08 19:42:13.179 GMT [14223] STATEMENT:  SELECT fName, lName, ProductID, SUM(ProductQuantity) AS unitsSold, SUM(salePrice) AS valOfProductSold FROM (
+	    SELECT so.StaffID as StaffID, i.ProductID AS ProductID, op.ProductQuantity AS ProductQuantity, op.ProductQuantity * i.ProductPrice AS salePrice
+	    FROM order_products op 
+	    INNER JOIN staff_orders so ON op.OrderID = so.OrderID
+	    INNER JOIN inventory i ON i.ProductID = op.ProductID
+	    INNER JOIN staff s ON so.StaffID = s.StaffID
+	) AS x 
+	GROUP BY fName, lName, ProductID;
+2020-12-08 20:06:20.520 GMT [14223] ERROR:  syntax error at or near "dfrom" at character 10
+2020-12-08 20:06:20.520 GMT [14223] STATEMENT:  select * dfrom profitableProductsView;
+2020-12-08 20:11:06.882 GMT [20427] LOG:  using stale statistics instead of current ones because stats collector is not responding
+2020-12-08 20:51:07.345 GMT [20427] LOG:  using stale statistics instead of current ones because stats collector is not responding
+2020-12-08 23:13:27.455 GMT [40438] ERROR:  relation "highestsellingproductsellersview" does not exist at character 15
+2020-12-08 23:13:27.455 GMT [40438] STATEMENT:  SELECT * FROM highestSellingProductSellersView
+2020-12-09 12:15:36.099 GMT [9076] ERROR:  syntax error at or near "GROUP" at character 82
+2020-12-09 12:15:36.099 GMT [9076] STATEMENT:  SELECT productID, SUM(saleValue) allSales FROM allSaleValues HAVING allSales > 0 GROUP BY productID ORDER BY allSales;
+2020-12-09 12:16:45.980 GMT [9076] ERROR:  column "allsalevalues.id" must appear in the GROUP BY clause or be used in an aggregate function at character 8
+2020-12-09 12:16:45.980 GMT [9076] STATEMENT:  SELECT * FROM allSaleValues GROUP BY productID;
+2020-12-09 12:23:44.209 GMT [9076] ERROR:  relation "allsalesvalues" does not exist at character 15
+2020-12-09 12:23:44.209 GMT [9076] STATEMENT:  select * from allSalesValues;
+2020-12-09 12:25:00.420 GMT [9076] ERROR:  relation "allsalevalue" does not exist at character 34
+2020-12-09 12:25:00.420 GMT [9076] STATEMENT:  select productid, salevalue from allsalevalue;
+2020-12-09 12:25:02.123 GMT [9076] ERROR:  syntax error at or near "s" at character 1
+2020-12-09 12:25:02.123 GMT [9076] STATEMENT:  s
+	select productid, salevalue from allsalevalues;
+2020-12-09 12:26:57.737 GMT [9076] ERROR:  syntax error at or near "HAVING" at character 102
+2020-12-09 12:26:57.737 GMT [9076] STATEMENT:  SELECT productID, SUM(saleValue) AS allSales FROM allSaleValues GROUP BY productID ORDER BY allSales HAVING allSales > 4;
+2020-12-09 12:27:14.623 GMT [9076] ERROR:  column "allsales" does not exist at character 91
+2020-12-09 12:27:14.623 GMT [9076] STATEMENT:  SELECT productID, SUM(saleValue) AS allSales FROM allSaleValues GROUP BY productID HAVING allSales > 4 ORDER BY allSales DESC;
+2020-12-09 12:27:22.354 GMT [9076] ERROR:  column "allsales" does not exist at character 91
+2020-12-09 12:27:22.354 GMT [9076] STATEMENT:  SELECT productID, SUM(saleValue) AS allSales FROM allSaleValues GROUP BY productID HAVING allSales > 4 ORDER BY allSales DESC;
+2020-12-09 12:27:57.179 GMT [9076] ERROR:  function usm(numeric) does not exist at character 91
+2020-12-09 12:27:57.179 GMT [9076] HINT:  No function matches the given name and argument types. You might need to add explicit type casts.
+2020-12-09 12:27:57.179 GMT [9076] STATEMENT:  SELECT productID, SUM(saleValue) AS allSales FROM allSaleValues GROUP BY productID HAVING USM(saleValue) > 4 ORDER BY allSales;
+2020-12-09 12:36:10.347 GMT [9076] ERROR:  column "highestsellingproductsellersview" does not exist at character 8
+2020-12-09 12:36:10.347 GMT [9076] STATEMENT:  select highestSellingProductSellersView;
+2020-12-09 12:39:59.597 GMT [20252] LOG:  received fast shutdown request
+2020-12-09 12:39:59.602 GMT [20252] LOG:  aborting any active transactions
+2020-12-09 12:39:59.607 GMT [28318] FATAL:  terminating connection due to administrator command
+2020-12-09 12:39:59.609 GMT [20252] LOG:  background worker "logical replication launcher" (PID 20429) exited with exit code 1
+2020-12-09 12:39:59.609 GMT [20424] LOG:  shutting down
+2020-12-09 12:39:59.738 GMT [20252] LOG:  database system is shut down
+2020-12-09 12:40:02.705 GMT [1117] LOG:  starting PostgreSQL 12.3 on x86_64-pc-linux-gnu, compiled by gcc (GCC) 4.8.5 20150623 (Red Hat 4.8.5-39), 64-bit
+2020-12-09 12:40:02.711 GMT [1117] LOG:  listening on Unix socket "/dcs/19/u1813151/Documents/cs258/postgres/tmp/.s.PGSQL.5432"
+2020-12-09 12:40:02.779 GMT [1146] LOG:  database system was shut down at 2020-12-09 12:39:59 GMT
+2020-12-09 12:40:02.795 GMT [1117] LOG:  database system is ready to accept connections
+2020-12-09 12:44:12.728 GMT [24421] ERROR:  relation "highestsellingproductssellersview" does not exist at character 15
+2020-12-09 12:44:12.728 GMT [24421] STATEMENT:  select * from highestSellingProductsSellersView;
+2020-12-09 12:57:38.139 GMT [24421] ERROR:  relation "highestsellingproductsellersview" does not exist at character 97
+2020-12-09 12:57:38.139 GMT [24421] STATEMENT:  CREATE OR REPLACE VIEW mostValuableStaffSales AS
+	    SELECT staffID, SUM(valOfProductSold) FROM highestSellingProductSellersView 
+	    GROUP BY staffID 
+	    ORDER BY SUM(valOfProductSold) DESC;
+2020-12-09 12:58:35.480 GMT [24421] ERROR:  syntax error at or near "4" at character 1
+2020-12-09 12:58:35.480 GMT [24421] STATEMENT:  4 | 34.00
+	(2 rows)
+	select * from mostValuableStaffSales;
+2020-12-09 13:02:10.671 GMT [2168] ERROR:  syntax error at or near "4" at character 1
+2020-12-09 13:02:10.671 GMT [2168] STATEMENT:  4
+	select * from orders;
+2020-12-09 13:02:28.928 GMT [2168] ERROR:  syntax error at or near "4" at character 1
+2020-12-09 13:02:28.928 GMT [2168] STATEMENT:  4
+	select * from mostvaluablestaffsales;
+2020-12-09 13:02:30.175 GMT [2168] ERROR:  syntax error at or near "4" at character 1
+2020-12-09 13:02:30.175 GMT [2168] STATEMENT:  4
+	select * from mostvaluablestaffsales;
+2020-12-09 13:03:02.244 GMT [2168] ERROR:  relation "highestsellingproductsellserview" does not exist at character 15
+2020-12-09 13:03:02.244 GMT [2168] STATEMENT:  select * from highestsellingproductsellserview;
+2020-12-09 13:03:50.282 GMT [2168] ERROR:  relation "highestsellingproductsellserview" does not exist at character 15
+2020-12-09 13:03:50.282 GMT [2168] STATEMENT:  select * from highestsellingproductsellserview;
+2020-12-09 13:03:51.208 GMT [2168] ERROR:  relation "highestsellingproductsellserview" does not exist at character 15
+2020-12-09 13:03:51.208 GMT [2168] STATEMENT:  select * from highestsellingproductsellserview;
+2020-12-09 13:05:00.790 GMT [2168] ERROR:  subquery in FROM must have an alias at character 75
+2020-12-09 13:05:00.790 GMT [2168] HINT:  For example, FROM (SELECT ...) [AS] foo.
+2020-12-09 13:05:00.790 GMT [2168] STATEMENT:  CREATE OR REPLACE VIEW productsWith20kSales AS 
+	    SELECT productID FROM (
+	        SELECT productID, SUM(saleValue) AS allSales FROM allSaleValues 
+	        GROUP BY productID
+	        HAVING SUM(saleValue) > 4
+	        ORDER BY allSales
+	    );
+2020-12-09 13:06:35.580 GMT [2168] ERROR:  syntax error at or near ";" at character 230
+2020-12-09 13:06:35.580 GMT [2168] STATEMENT:  CREATE OR REPLACE VIEW mostValuableStaffSales AS
+	    SELECT staffID FROM (
+	        SELECT staffID, SUM(valOfProductSold) FROM highestSellingProductSellersView 
+	        GROUP BY staffID 
+	        ORDER BY SUM(valOfProductSold) DESC;
+	    ) AS pv;
+2020-12-09 13:06:43.947 GMT [2168] ERROR:  syntax error at or near ";" at character 230
+2020-12-09 13:06:43.947 GMT [2168] STATEMENT:  CREATE OR REPLACE VIEW mostValuableStaffSales AS
+	    SELECT staffID FROM (
+	        SELECT staffID, SUM(valOfProductSold) FROM highestSellingProductSellersView 
+	        GROUP BY staffID 
+	        ORDER BY SUM(valOfProductSold) DESC;
+	    ) AS pv;
+2020-12-09 13:27:42.052 GMT [26824] ERROR:  relation "mostvaluablestaff" does not exist at character 15
+2020-12-09 13:27:42.052 GMT [26824] STATEMENT:  SELECT * FROM mostValuableStaff
+2020-12-09 13:32:52.993 GMT [2168] ERROR:  relation "mostvaluablestaffsales" does not exist at character 15
+2020-12-09 13:32:52.993 GMT [2168] STATEMENT:  select * from mostvaluablestaffsales;
+2020-12-09 13:44:49.788 GMT [2168] ERROR:  syntax error at or near "4" at character 1
+2020-12-09 13:44:49.788 GMT [2168] STATEMENT:  4
+	;
+2020-12-09 14:03:31.940 GMT [2168] ERROR:  syntax error at or near "1" at character 1
+2020-12-09 14:03:31.940 GMT [2168] STATEMENT:  1
+	3
+	select * from mostValuableStaff;

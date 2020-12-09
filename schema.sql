@@ -2,6 +2,8 @@
 -- Think about ID sequence overlap and what we can do about it - we need to be able to be able to check if the new sequence id exists already and if so, skip until its not in use
 -- Add a boolean function or restraint that checks if the order date is < the delivery date
 -- Get the staff names instead of just ID's for opt 6
+-- Input validation for order info
+-- Update queries to reflect 50k, 20k etc
 
 DROP SEQUENCE IF EXISTS ProductIDSequence;
 CREATE SEQUENCE ProductIDSequence START 1 INCREMENT BY 1;
@@ -71,6 +73,22 @@ CREATE TABLE staff_orders (
     FOREIGN KEY (StaffID) REFERENCES staff(StaffID) ON DELETE CASCADE,
     FOREIGN KEY (OrderID) REFERENCES orders(OrderID) ON DELETE CASCADE 
 );
+
+
+
+
+--INSERT INTO inventory(ProductID, ProductDesc, ProductPrice, ProductStockAmount) VALUES (1, "Cap", 10.5, 5);
+INSERT INTO inventory VALUES (1, 'testing1', 1, 100);
+INSERT INTO inventory VALUES (2, 'testing2', 2, 200);
+INSERT INTO inventory VALUES (3, 'testing3', 3, 300);
+INSERT INTO inventory VALUES (4, 'testing4', 4, 400);
+INSERT INTO inventory VALUES (5, 'testing4', 5, 500);
+
+INSERT INTO staff VALUES (4, 'Dimun', 'Dimmer');
+INSERT INTO staff VALUES (5, 'Benson', 'McHedge');
+
+
+
 
 -- Create a new order in orders and return it's ID created by sequence
 CREATE OR REPLACE FUNCTION insertOrder(orderType VARCHAR, orderPlaced DATE, orderCompleted INTEGER, staffID INTEGER)
@@ -178,6 +196,7 @@ CREATE OR REPLACE PROCEDURE insertDelivery(orderID INTEGER, fName VARCHAR, lName
     END; 
     $$; 
 
+-- Remove all orders that are 8 days older than the date provided
 CREATE OR REPLACE PROCEDURE removeOldOrders(removeFromDate DATE)
     LANGUAGE plpgsql AS
     $$
@@ -185,17 +204,19 @@ CREATE OR REPLACE PROCEDURE removeOldOrders(removeFromDate DATE)
         DELETE FROM orders o 
         USING collections c
         WHERE o.OrderID = c.OrderID
-        AND removeFromDate - INTERVAL '8 days' > c.CollectionDate
+        AND removeFromDate - INTERVAL '8 days' >= c.CollectionDate
         AND o.OrderCompleted = 0;
     END;
     $$;
 
+-- View all collections that have not been collected, regardless of date. We can then filter this view further later
 CREATE VIEW uncollectedCollectionsView AS 
     SELECT o.OrderID AS OrderID, c.CollectionDate FROM orders o
     INNER JOIN collections c
     ON o.OrderID = c.OrderID
     WHERE o.OrderCompleted = 0;
 
+-- Triggered when we delete from order_products in opt 5 - adds items back to inventory
 CREATE OR REPLACE FUNCTION addUncollectedStock() RETURNS TRIGGER AS $removeOrders$
     BEGIN
         UPDATE inventory SET ProductStockAmount = ProductStockAmount + OLD.ProductQuantity WHERE ProductID = OLD.ProductID;     
@@ -210,6 +231,7 @@ CREATE TRIGGER removeOrders BEFORE DELETE
     FOR EACH ROW EXECUTE FUNCTION addUncollectedStock();  
 
 -- View - gets the highest selling products in descending order of total value
+-- Uses in opt4 and opt7
 CREATE OR REPLACE VIEW profitableProductsView AS 
     SELECT i.ProductID, i.ProductDesc, COALESCE(i.ProductPrice * sales,0) AS totalValue FROM inventory i 
     LEFT OUTER JOIN (
@@ -220,12 +242,13 @@ CREATE OR REPLACE VIEW profitableProductsView AS
     ORDER BY totalValue DESC; 
 
 -- View - gets a table of product IDs with the price * quantity sold for that product in the order_product row 
--- used in opt6 as a componenet part
-CREATE OR REPLACE VIEW unitsSoldView AS 
-    SELECT op.OrderID AS id, op.ProductQuantity * i.ProductPrice AS saleValue 
+-- used in opt6 as a componenet part to simplify the query
+CREATE OR REPLACE VIEW allSaleValues AS 
+    SELECT op.productID, op.OrderID AS id, op.ProductQuantity * i.ProductPrice AS saleValue 
     FROM order_products op 
     INNER JOIN inventory i 
         ON op.ProductID = i.ProductID;
+
 
 -- View - Get the lifetime sales of all members of staff over 50,000
 -- Works by getting the total value of each order, then linking with the staff table
@@ -235,7 +258,7 @@ CREATE OR REPLACE VIEW lifetimeSalesView AS
     FROM staff_orders s 
     INNER JOIN (
         SELECT w.id as id, SUM(saleValue) As totalOrderValue 
-        FROM unitsSoldView w 
+        FROM allSaleValues w 
         GROUP BY w.id
     ) x 
     ON x.id = s.OrderID 
@@ -243,16 +266,31 @@ CREATE OR REPLACE VIEW lifetimeSalesView AS
     HAVING SUM(totalOrderValue) > 4
     ORDER BY lifetimeSales DESC;
 
+-- View -- Uses opt4's view to get the profitableProducts > 20k and then joins with inventory, order_products, staff_orders and staff
+-- to return a table with staff info, products sold, units of said product sold, and value of said product sold
+-- we then do a minor amount of formatting in the calling Java to render it in the correct way
+CREATE OR REPLACE VIEW highestSellingProductSellersView AS
+    SELECT staffID, fName, lName, ProductID, SUM(ProductQuantity) AS unitsSold, SUM(salePrice) AS valOfProductSold FROM (
+        SELECT s.StaffID, s.fName as fName, s.lName AS lName, i.ProductID AS ProductID, op.ProductQuantity AS ProductQuantity, op.ProductQuantity * i.ProductPrice AS salePrice
+        FROM order_products op 
+        INNER JOIN staff_orders so ON op.OrderID = so.OrderID
+        INNER JOIN inventory i ON i.ProductID = op.ProductID
+        INNER JOIN staff s ON so.StaffID = s.StaffID
+        INNER JOIN (
+            SELECT ProductID FROM profitableProductsView 
+            WHERE totalValue > 250
+        ) x ON i.ProductID = x.ProductID
+    ) AS x 
+    GROUP BY staffID, fName, lName, ProductID;
 
---INSERT INTO inventory(ProductID, ProductDesc, ProductPrice, ProductStockAmount) VALUES (1, "Cap", 10.5, 5);
-INSERT INTO inventory VALUES (1, 'testing1', 1, 1);
-INSERT INTO inventory VALUES (2, 'testing2', 2, 2);
-INSERT INTO inventory VALUES (3, 'testing3', 3, 3);
-INSERT INTO inventory VALUES (4, 'testing4', 4, 4);
-INSERT INTO inventory VALUES (5, 'testing4', 5, 5);
+CREATE OR REPLACE VIEW mostValuableStaff AS
+    SELECT staffID FROM (
+        SELECT staffID, SUM(valOfProductSold) FROM highestSellingProductSellersView 
+        GROUP BY staffID 
+        ORDER BY SUM(valOfProductSold) DESC
+    ) AS pv; 
+    
 
-INSERT INTO staff VALUES (4, 'James', 'Smith');
-INSERT INTO staff VALUES (5, 'James', 'Smith');
 
 INSERT INTO orders VALUES (10, 'Collection', 0, NOW());
 INSERT INTO orders VALUES (11, 'Collection', 0, NOW());
@@ -262,14 +300,15 @@ INSERT INTO collections VALUES (10, 'James', 'Smith', NOW() - INTERVAL '1 year')
 INSERT INTO collections VALUES (11, 'James', 'Smith', NOW() - INTERVAL '1 year');
 INSERT INTO collections VALUES (12, 'James', 'Smith', NOW() - INTERVAL '1 year');
 
-INSERT INTO order_products VALUES (10, 1, 1);
-INSERT INTO order_products VALUES (10, 2, 1);
-INSERT INTO order_products VALUES (11, 3, 1);
+INSERT INTO order_products VALUES (10, 1, 10);
+INSERT INTO order_products VALUES (10, 2, 20);
+INSERT INTO order_products VALUES (10, 3, 30);
+INSERT INTO order_products VALUES (11, 3, 30);
 
 
-INSERT INTO order_products VALUES (12, 2, 1);
-INSERT INTO order_products VALUES (12, 3, 1);
-INSERT INTO order_products VALUES (12, 4, 1);
+INSERT INTO order_products VALUES (12, 2, 20);
+INSERT INTO order_products VALUES (12, 3, 30);
+INSERT INTO order_products VALUES (12, 4, 40);
 
 INSERT INTO staff_orders VALUES (4, 10);
 INSERT INTO staff_orders VALUES (4, 11);

@@ -65,7 +65,7 @@ class Assignment {
                     option6(conn);
                     break;
                 case "7":
-                    // option7();
+                    option7(conn);
                     break;
                 case "8":
                     option8(conn, 1000);
@@ -73,7 +73,6 @@ class Assignment {
                     break;
                 default:
                     System.out.println("That's not a valid option. Press a number between 0 and 8.");
-                    // code block
             }
         }
     }
@@ -87,11 +86,24 @@ class Assignment {
         System.out.print("(6) Staff Life-Time Success\n");
         System.out.print("(7) Staff Contribution\n");
         System.out.print("(8) Employee of the Year\n");
-        System.out.print("(9) Show Inventory\n");
         System.out.print("(0) Quit\n");
         System.out.println("");
     }
 
+	/**
+    * @param conn An open database connection 
+    * @param orderType One of InHouse, Delivery, Collection so we can process the order correctly 
+	* @param productIDs An array of productIDs associated with an order
+    * @param quantities An array of quantities of a product. The index of a quantity correspeonds with an index in productIDs
+	* @param orderDate A string in the form of 'DD-Mon-YY' that represents the date the order was made
+	* @param deliveryDate A string in the form of 'DD-Mon-YY' that represents the date the order will be delivered
+	* @param fName The first name of the customer who will receive the order
+	* @param LName The last name of the customer who will receive the order
+	* @param house The house name or number of the delivery address
+	* @param street The street name of the delivery address
+	* @param city The city name of the delivery address
+	* @param staffID The id of the staff member who sold the order
+	*/
     public static void executeOrder(Connection conn, String orderType, int[] productIDs, int[] quantities, String orderDate, 
             String deliveryOrCollectionDate, String fName, String LName,
 	        String house, String street, String city, int staffID) {
@@ -112,6 +124,7 @@ class Assignment {
         // If we couldn't process the date, return. getSQLDate will handle the exception for us.
         java.sql.Date sqlDate = getSQLDate(orderDate); 
         if (sqlDate == null) { return; }
+        System.out.println("SqlDate is " + sqlDate);
 
         try {
             // Turn off auto-commiting in case the order fails
@@ -145,7 +158,6 @@ class Assignment {
             successfulOrder = true;
 
         } catch (SQLException e) {
-            // Rollback the SQL since the order failed
             System.out.println("\nAn error occurred while trying to add the order:\n- Ensure there is enough stock in the inventory\n- Ensure the staff ID number exists\n");
             // System.err.format("SQL State: %s\n%s", e.getSQLState(), e.getMessage());
         } catch (Exception e) {
@@ -159,11 +171,10 @@ class Assignment {
                     System.out.println("Order unsuccessful - rolling back...\n");
                     conn.rollback();
                 } catch (SQLException e) {
-                    System.err.format("Could not roll back to safe state:\nSQL State: %s\n%s", e.getSQLState(), e.getMessage());
+                    System.err.format("CRITICAL ERROR - Could not roll back to safe state. Database might be offline. \nSQL State: %s\n%s", e.getSQLState(), e.getMessage());
                 }
             }
         }
-                
     }
 
     /**
@@ -178,6 +189,7 @@ class Assignment {
     public static void option1(Connection conn, int[] productIDs, int[] quantities, String orderDate, int staffID) {
         executeOrder(conn, "InStore", productIDs, quantities, orderDate, null, null, null, null, null, null, staffID); 
     }
+
 	/**
 	* @param conn An open database connection 
 	* @param productIDs An array of productIDs associated with an order
@@ -228,7 +240,6 @@ class Assignment {
         st.close();
 	}
 
-
 	/**
 	* @param conn An open database connection 
 	* @param date The target date to test collection deliveries against
@@ -265,6 +276,10 @@ class Assignment {
             } else {
                 System.out.println("No orders were found that were 8 days older than " + date + "\n");
             }
+
+            pst.close();
+            rs.close(); 
+
         } catch (SQLException e) {
             System.err.format("SQL State: %s\n%s", e.getSQLState(), e.getMessage());
         } catch (Exception e) {
@@ -281,9 +296,12 @@ class Assignment {
             ResultSet rs = st.executeQuery(
                 "SELECT * FROM lifetimeSalesView"
             );
-
+            
             formatTable(rs); 
 
+            st.close();
+            rs.close(); 
+            
         } catch (SQLException e) {
             System.err.format("SQL State: %s\n%s", e.getSQLState(), e.getMessage());
         } catch (Exception e) {
@@ -295,8 +313,73 @@ class Assignment {
 	* @param conn An open database connection 
 	*/
 	public static void option7(Connection conn) {
-        // Incomplete - Code for option 7 goes here
-        // Find 
+
+        // Hashmap linking ID's to their profiles. Profiles contain name and all the orders/quantities that the staff member has 
+        HashMap<Integer, Profile> people = new HashMap<Integer, Profile>();
+        // Keep track of what products we see so that we can list them off later
+        ArrayList<Integer> ProductIDs = new ArrayList<Integer>(); 
+        
+        try {
+            Statement st = conn.createStatement();
+            ResultSet rs = st.executeQuery("SELECT * FROM highestSellingProductSellersView");
+
+            // Parse the data into a structure that we can navigate later to display the data in the desired way
+            // Note that this is just to store the data, and no sorting or ordering is done 
+            while (rs.next()) {
+                Profile person; 
+                Integer staffID = rs.getInt(1);
+                Integer productID = rs.getInt(4);
+
+                // Lets keep a list of product IDs
+                if (!ProductIDs.contains(productID)) {
+                    ProductIDs.add(productID); 
+                }
+
+                // If this staffID already exists as key then we don't want to overwrite it - we want to fetch the list of objects and add to it 
+                if (people.containsKey(staffID)) {
+                    person = (Profile)people.get(staffID);
+                } else {
+                    // otherwise, we want to create a new list and put it in the Hashmap with the staffID as Key
+                    person = new Profile(staffID, rs.getString(2) + " " + rs.getString(3));
+                }
+                person.addProduct(productID, rs.getInt(5), rs.getInt(6)); 
+                people.put(staffID, person); 
+
+            }
+
+            rs.close();
+
+            // This is how we know what order to display the staff in
+            // Uses a view that manipulates the main highestSellingProductSellersView to get the ID's in order of descending value 
+            ResultSet sl = st.executeQuery("SELECT * FROM mostValuableStaff"); 
+
+            System.out.format("%-15s%-1s", "Staff Name", " ");
+            for (int i = 0; i < ProductIDs.size(); i++ ) { 
+                //header += ", Product " + ProductIDs.get(i); 
+                System.out.format("%-15s%-1s", ", Product " + ProductIDs.get(i), " ");
+            }
+            System.out.println("");
+
+            // Loop over the staff list from mostValuableStaff and retrieve their information from the profiles we stored
+            while (sl.next()) { 
+                Integer staffID = sl.getInt(1); 
+                Profile person = people.get(staffID);
+
+                System.out.format("%-15s%-1s", ", " + person.fullName, " ");
+                for (int i = 0; i < ProductIDs.size(); i++) {
+                    System.out.format("%-15s%-1s", ", " + person.getProduct(ProductIDs.get(i)), " ");
+                }
+                System.out.println("");
+            }
+
+            sl.close();
+            st.close(); 
+        
+        } catch (SQLException e) {
+            System.err.format("SQL State: %s\n%s", e.getSQLState(), e.getMessage());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 	}
 
 	/**
@@ -529,7 +612,7 @@ class Assignment {
         if (colCount == 2) {
             System.out.format(formatString, dividerLine, columnSpacer, dividerLine);
             System.out.println("");
-            System.out.format(formatString, "| Staff Name", columnSpacer, "| Lifetime Sales");
+            System.out.format(formatString, "| Staff Name", columnSpacer, "| Lifetime Sales"); 
             System.out.println();
             System.out.format(formatString, dividerLine, columnSpacer, dividerLine);
             System.out.println("");
@@ -560,6 +643,37 @@ class Assignment {
         }
         System.out.println("\n");
     }
+}
+
+class Profile {
+    public String fullName; 
+    public Integer productID; 
+    public HashMap<Integer, Integer> unitsSold; 
+    public Integer valOfProductSold; 
+
+    public Profile(Integer id, String name) {
+        productID = id; 
+        fullName = name;
+        unitsSold = new HashMap<Integer, Integer>(); 
+        valOfProductSold = 0; 
+    }
+
+    public void addProduct(Integer productID, Integer units, Integer value) {
+        if (unitsSold.containsKey(productID)) {
+            System.out.println("Looks like this item " + productID + " already exists for this person\n"); 
+        } else {
+            unitsSold.put(productID, units);
+            valOfProductSold += value;
+        }
+    }
+
+    public Integer getProduct(Integer productID) {
+        if (unitsSold.containsKey(productID)) {
+            return unitsSold.get(productID);
+        } 
+        return 0; 
+    }
+
 }
 
 class Order {
