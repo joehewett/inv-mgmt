@@ -542,53 +542,6 @@ class Assignment {
     }
     
 	/**
-	* @param conn An open database connection 
-	* @param productID A productID associated with an order
-    * @param quantities A quantity of a product - we want to check if we have this quantity in stock of the given product
-    */
-    public static boolean sufficientStock(Connection conn, int productID, int quantity) {
-        Boolean isSufficient = false;
-        try {
-            // Call a user function sufficientStock that we have defined in our schema
-            // The function simply returns a boolean that lets us know if we can 
-            CallableStatement stmt = conn.prepareCall("{ call sufficientStock(?, ?) }");
-            stmt.registerOutParameter(1, Types.BOOLEAN);
-            stmt.setInt(1, productID);
-            stmt.setInt(2, quantity);
-            stmt.execute();
-            isSufficient = stmt.getBoolean(1);
-            stmt.close();
-        } catch (SQLException e) {
-            System.err.format("SQL State: %s\n%s", e.getSQLState(), e.getMessage());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return isSufficient;
-    }
-
-	/**
-	* @param conn An open database connection 
-	* @param productID A productID associated with an order
-    * @param quantities A quantity of a product - we want to check if we have this quantity in stock of the given product
-    */
-    public static void reduceStock(Connection conn, int productID, int quantity) {
-        try {
-            // Call a user function sufficientStock that we have defined in our schema
-            // The function simply returns a boolean that lets us know if we can 
-            CallableStatement stmt = conn.prepareCall("call reduceStock(?, ?)");
-            stmt.setInt(1, productID);
-            stmt.setInt(2, quantity);
-            stmt.execute();
-            System.out.println("Stock Reduced...\n");
-            stmt.close();
-        } catch (SQLException e) {
-            System.err.format("SQL State: %s\n%s", e.getSQLState(), e.getMessage());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-	/**
      * @param rs The dataset we want to print out
      */
     public static void formatTable(ResultSet rs) throws SQLException {
