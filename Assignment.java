@@ -131,8 +131,10 @@ class Assignment {
         }
 
         // If we couldn't process the date, return. getSQLDate will handle the exception
+        java.sql.Date sqlDate;
         try {
-            java.sql.Date sqlDate = getSQLDate(orderDate);
+            sqlDate = getSQLDate(orderDate);
+            if (sqlDate == null) {return;}
         } catch (Exception e) {
             System.out.println("That doesn't look like a valid date format - usage: dd-MMM-yy e.g. 17-Nov-20\n");
             return; 
@@ -143,7 +145,7 @@ class Assignment {
             conn.setAutoCommit(false);
 
             // Create a new order
-            int id = insertOrder(conn, "InStore", orderCompleted, getSQLDate(orderDate), staffID);
+            int id = insertOrder(conn, "InStore", orderCompleted, sqlDate, staffID);
             if (id < 1) {
                 System.out.println("Something went wrong while creating a new order. Please try again.\n");
                 return;
@@ -277,13 +279,14 @@ class Assignment {
         // We have another trigger trigger that re adds all inventory when order product
         // gets deleted
         java.sql.Date sqlDate = getSQLDate(date);
+        if (sqlDate == null) { return; }
         Boolean deletionsMade = false;
-
+        
         try {
             // Get the result set of ID's that we're going to delete. We'll need them so we
             // can display after the delete has happened
             PreparedStatement pst = conn.prepareStatement(
-                    "SELECT * FROM uncollectedCollectionsView WHERE ? > collectionDate + INTERVAL '8 Days'");
+                    "SELECT * FROM uncollectedCollectionsView WHERE ? >= collectionDate + INTERVAL '8 Days'");
             pst.setDate(1, sqlDate);
             ResultSet rs = pst.executeQuery();
 

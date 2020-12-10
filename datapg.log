@@ -3294,3 +3294,10 @@
 2020-12-09 23:24:02.420 GMT [7712] STATEMENT:  select * from insertOrder($1, $2, $3, $4)  as result
 2020-12-09 23:35:08.086 GMT [32326] ERROR:  column "fullname" does not exist at character 8
 2020-12-09 23:35:08.086 GMT [32326] STATEMENT:  SELECT fullName, lifetimeSales FROM lifetimeSalesView
+2020-12-09 23:57:32.235 GMT [27565] ERROR:  insert or update on table "staff_orders" violates foreign key constraint "staff_orders_staffid_fkey"
+2020-12-09 23:57:32.235 GMT [27565] DETAIL:  Key (staffid)=(5) is not present in table "staff".
+2020-12-09 23:57:32.235 GMT [27565] CONTEXT:  SQL statement "INSERT INTO staff_orders (StaffID, OrderID) VALUES (staffID, orderID)"
+	PL/pgSQL function insertstafforder(integer,integer) line 3 at SQL statement
+	SQL statement "CALL insertStaffOrder(staffID, newID)"
+	PL/pgSQL function insertorder(character varying,date,integer,integer) line 6 at CALL
+2020-12-09 23:57:32.235 GMT [27565] STATEMENT:  select * from insertOrder($1, $2, $3, $4)  as result

@@ -144,7 +144,7 @@ CREATE OR REPLACE FUNCTION sufficientStock(id INTEGER, quantity INTEGER)
     END;
     $$;
 
--- Ensure ProductStockAmount is sufficient to process this order for this product
+-- Called in display inventory to show the stock amount for the required product
 CREATE OR REPLACE FUNCTION getQuantity(id INTEGER)
     RETURNS INTEGER LANGUAGE plpgsql AS
     $$
@@ -260,7 +260,7 @@ CREATE OR REPLACE VIEW lifetimeSalesView AS
     ON x.id = so.OrderID 
     INNER JOIN staff s ON s.StaffID = so.StaffID
     GROUP BY so.StaffID, fullName
-    HAVING SUM(totalOrderValue) > 50000
+    HAVING SUM(totalOrderValue) >= 50000
     ORDER BY lifetimeSales DESC;
     
 
