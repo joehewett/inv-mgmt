@@ -316,7 +316,7 @@ CREATE OR REPLACE VIEW yearlySales30k AS
     ON x.id = s.OrderID 
     INNER JOIN orders o ON o.OrderID = s.OrderID
     GROUP BY s.StaffID, yr
-    HAVING SUM(totalOrderValue) > 30000
+    HAVING SUM(totalOrderValue) >= 30000
     ORDER BY SUM(totalOrderValue) DESC;
 
 -- All staff that have sold 30k stock and count > 0 of products they've sold that have sold > 20k 
@@ -331,22 +331,22 @@ CREATE OR REPLACE VIEW staffYearly20kProductSales AS
     INNER JOIN staff s ON s.StaffID = q.StaffID; 
 
 INSERT INTO orders VALUES (10, 'Collection', 0, NOW() - INTERVAL '3 years');
-INSERT INTO orders VALUES (11, 'Collection', 0, NOW() - INTERVAL '2 years');
-INSERT INTO orders VALUES (12, 'Collection', 0, NOW() - INTERVAL '3 years');
+--INSERT INTO orders VALUES (11, 'Collection', 0, NOW() - INTERVAL '2 years');
+INSERT INTO orders VALUES (12, 'Collection', 0, NOW() - INTERVAL '1 years');
 
 INSERT INTO collections VALUES (10, 'James', 'Smith', NOW() - INTERVAL '3 year');
-INSERT INTO collections VALUES (11, 'James', 'Smith', NOW() - INTERVAL '2 year');
+--INSERT INTO collections VALUES (11, 'James', 'Smith', NOW() - INTERVAL '2 year');
 INSERT INTO collections VALUES (12, 'James', 'Smith', NOW() - INTERVAL '1 year');
 
-INSERT INTO order_products VALUES (10, 5, 1001);
+--INSERT INTO order_products VALUES (10, 5, 1001);
 INSERT INTO order_products VALUES (10, 4, 1001);
 ---INSERT INTO order_products VALUES (10, 4, 1000);
-INSERT INTO order_products VALUES (11, 4, 2000);
-INSERT INTO order_products VALUES (12, 3, 1000);
+--INSERT INTO order_products VALUES (11, 4, 2000);
+INSERT INTO order_products VALUES (12, 3, 1001);
 
 INSERT INTO staff_orders VALUES (1, 10);
-INSERT INTO staff_orders VALUES (1, 11);
-INSERT INTO staff_orders VALUES (2, 12);
+--INSERT INTO staff_orders VALUES (1, 11);
+INSERT INTO staff_orders VALUES (1, 12);
 
 
 -- Fullname, year, count(products)

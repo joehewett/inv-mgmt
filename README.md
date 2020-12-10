@@ -22,14 +22,14 @@ In the case of option 2 and 3, we do all of the aforementioned inserts and check
 - For option 2, we call *insertCollection* to create an entry in the collection table for the order
 - For option 3, we call *insertDelivery* to create an entry in the delivery table for the order
 
-## Option 4
+### Option 4
 Option 4 simply returns the result of a view, and prints it to the display. 
 
 The view in question, *profitableProductsView* has a few notable features;
 - In order to get the products that sold £0 of products, we utilised a *LEFT JOIN* in combination with *COALESCE()* to populate the table where *null* values were encountered
 - The view is useful and reused in other contexts, such as in question 7 which we discuss later. 
 
-## Option 5
+### Option 5
 The implementation of option 5 makes use of some interesting delete logic.
 - We using a *DELETE USING* to join orders onto the collections table and delete all entries from orders where the collection is >= 8 days before the given date. 
 - To calculate this deletion date we use an *INTERVAL* 
@@ -37,7 +37,7 @@ The implementation of option 5 makes use of some interesting delete logic.
 - We created a trigger *addUncollectedStock* that monitors the table *order_products*. When we delete a collections order, the trigger triggers a function that will calculate the new stock level and update the inventory.
 
 
-## Option 6
+### Option 6
 Option 6 is another query that returns a table. The full query we use is *SELECT fullName, lifetimeSales FROM lifetimeSalesView*, where lifetimeSalesView is a view that we've defined in the schema. We then take the result set and pass it to a formatting function that we use to print tables, like in option 4. Some noteworthy points about the *lifetimeSalesView* view:
 - We first work out the value of all sales in *orderProducts* which occurs in another view, *allSaleValues*
 - We then sum these rows for each ID, to get a value of all each product sold
@@ -45,7 +45,7 @@ Option 6 is another query that returns a table. The full query we use is *SELECT
 - We then make use of a *HAVING* clause on the aggregate function to ensure we're only returning staff with >= £50,000 in sales 
 - The query is very similar to one we use in option 8
 
-## Option 7
+### Option 7
 For this option, we make use of 2 queries - the main query simply returns a view that we've constructed, elegantly named *highestSellingProductSellersView*, and another which runs a *GROUP BY* and *COUNT* on the same view to tell us the order to display the data in.  
 
 Although we don't do any filtering or ordering of the data directly in the java file, we do some interesting parsing of the data to convert it into the correct display format:
@@ -53,7 +53,7 @@ Although we don't do any filtering or ordering of the data directly in the java 
 - To do this, we use a small custom built class called a *Profile*. This profile stores all the products sold by a particular staff member. These products are stored in a HashMap, so that we can query in *O(1)* time when iterating over the list of profiles to see if they've sold the specific product. If the key query returns null, we populate the row with a 0. 
 - We utilise our *profitableProductsView* from option 4 again here, this time filtering it for rows with > £20,000 value
 
-## Option 8 
+### Option 8 
 Option 8 uses a single SQL statement which is seperated into multiple views so that code can be reused and the query simplified. 
 
 The main source of complexity for this query lies in two areas:
@@ -91,6 +91,39 @@ Options 1, 2 and 3 share a fairly significant amount of code, and thus the amoun
 For example, the menu system is shared among all 3 options, as well as the execution method. The process for testing these two methods was as follow:
 - After ensuring that when we provide the system with valid data, it performs the required updates, the problem shifts from logic to input. We need to make sure the input is always in a form that we are expecting.
 - This is done with heavily exception handling on the *handleInput* method. We then ensured that this was valid via manual testing, including edge cases.
+- We discovered during this testing that certain invalid inputs are accepted as valid - e.g. a negative stock amount, or a delivery date that happens before an order. We identified this and applied suitable fixes.
+
+### Testing 4
+- Ensure that all product ID's are shown in the table, whether any have been sold or not
+- Check total value sold for each product and determine if it's correct. Add multiple orders of different types and check
+- Ensure multiple products sold within a single order are reflected in the output. 
+
+### Testing 5
+- Create a set of orders and related entries in collections that have not been collected. Activate option 5 and enter a date 8 days after the collection data.
+- Check all relevant data has been deleted from the associated tables
+- Repeat step 1 but add a completed collection. Ensure this doesn't get deleted.
+
+### Testing 6
+- Test with 1 item in one order to ensure staff name displays only when order reaches £50,000 in value. 
+- Test again with a single item across multiple orders to ensure it still appears at £50,000
+
+### Testing 7 
+- Test the component views on their own by inserting different data sets, predicting what they should return based on the logic of the question, and then run the view and check that the data matches expectations. 
+- Build up from the smallest views into the larger sections, testing using the method in step 1
+- Test the final view, which incorporates all of the other views and ensure that the results are as expected
+
+### Testing 8
+- Add a single order with one product, and set the value of that order to £20,000. Ensure it does not show up for the year when 8 is used.
+- Repeat with a value of £30,000. Ensure this does get returned when 8 is used. 
+- Use the two steps above so that we have 1 order of 1 product worth £20,000 and 1 order of 1 product worth £30,000. Ensure that the user is returned.
+- Repeat the above but with different staff for each order. Ensure no results. 
+- Change the year of the £20,000 order to the year before. Check that no results show for this year, but the £30,000 result shows for the current year.
+- Add 4 orders of 1 product each, each worth £20,000. Assign to one staff and ensure staff member is displayed.
+- Change 2 of the orders to another staff member and ensure both of them show up
+- Split one of the 2 orders by a staff member to a different year and check that the staff member does not show up for that year or the current year, but the other shows up for the current year. 
+
+
+
 
 
 
