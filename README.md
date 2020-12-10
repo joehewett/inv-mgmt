@@ -51,19 +51,47 @@ For this option, we make use of 2 queries - the main query simply returns a view
 Although we don't do any filtering or ordering of the data directly in the java file, we do some interesting parsing of the data to convert it into the correct display format:
 - Since our view returns multiple rows per staff member, each indicating the units of a particular high-selling product sold, we need to combine this vertical row count into a number of columns
 - To do this, we use a small custom built class called a *Profile*. This profile stores all the products sold by a particular staff member. These products are stored in a HashMap, so that we can query in *O(1)* time when iterating over the list of profiles to see if they've sold the specific product. If the key query returns null, we populate the row with a 0. 
+- We utilise our *profitableProductsView* from option 4 again here, this time filtering it for rows with > £20,000 value
+
+## Option 8 
+Option 8 uses a single SQL statement which is seperated into multiple views so that code can be reused and the query simplified. 
+
+The main source of complexity for this query lies in two areas:
+- The variable year input means we have to be able to take a year and only return data relevant to that year. We get around this issue by returning a table with data for all years as a view to the top level, and then filtering it with the year at the last possible step. The efficiency of returnin this entire table of all years rather than filtering at the base of the (complex) query is yet to be profiled and calculated, but we can be certain that it is sufficiently fast for this use case.
+- Secondly, we need to check that the staff members have not just sold *a* product that has grossed £20,000 in the given year, but rather they have sold *one of each* of the products. There are multiple ways we could go about this, including methods utilising *EXISTS* or SQL functions that contain boolean checks and loops, but we have instead opted for a different method. We retrieve a list of the products that grossed £20,000 in a given year, and count them. We then retrieve a list of all the products that staff sold in a given year. We then *INNER JOIN* this with the aforementioned list of products, and count the results. We compare the two counts - the number of products that grossed £20,000 in a year, and the number of products the staff member sold in the year. Since the latter has been joined on the product list previously, we know that the only way the counts of these two lists can be the same is if every item in the product list is present in the staffs sales list. Thus, they are elegible for the aware (assuming they have also grossed £30,000 total). 
+
 
 ## Design Decisions
 
+### Schema Choices
+- We used a number of foreign key restraints and checks to ensure consistency across our database
+- These include standard primary-foreign relationships, and cascading delete restraints
+
+### Functions & Procedures 
+- We utilise functions wherever possible to remove help with our procedures. Examples include *sufficientStock* used to check if we have adequate stock to to process an order before calling the procedure that will create a new table entry. 
+- In all cases where an update or insert is needed, we do this via a procedure. This is because it is bad practice to have functions with side effects, despite the fact that Postgres technically allows it.  
+
+### Triggers
+Wherever possible, we try to perform updates using triggers. This automation of standard actions reduces the complexity of the code and means that a portion of our workload is handled automatically, which increases readability. 
+
+### Rollbacks 
+Wherever updates are performed, we utilise Postgres' built in rollbacks. It is good practice to use commits when performing large updates to a database. This is because in complex updates with multiple statements, a single error can invalidate a whole host of previously input data, which can then be difficult to remove. With commits, we can batch updates and then commit them together, or rollback to a previous state if one of the required updates fails. We utilis this heavily for the aforementioned reasons, particulary in options 1, 2 and 3
 
 ## Improvements
-- Implement the orderType as an enum rather than a string
+- Due to project restraints, we can't validate user input immediately - instead we must wait until the end of a menu cycle. This wastes users time if one of their inputs is rejected, especially in the case the rejected input was early in the menu or before a long list of products. We can fix this by not allowing the user to progress to the next option until their current option has been accepted as valid.
 - There is the possibility of making some views slightly more generic and thus being able to reuse them more than once. An example of this would be *yearly30kStaff* used in option 6 and the *lifetimeSalesView* used in option 8. The only difference here is that one is interested in staff with > £30,000 sales and the other with > £50,000. There are undoubtedly similar examples of views that could have minor alterations made to make them reusable in other contexts and thus cut down on code duplication. 
 - In 7, we use an auxiliary query to return the order of the data that we should use. Although it would make the main view more complex, this secondary query could be combined into the main query to reduce the amount of code we need, and contain all of the logic into a single query. 
 - For Option 7, we could remove the requirement for any data processing in our java file by either a) utilising *crosstab* or b) utilising a crossjoin. The former would be less complex but goes about the project specification. This would cut down on our java code considerably, although arguable decrease readability.
+- Implement the orderType as an enum rather than a string
 
 ## Testing ##
 ### Testing 1, 2 & 3
 
 Options 1, 2 and 3 share a fairly significant amount of code, and thus the amount of testing needed is reduced. 
-For example, the menu system is shared among all 3 options, as well as the execution method. 
+For example, the menu system is shared among all 3 options, as well as the execution method. The process for testing these two methods was as follow:
+- After ensuring that when we provide the system with valid data, it performs the required updates, the problem shifts from logic to input. We need to make sure the input is always in a form that we are expecting.
+- This is done with heavily exception handling on the *handleInput* method. We then ensured that this was valid via manual testing, including edge cases.
+
+
+
 
