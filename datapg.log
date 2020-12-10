@@ -3301,3 +3301,12 @@
 	SQL statement "CALL insertStaffOrder(staffID, newID)"
 	PL/pgSQL function insertorder(character varying,date,integer,integer) line 6 at CALL
 2020-12-09 23:57:32.235 GMT [27565] STATEMENT:  select * from insertOrder($1, $2, $3, $4)  as result
+2020-12-10 03:15:34.192 GMT [14611] ERROR:  insert or update on table "staff_orders" violates foreign key constraint "staff_orders_staffid_fkey"
+2020-12-10 03:15:34.192 GMT [14611] DETAIL:  Key (staffid)=(2) is not present in table "staff".
+2020-12-10 03:15:34.192 GMT [14611] CONTEXT:  SQL statement "INSERT INTO staff_orders (StaffID, OrderID) VALUES (staffID, orderID)"
+	PL/pgSQL function insertstafforder(integer,integer) line 3 at SQL statement
+	SQL statement "CALL insertStaffOrder(staffID, newID)"
+	PL/pgSQL function insertorder(character varying,date,integer,integer) line 6 at CALL
+2020-12-10 03:15:34.192 GMT [14611] STATEMENT:  select * from insertOrder($1, $2, $3, $4)  as result
+2020-12-10 03:17:26.914 GMT [10937] ERROR:  column "Joe" does not exist at character 29
+2020-12-10 03:17:26.914 GMT [10937] STATEMENT:  INSERT INTO staff VALUES(1, "Joe", "Hewett");

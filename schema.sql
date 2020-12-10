@@ -1,8 +1,9 @@
--- TO DO 
-
 DROP SEQUENCE IF EXISTS ProductIDSequence;
 CREATE SEQUENCE ProductIDSequence START 1 INCREMENT BY 1;
 
+--- ############################ ---         
+--- #########  TABLES  ######### ---
+--- ###'######################## --- 
 
 DROP TABLE inventory CASCADE;
 CREATE TABLE inventory (
@@ -13,14 +14,15 @@ CREATE TABLE inventory (
     PRIMARY KEY (ProductID)
 );
 
-
 DROP TABLE orders CASCADE;
 CREATE TABLE orders (
     OrderID        INTEGER NOT NULL, 
-    OrderType      VARCHAR(30) NOT NULL, -- 'InStore', 'Collection' or 'Delivery' - should be an enum ideally
+    OrderType      VARCHAR(30) NOT NULL , -- 'InStore', 'Collection' or 'Delivery' - should be an enum ideally
     OrderCompleted INTEGER NOT NULL, -- 0 or 1 
     OrderPlaced    DATE, 
-    PRIMARY KEY (OrderID)
+    PRIMARY KEY (OrderID), 
+    CONSTRAINT order_type_cons CHECK (OrderTYPE='InStore' OR OrderType='Collection' OR OrderType='Delivery'),
+    CONSTRAINT order_comp_cons CHECK (OrderCompleted = 0 OR OrderCompleted = 1)
 );
 
 DROP TABLE order_products CASCADE;
@@ -69,24 +71,11 @@ CREATE TABLE staff_orders (
     FOREIGN KEY (OrderID) REFERENCES orders(OrderID) ON DELETE CASCADE 
 );
 
+--- ############################################ ---         
+--- #########  FUNCTIONS & PROCEDURES  ######### ---
+--- ############################################ --- 
 
-
-
---INSERT INTO inventory(ProductID, ProductDesc, ProductPrice, ProductStockAmount) VALUES (1, "Cap", 10.5, 5);
-INSERT INTO inventory VALUES (1, 'testing1', 10, 1000);
-INSERT INTO inventory VALUES (2, 'testing2', 20, 2000);
-INSERT INTO inventory VALUES (3, 'testing3', 30, 3000);
-INSERT INTO inventory VALUES (4, 'testing4', 40, 4000);
-INSERT INTO inventory VALUES (5, 'testing4', 50, 5000);
-
-INSERT INTO staff VALUES (1, 'Dimun', 'Dimmer');
-INSERT INTO staff VALUES (2, 'Benson', 'McHedge');
-INSERT INTO staff VALUES (3, 'Donald', 'Ronald');
-
-
-
-
--- Create a new order in orders and return it's ID created by sequence
+-- Create a new order in orders and return its ID created by sequence
 CREATE OR REPLACE FUNCTION insertOrder(orderType VARCHAR, orderPlaced DATE, orderCompleted INTEGER, staffID INTEGER)
     RETURNS INTEGER LANGUAGE plpgsql AS
     $$ 
@@ -205,22 +194,6 @@ CREATE OR REPLACE PROCEDURE removeOldOrders(removeFromDate DATE)
     END;
     $$;
 
--- View - gets a table of product IDs with the price * quantity sold for that product in the order_product row 
--- used in opt6 as a componenet part to simplify the query
-CREATE OR REPLACE VIEW allSaleValues AS 
-    SELECT so.StaffID, o.OrderPlaced, op.productID, op.OrderID AS id, op.ProductQuantity * i.ProductPrice AS saleValue 
-    FROM order_products op 
-    INNER JOIN inventory i ON op.ProductID = i.ProductID
-    INNER JOIN orders o ON op.OrderID = o.OrderID
-    INNER JOIN staff_orders so ON o.OrderID = so.OrderID;
-
--- View all collections that have not been collected, regardless of date. We can then filter this view further later
-CREATE VIEW uncollectedCollectionsView AS 
-    SELECT o.OrderID AS OrderID, c.CollectionDate FROM orders o
-    INNER JOIN collections c
-    ON o.OrderID = c.OrderID
-    WHERE o.OrderCompleted = 0;
-
 -- Triggered when we delete from order_products in opt 5 - adds items back to inventory
 CREATE OR REPLACE FUNCTION addUncollectedStock() RETURNS TRIGGER AS $removeOrders$
     BEGIN
@@ -234,6 +207,27 @@ CREATE OR REPLACE FUNCTION addUncollectedStock() RETURNS TRIGGER AS $removeOrder
 CREATE TRIGGER removeOrders BEFORE DELETE
     ON order_products 
     FOR EACH ROW EXECUTE FUNCTION addUncollectedStock();  
+
+
+--- ########################### ---         
+--- #########  VIEWS  ######### ---
+--- ########################### --- 
+
+-- View - gets a table of product IDs with the price * quantity sold for that product in the order_product row 
+-- used in opt6 as a componenet part to simplify the query
+CREATE OR REPLACE VIEW allSaleValues AS 
+    SELECT so.StaffID, o.OrderPlaced, op.productID, op.OrderID AS id, op.ProductQuantity * i.ProductPrice AS saleValue 
+    FROM order_products op 
+    INNER JOIN inventory i ON op.ProductID = i.ProductID
+    INNER JOIN orders o ON op.OrderID = o.OrderID
+    INNER JOIN staff_orders so ON o.OrderID = so.OrderID;
+
+-- View all collections that have not been collected, regardless of date. We can then filter this view further later
+CREATE OR REPLACE VIEW uncollectedCollectionsView AS 
+    SELECT o.OrderID AS OrderID, c.CollectionDate FROM orders o
+    INNER JOIN collections c
+    ON o.OrderID = c.OrderID
+    WHERE o.OrderCompleted = 0;
 
 -- View - gets the highest selling products in descending order of total value
 -- Uses in opt4 and opt7
@@ -264,6 +258,7 @@ CREATE OR REPLACE VIEW lifetimeSalesView AS
     ORDER BY lifetimeSales DESC;
     
 
+-- OPTION 7
 -- View -- Uses opt4's view to get the profitableProducts > 20k and then joins with inventory, order_products, staff_orders and staff
 -- to return a table with staff info, products sold, units of said product sold, and value of said product sold
 -- we then do a minor amount of formatting in the calling Java to render it in the correct way
@@ -329,24 +324,3 @@ CREATE OR REPLACE VIEW staffYearly20kProductSales AS
     INNER JOIN yearlySales30k y ON y.StaffID = q.StaffID
     INNER JOIN yearlySales30k x ON x.yr = q.yr
     INNER JOIN staff s ON s.StaffID = q.StaffID; 
-
-INSERT INTO orders VALUES (10, 'Collection', 0, NOW() - INTERVAL '3 years');
---INSERT INTO orders VALUES (11, 'Collection', 0, NOW() - INTERVAL '2 years');
-INSERT INTO orders VALUES (12, 'Collection', 0, NOW() - INTERVAL '1 years');
-
-INSERT INTO collections VALUES (10, 'James', 'Smith', NOW() - INTERVAL '3 year');
---INSERT INTO collections VALUES (11, 'James', 'Smith', NOW() - INTERVAL '2 year');
-INSERT INTO collections VALUES (12, 'James', 'Smith', NOW() - INTERVAL '1 year');
-
---INSERT INTO order_products VALUES (10, 5, 1001);
-INSERT INTO order_products VALUES (10, 4, 1001);
----INSERT INTO order_products VALUES (10, 4, 1000);
---INSERT INTO order_products VALUES (11, 4, 2000);
-INSERT INTO order_products VALUES (12, 3, 1001);
-
-INSERT INTO staff_orders VALUES (1, 10);
---INSERT INTO staff_orders VALUES (1, 11);
-INSERT INTO staff_orders VALUES (1, 12);
-
-
--- Fullname, year, count(products)

@@ -81,19 +81,6 @@ class Assignment {
         }
     }
 
-    public static void printMenu() {
-        System.out.print("(1) In-Store Purchase\n");
-        System.out.print("(2) Collection\n");
-        System.out.print("(3) Delivery\n");
-        System.out.print("(4) Biggest Sellers\n");
-        System.out.print("(5) Reserved Stock\n");
-        System.out.print("(6) Staff Life-Time Success\n");
-        System.out.print("(7) Staff Contribution\n");
-        System.out.print("(8) Employee of the Year\n");
-        System.out.print("(0) Quit\n");
-        System.out.println("");
-    }
-
     /**
      * @param conn         An open database connection
      * @param orderType    One of InHouse, Delivery, Collection so we can process
@@ -660,6 +647,20 @@ class Assignment {
         }
         System.out.println("\n");
     }
+
+    public static void printMenu() {
+        System.out.print("(1) In-Store Purchase\n");
+        System.out.print("(2) Collection\n");
+        System.out.print("(3) Delivery\n");
+        System.out.print("(4) Biggest Sellers\n");
+        System.out.print("(5) Reserved Stock\n");
+        System.out.print("(6) Staff Life-Time Success\n");
+        System.out.print("(7) Staff Contribution\n");
+        System.out.print("(8) Employee of the Year\n");
+        System.out.print("(0) Quit\n");
+        System.out.println("");
+    }
+
 }
 
 // Custom class for storing staff and their sales for option 7
