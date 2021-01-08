@@ -1,5 +1,7 @@
 # inv-mgmt
-An inventory management system written in Java
+An inventory management system using Postgres & JDBC. 
+
+We implement a range of features that provide a scenario in which we can explore the capabilities and uses of procedures, views, functions and triggers in Postgres, while we attempt to reduce the need entirely for SQL embedded within Java.  
 
 ## Solutions
 
